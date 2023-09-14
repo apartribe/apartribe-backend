@@ -10,6 +10,7 @@ import kr.apartribebackend.auth.dto.MemberJoinReq;
 import kr.apartribebackend.token.email.config.EmailTokenContextHolder;
 import kr.apartribebackend.token.email.domain.EmailToken;
 import kr.apartribebackend.token.email.exception.NotAuthenticatedEmailException;
+import kr.apartribebackend.token.email.repository.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
+    private final EmailTokenRepository emailTokenRepository;
 
     private final MemberRepository memberRepository;
 
@@ -47,9 +49,10 @@ public class AuthController {
 
         final Member member = memberJoinReq.toDto().toEntity();
         member.changePassword(passwordEncoder.encode(memberJoinReq.password()));
-        memberRepository.save(member);
-
         emailToken.changeMember(member);
+        memberRepository.save(member);
+        emailTokenRepository.save(emailToken);
+
         emailTokenContextHolder.removeEmailTokenByEmail(member.getEmail());
 
         return ResponseEntity
