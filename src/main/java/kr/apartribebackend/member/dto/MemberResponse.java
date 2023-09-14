@@ -1,4 +1,4 @@
-package kr.apartribebackend.member.domain.dto;
+package kr.apartribebackend.member.dto;
 
 
 public record MemberResponse(

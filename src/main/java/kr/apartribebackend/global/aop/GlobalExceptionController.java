@@ -2,6 +2,7 @@ package kr.apartribebackend.global.aop;
 
 
 import kr.apartribebackend.global.dto.ErrorResponse;
+import kr.apartribebackend.global.exception.RootException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,17 @@ public class GlobalExceptionController {
     public ResponseEntity<ErrorResponse> httpMessageNotReadableException(final HttpMessageNotReadableException exception) {
         final ErrorResponse errorResponse =
                 ErrorResponse.BAD_REQUEST("요청 파싱 오류. 정확한 JSON 을 전달해주세요.");
+
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(RootException.class)
+    public ResponseEntity<ErrorResponse> rootException(final RootException exception) {
+        final String exceptionMessage = exception.getMessage();
+        ErrorResponse errorResponse = ErrorResponse.NOT_FOUND(exceptionMessage);
+        log.info("{} --> {}", exception.getClass().getSimpleName(), exception.getLocalizedMessage());
 
         return ResponseEntity
                 .status(errorResponse.code())
