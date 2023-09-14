@@ -25,20 +25,4 @@ public final class EmailTokenContextHolder {
         return emailTokenContextHolder.get(email);
     }
 
-    //    private final Map<String, String> emailTokenContextHolder = new ConcurrentHashMap<>();
-//
-//    private EmailTokenContextHolder() {}
-//
-//    public void appendEmailToken(String email, String token) {
-//        emailTokenContextHolder.put(email, token);
-//    }
-//
-//    public void removeEmailTokenByEmail(String email) {
-//        emailTokenContextHolder.remove(email);
-//    }
-//
-//    public String retrieveEmailTokenByEmail(String email) {
-//        return emailTokenContextHolder.get(email);
-//    }
-
 }
