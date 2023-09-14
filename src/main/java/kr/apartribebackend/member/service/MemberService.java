@@ -44,4 +44,9 @@ public class MemberService {
                 );
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
 }

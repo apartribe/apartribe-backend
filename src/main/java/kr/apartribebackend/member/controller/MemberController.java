@@ -5,6 +5,7 @@ import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.dto.MemberResponse;
 import kr.apartribebackend.member.dto.MemberUpdateReq;
+import kr.apartribebackend.member.dto.NicknameIsValidResponse;
 import kr.apartribebackend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,13 @@ public class MemberController {
     @DeleteMapping("/api/member/delete")
     public void deleteSingleUser(@RequestHeader(value = "EMAIL", required = false) final String email) {            // TODO 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
         memberService.deleteSingleUser(email);
+    }
+
+    @GetMapping("/api/member/check")
+    public NicknameIsValidResponse checkDuplicateNickname(@RequestParam final String nickname) {
+        if (memberService.existsByNickname(nickname))
+            return new NicknameIsValidResponse(false);
+        return new NicknameIsValidResponse(true);
     }
 
 }
