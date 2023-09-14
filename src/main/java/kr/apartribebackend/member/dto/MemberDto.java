@@ -1,6 +1,6 @@
-package kr.apartribebackend.member.domain.dto;
+package kr.apartribebackend.member.dto;
 
-import kr.apartribebackend.member.domain.entity.Member;
+import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +33,7 @@ public class MemberDto {
                 .id(member.getId())
                 .email(member.getEmail())
                 .password(member.getPassword())
+                .name(member.getName())
                 .nickname(member.getNickname())
                 .build();
     }
