@@ -59,46 +59,7 @@ public class EmailController {
         log.info("EmailToken isValid");
         emailToken.confirmEmailToken();
 
-        emailService.save(emailToken);
         return new EmailTokenIsValidResponse(true);
     }
 
-//    @GetMapping("/api/email/send")
-//    public void sendEmailToken(@RequestParam final String email) {
-//        final String token = UUID.randomUUID().toString();
-//        log.info("token = {}", token);
-//        emailTokenContextHolder.appendEmailToken(email, token);
-//        emailSenderService.send(email, "test", token);
-//    }
-
-//    @GetMapping("/api/email/confirm")
-//    public EmailTokenIsValidResponse confirmEmailToken(
-//            @RequestParam final String email,
-//            @RequestParam final String token)
-//    {
-////        final String extractedToken = emailTokenContextHolder.retrieveEmailTokenByEmail(email)
-////                .orElseThrow(EmailTokenNotExistsException::new);
-//        final String extractedToken = emailTokenContextHolder.retrieveEmailTokenByEmail(email);
-//        if (extractedToken == null) {
-//            return new EmailTokenIsValidResponse(false);
-//
-//        }
-//        if (!extractedToken.equals(token))
-//            return new EmailTokenIsValidResponse(false);
-////            throw new EmailTokenInvalidException();
-//
-//        if (emailService.existsByValue(token))
-//            return new EmailTokenIsValidResponse(false);
-////            throw new EmailTokenDuplicateException();
-//
-//        log.info("EmailToken isValid");
-//        final EmailToken emailToken = EmailToken.builder()
-//                .value(token)
-//                .build();
-//        emailToken.confirmEmailToken();
-//
-//        emailService.save(emailToken);
-////        emailTokenContextHolder.removeEmailTokenByEmail(email);
-//        return new EmailTokenIsValidResponse(true);
-//    }
 }
