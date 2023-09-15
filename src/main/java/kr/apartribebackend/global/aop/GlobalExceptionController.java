@@ -1,6 +1,7 @@
 package kr.apartribebackend.global.aop;
 
 
+import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.ErrorResponse;
 import kr.apartribebackend.global.exception.RootException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> bindingResultException(final MethodArgumentNotValidException exception) {
+    public ResponseEntity<APIResponse<ErrorResponse>> bindingResultException(final MethodArgumentNotValidException exception) {
         final Map<String, String> fieldValidation = !exception.hasFieldErrors() ? Map.of() : exception
                 .getFieldErrors()
                 .stream()
@@ -29,31 +30,38 @@ public class GlobalExceptionController {
                         FieldError::getField,
                         Objects.requireNonNull(DefaultMessageSourceResolvable::getDefaultMessage)));
 
-        final ErrorResponse errorResponse = ErrorResponse.of(fieldValidation);
+        final ErrorResponse errorResponse = ErrorResponse.BAD_REQUEST(fieldValidation);
+        final APIResponse<ErrorResponse> apiResponse = APIResponse.VALID_ERROR(errorResponse);
+
         return ResponseEntity
                 .status(errorResponse.code())
-                .body(errorResponse);
+                .body(apiResponse);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> httpMessageNotReadableException(final HttpMessageNotReadableException exception) {
+    public ResponseEntity<APIResponse<ErrorResponse>> httpMessageNotReadableException(final HttpMessageNotReadableException exception) {
         final ErrorResponse errorResponse =
                 ErrorResponse.BAD_REQUEST("요청 파싱 오류. 정확한 JSON 을 전달해주세요.");
+        final APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
 
         return ResponseEntity
                 .status(errorResponse.code())
-                .body(errorResponse);
+                .body(apiResponse);
     }
 
     @ExceptionHandler(RootException.class)
-    public ResponseEntity<ErrorResponse> rootException(final RootException exception) {
+    public ResponseEntity<APIResponse<ErrorResponse>> rootException(final RootException exception) {
         final String exceptionMessage = exception.getMessage();
-        ErrorResponse errorResponse = ErrorResponse.NOT_FOUND(exceptionMessage);
+        final int statusCode = exception.getStatusCode();
+        final ErrorResponse errorResponse = ErrorResponse.of(statusCode, exceptionMessage);
+
         log.info("{} --> {}", exception.getClass().getSimpleName(), exception.getLocalizedMessage());
+        final APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
 
         return ResponseEntity
                 .status(errorResponse.code())
-                .body(errorResponse);
+                .body(apiResponse);
+
     }
 
 }

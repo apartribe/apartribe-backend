@@ -1,6 +1,8 @@
 package kr.apartribebackend.member.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.dto.MemberResponse;
@@ -8,6 +10,9 @@ import kr.apartribebackend.member.dto.MemberUpdateReq;
 import kr.apartribebackend.member.dto.NicknameIsValidResponse;
 import kr.apartribebackend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,9 +22,19 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/api/member/{email}")
-    public MemberResponse findSingleMember(@PathVariable final String email) {
+    public APIResponse<MemberResponse> findSingleMember(@PathVariable final String email) {
         final MemberDto singleMember = memberService.findSingleMember(email);
-        return MemberResponse.from(singleMember);
+        final MemberResponse memberResponse = MemberResponse.from(singleMember);
+        final APIResponse<MemberResponse> apiResponse = APIResponse.SUCCESS(memberResponse);
+        return apiResponse;
+    }
+
+    @GetMapping("/api/members")
+    public APIResponse<PageResponse<MemberResponse>> findAllMembers(@PageableDefault final Pageable pageable) {
+        final Page<MemberResponse> pageMembers = memberService.findAllMembers(pageable).map(MemberResponse::from);
+        final PageResponse<MemberResponse> pageResponse = PageResponse.from(pageMembers);
+        final APIResponse<PageResponse<MemberResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
     }
 
     @PutMapping("/api/member/update")
