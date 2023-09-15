@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 
 @ToString @Getter
 @MappedSuperclass
-public class BaseEntity extends TimeBaseEntity {
+public abstract class BaseEntity extends TimeBaseEntity {
 
     @CreatedBy
     @Column(name = "CREATED_BY", nullable = false, updatable = false)
