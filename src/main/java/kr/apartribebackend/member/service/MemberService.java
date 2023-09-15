@@ -7,6 +7,8 @@ import kr.apartribebackend.member.exception.UserCantUpdateException;
 import kr.apartribebackend.member.exception.UserNotFoundException;
 import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,11 @@ public class MemberService {
                 .ifPresentOrElse(
                         memberRepository::delete, () -> { throw new UserCantDeleteException(); }
                 );
+    }
+
+    public Page<MemberDto> findAllMembers(Pageable pageable) {
+        return memberRepository.findAll(pageable)
+                .map(MemberDto::from);
     }
 
     @Transactional(readOnly = true)
