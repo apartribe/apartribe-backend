@@ -1,0 +1,22 @@
+INSERT INTO member (email, name, nickname, password)
+VALUES
+    ('user1@example.com', '이름1', '닉네임1', '비밀번호1'),
+    ('user2@example.com', '이름2', '닉네임2', '비밀번호2'),
+    ('user3@example.com', '이름3', '닉네임3', '비밀번호3'),
+    ('user4@example.com', '이름4', '닉네임4', '비밀번호4'),
+    ('user5@example.com', '이름5', '닉네임5', '비밀번호5'),
+    ('user6@example.com', '이름6', '닉네임6', '비밀번호6'),
+    ('user7@example.com', '이름7', '닉네임7', '비밀번호7'),
+    ('user8@example.com', '이름8', '닉네임8', '비밀번호8'),
+    ('user9@example.com', '이름9', '닉네임9', '비밀번호9'),
+    ('user10@example.com', '이름10', '닉네임10', '비밀번호10'),
+    ('user11@example.com', '이름11', '닉네임11', '비밀번호11'),
+    ('user12@example.com', '이름12', '닉네임12', '비밀번호12'),
+    ('user13@example.com', '이름13', '닉네임13', '비밀번호13'),
+    ('user14@example.com', '이름14', '닉네임14', '비밀번호14'),
+    ('user15@example.com', '이름15', '닉네임15', '비밀번호15'),
+    ('user16@example.com', '이름16', '닉네임16', '비밀번호16'),
+    ('user17@example.com', '이름17', '닉네임17', '비밀번호17'),
+    ('user18@example.com', '이름18', '닉네임18', '비밀번호18'),
+    ('user19@example.com', '이름19', '닉네임19', '비밀번호19'),
+    ('user20@example.com', '이름20', '닉네임20', '비밀번호20');
