@@ -8,5 +8,9 @@ public class EmailTokenNotExistsException extends RootException {
         super("이메일과 일치하는 토큰이 존재하지 않습니다.");
     }
 
+    @Override
+    public int getStatusCode() {
+        return 404;
+    }
 }
 

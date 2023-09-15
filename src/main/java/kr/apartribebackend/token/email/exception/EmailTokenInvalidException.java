@@ -7,4 +7,9 @@ public class EmailTokenInvalidException extends RootException {
     public EmailTokenInvalidException() {
         super("이메일 인증코드가 일치하지 않습니다.");
     }
+
+    @Override
+    public int getStatusCode() {
+        return 400;
+    }
 }
