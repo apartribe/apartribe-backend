@@ -29,10 +29,10 @@ public class Article extends BaseEntity {
     @Column(name = "CONTENT", nullable = false)
     private String content;
 
-    @Column(name = "liked")
+    @Column(name = "LIKES")
     private int liked;
 
-    @Column(name = "saw")
+    @Column(name = "SAW")
     private int saw;
 
     @Column(name = "CATEGORY")

@@ -5,6 +5,7 @@ import kr.apartribebackend.article.domain.Category;
 import kr.apartribebackend.article.dto.AppendArticleReq;
 import kr.apartribebackend.article.dto.ArticleDto;
 import kr.apartribebackend.article.dto.ArticleResponse;
+import kr.apartribebackend.article.dto.Top5ArticleResponse;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.annotation.AuthResolver;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -34,7 +35,6 @@ public class ArticleController {
         final ArticleResponse articleResponse = ArticleResponse.from(articleDto);
         final APIResponse<ArticleResponse> apiResponse = APIResponse.SUCCESS(articleResponse);
         return apiResponse;
-
     }
 
     @GetMapping("/api/article")
@@ -68,12 +68,9 @@ public class ArticleController {
     }
 
     @GetMapping("/api/article/best")
-    public APIResponse<List<ArticleResponse>> findTop5ArticleViaLiked() {
-        final List<ArticleResponse> articleResponses = articleService
-                .findTop5ArticleViaLiked()
-                .stream()
-                .map(ArticleResponse::from)
-                .toList();
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked() {
+        final List<Top5ArticleResponse> articleResponses = articleService
+                .findTop5ArticleViaLiked();
         return APIResponse.SUCCESS(articleResponses);
     }
 

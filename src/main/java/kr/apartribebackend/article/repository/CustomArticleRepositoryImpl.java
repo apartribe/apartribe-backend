@@ -1,8 +1,8 @@
 package kr.apartribebackend.article.repository;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.apartribebackend.article.domain.Article;
-import kr.apartribebackend.article.domain.QArticle;
+import kr.apartribebackend.article.dto.Top5ArticleResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,9 +15,10 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Article> findTop5ArticleViaLiked() {
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
         return jpaQueryFactory
-                .selectFrom(article)
+                .select(Projections.fields(Top5ArticleResponse.class, article.title.as("title")))
+                .from(article)
                 .orderBy(article.liked.desc())
                 .limit(5)
                 .fetch();
