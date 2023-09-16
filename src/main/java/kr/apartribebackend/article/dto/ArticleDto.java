@@ -3,6 +3,7 @@ package kr.apartribebackend.article.dto;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Category;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.dto.MemberDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -43,6 +44,15 @@ public class ArticleDto {
                 .saw(article.getSaw())
                 .category(article.getCategory())
                 .member(article.getMember())
+                .build();
+    }
+
+    public Article toEntity(Member member) {
+        return Article.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .member(member)
                 .build();
     }
 }
