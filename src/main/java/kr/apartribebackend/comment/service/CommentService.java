@@ -1,6 +1,7 @@
 package kr.apartribebackend.comment.service;
 
 import kr.apartribebackend.article.repository.ArticleRepository;
+import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.eception.CannotApplyCommentException;
 import kr.apartribebackend.comment.repository.CommentRepository;
@@ -9,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+import java.util.List;
+
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class CommentService {
@@ -18,6 +21,7 @@ public class CommentService {
 
     private final ArticleRepository articleRepository;
 
+    @Transactional
     public void appendCommentToArticle(final MemberDto memberDto,
                                        final Long articleId,
                                        final CommentDto commentDto) {
@@ -28,4 +32,7 @@ public class CommentService {
                 , () -> { throw new CannotApplyCommentException(); });
     }
 
+    public List<BestCommentResponse> bestCommentRankViaLastWeek() {
+        return commentRepository.bestCommentRankViaLastWeek();
+    }
 }
