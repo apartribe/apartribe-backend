@@ -3,6 +3,7 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Category;
 import kr.apartribebackend.article.dto.ArticleDto;
+import kr.apartribebackend.article.dto.Top5ArticleResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
@@ -54,16 +55,14 @@ public class ArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
-    public List<ArticleDto> findTop5ArticleViaLiked() {
-        return articleRepository.findTop5ArticleViaLiked().stream()
-                .map(ArticleDto::from)
-                .toList();
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
+        return articleRepository.findTop5ArticleViaLiked();
     }
 
     @Transactional
-    public void appendArticle(ArticleDto articleDto, MemberDto memberDto) {
-        Member member = memberDto.toEntity();
-        Article article = articleDto.toEntity(member);
+    public void appendArticle(final ArticleDto articleDto, final MemberDto memberDto) {
+        final Member member = memberDto.toEntity();
+        final Article article = articleDto.toEntity(member);
         articleRepository.save(article);
     }
 }
