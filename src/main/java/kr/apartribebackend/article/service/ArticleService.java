@@ -6,6 +6,8 @@ import kr.apartribebackend.article.dto.ArticleDto;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
+import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,5 +58,12 @@ public class ArticleService {
         return articleRepository.findTop5ArticleViaLiked().stream()
                 .map(ArticleDto::from)
                 .toList();
+    }
+
+    @Transactional
+    public void appendArticle(ArticleDto articleDto, MemberDto memberDto) {
+        Member member = memberDto.toEntity();
+        Article article = articleDto.toEntity(member);
+        articleRepository.save(article);
     }
 }
