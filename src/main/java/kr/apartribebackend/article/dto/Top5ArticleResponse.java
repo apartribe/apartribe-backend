@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class Top5ArticleResponse {
 
+    private Long id;
     private String title;
 
 }

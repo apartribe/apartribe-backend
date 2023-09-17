@@ -2,10 +2,7 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Category;
-import kr.apartribebackend.article.dto.AppendArticleReq;
-import kr.apartribebackend.article.dto.ArticleDto;
-import kr.apartribebackend.article.dto.ArticleResponse;
-import kr.apartribebackend.article.dto.Top5ArticleResponse;
+import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.annotation.AuthResolver;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -16,10 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.*;
 
 
 @RequiredArgsConstructor
@@ -29,11 +29,10 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping({"/api/article/{id}", "/api/article/"})
-    public APIResponse<ArticleResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
+    public APIResponse<SingleArticleResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
         final Long articleId = id.orElse(0L);
-        final ArticleDto articleDto = articleService.findSingleArticleById(articleId);
-        final ArticleResponse articleResponse = ArticleResponse.from(articleDto);
-        final APIResponse<ArticleResponse> apiResponse = APIResponse.SUCCESS(articleResponse);
+        final SingleArticleResponse singleArticleById = articleService.findSingleArticleById(articleId);
+        final APIResponse<SingleArticleResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
         return apiResponse;
     }
 
@@ -52,13 +51,14 @@ public class ArticleController {
     }
 
     @PostMapping("/api/article")
-    public void appendArticle(
-            @AuthResolver Member member,           // TODO 현재는 ArgumentResolver 로 대체. 하지만 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
+    public ResponseEntity<Void> appendArticle(
+            @AuthResolver final Member member,           // TODO 현재는 ArgumentResolver 로 대체. 하지만 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
             @Valid @RequestBody final AppendArticleReq appendArticleReq
     ) {
-        MemberDto memberDto = MemberDto.from(member);
+        final MemberDto memberDto = MemberDto.from(member);
         final ArticleDto articleDto = appendArticleReq.toDto();
         articleService.appendArticle(articleDto, memberDto);
+        return ResponseEntity.status(CREATED).build();
     }
 
     @GetMapping({"/api/article/{id}/like", "/api/article/like"})
@@ -67,10 +67,17 @@ public class ArticleController {
         articleService.updateLikeByArticleId(articleId);
     }
 
-    @GetMapping("/api/article/best")
+    @GetMapping("/api/article/best/liked")
     public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked() {
         final List<Top5ArticleResponse> articleResponses = articleService
                 .findTop5ArticleViaLiked();
+        return APIResponse.SUCCESS(articleResponses);
+    }
+
+    @GetMapping("/api/article/best/view")
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaView() {
+        final List<Top5ArticleResponse> articleResponses = articleService
+                .findTop5ArticleViaView();
         return APIResponse.SUCCESS(articleResponses);
     }
 

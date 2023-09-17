@@ -1,8 +1,11 @@
 package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
+import kr.apartribebackend.comment.domain.Comment;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity @Getter

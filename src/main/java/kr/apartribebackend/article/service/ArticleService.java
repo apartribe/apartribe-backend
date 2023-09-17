@@ -2,8 +2,7 @@ package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Category;
-import kr.apartribebackend.article.dto.ArticleDto;
-import kr.apartribebackend.article.dto.Top5ArticleResponse;
+import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
@@ -45,18 +44,18 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleDto findSingleArticleById(final Long articleId) {
-        return articleRepository
-                .findById(articleId)
-                .stream()
-                .peek(Article::reflectArticleSaw)
-                .findFirst()
-                .map(ArticleDto::from)
+    public SingleArticleResponse findSingleArticleById(final Long articleId) {
+        return articleRepository.findJoinedArticleById(articleId)
+                .stream().findFirst()
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
     public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
         return articleRepository.findTop5ArticleViaLiked();
+    }
+
+    public List<Top5ArticleResponse> findTop5ArticleViaView() {
+        return articleRepository.findTop5ArticleViaView();
     }
 
     @Transactional
@@ -65,4 +64,5 @@ public class ArticleService {
         final Article article = articleDto.toEntity(member);
         articleRepository.save(article);
     }
+
 }

@@ -21,6 +21,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
         return jpaQueryFactory
                 .select(Projections.fields(
                         BestCommentResponse.class,
+                        member.id.as("id"),
                         member.nickname.as("nickname"),
                         comment.count().as("commentCount")))
                 .from(comment)
