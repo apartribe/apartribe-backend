@@ -10,10 +10,14 @@ import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,7 +26,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/api/article/comment/{id}")
-    public void appendCommentToArticle(
+    public ResponseEntity<Void> appendCommentToArticle(
             @AuthResolver final Member member,        // TODO 현재는 ArgumentResolver 로 대체. 하지만 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
             @PathVariable final Optional<Long> id,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
@@ -31,6 +35,7 @@ public class CommentController {
         final Long articleId = id.orElse(0L);
         final CommentDto commentDto = appendCommentReq.toDto();
         commentService.appendCommentToArticle(memberDto, articleId, commentDto);
+        return ResponseEntity.status(CREATED).build();
     }
 
     @GetMapping("/api/article/comment/best")
