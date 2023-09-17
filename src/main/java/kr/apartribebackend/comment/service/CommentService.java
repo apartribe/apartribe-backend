@@ -1,6 +1,7 @@
 package kr.apartribebackend.comment.service;
 
 import kr.apartribebackend.article.repository.ArticleRepository;
+import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.eception.CannotApplyCommentException;
@@ -26,13 +27,20 @@ public class CommentService {
                                        final Long articleId,
                                        final CommentDto commentDto) {
         articleRepository.findById(articleId)
-                .ifPresentOrElse(article ->
-                                commentRepository.save(
-                                        commentDto.toEntity(memberDto.toEntity(), article))
-                , () -> { throw new CannotApplyCommentException(); });
+                .ifPresentOrElse(article -> {
+                    final Comment comment = commentDto.toEntity(memberDto.toEntity(), article);
+                    comment.changeArticle(article);
+                    commentRepository.save(comment);
+                }, () -> { throw new CannotApplyCommentException(); });
     }
 
     public List<BestCommentResponse> bestCommentRankViaLastWeek() {
         return commentRepository.bestCommentRankViaLastWeek();
     }
 }
+
+//        articleRepository.findById(articleId)
+//                .ifPresentOrElse(article ->
+//                                commentRepository.save(
+//                                        commentDto.toEntity(memberDto.toEntity(), article))
+//                , () -> { throw new CannotApplyCommentException(); });

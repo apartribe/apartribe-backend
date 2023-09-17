@@ -2,6 +2,7 @@ package kr.apartribebackend.article.domain;
 
 
 import jakarta.persistence.*;
+import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.global.domain.BaseEntity;
 import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
@@ -9,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -42,6 +45,10 @@ public class Article extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE)
+    @OrderBy("createdAt desc")
+    private final List<Comment> comments = new ArrayList<>();
 
     @Builder
     private Article(Long id,
