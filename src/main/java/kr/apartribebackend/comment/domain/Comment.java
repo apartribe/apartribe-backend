@@ -1,5 +1,6 @@
 package kr.apartribebackend.comment.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.global.domain.BaseEntity;
@@ -59,4 +60,12 @@ public class Comment extends BaseEntity {
     }
 
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
+
+    public void changeArticle(Article article) {
+        if (this.article != null)
+            this.article.getComments().remove(this);
+        this.article = article;
+        article.getComments().add(this);
+    }
+
 }
