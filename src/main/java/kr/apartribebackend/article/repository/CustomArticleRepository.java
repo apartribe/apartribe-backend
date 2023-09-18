@@ -12,4 +12,5 @@ public interface CustomArticleRepository {
 
     List<Top5ArticleResponse> findTop5ArticleViaView();
 
+    List<ArticleInCommunityRes> searchArticleInCommunity(String title);
 }

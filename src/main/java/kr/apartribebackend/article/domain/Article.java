@@ -24,8 +24,7 @@ public class Article extends BaseEntity {
     @Column(name = "ARTICLE_ID")
     private Long id;
 
-    @Lob
-    @Column(name = "TITLE", nullable = false)
+    @Column(name = "TITLE", nullable = false, length = 200)
     private String title;
 
     @Lob

@@ -65,4 +65,7 @@ public class ArticleService {
         articleRepository.save(article);
     }
 
+    public List<ArticleInCommunityRes> searchArticleInCommunity(String title) {
+        return articleRepository.searchArticleInCommunity(title);
+    }
 }
