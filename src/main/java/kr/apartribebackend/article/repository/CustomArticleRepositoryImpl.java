@@ -1,10 +1,12 @@
 package kr.apartribebackend.article.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -41,6 +43,17 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
+    public List<ArticleInCommunityRes> searchArticleInCommunity(final String title) {
+        return jpaQueryFactory
+                .selectFrom(article)
+                .where(isTitleContainsIgnoreCase2(title))
+                .fetch()
+                .stream()
+                .map(ArticleInCommunityRes::from)
+                .toList();
+    }
+
+    @Override
     public List<SingleArticleResponse> findJoinedArticleById(final Long articleId) {
         final List<Article> results = jpaQueryFactory
                 .selectFrom(article)
@@ -49,8 +62,25 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 .fetch();
 
         final List<SingleArticleResponse> collect = results.stream()
-                .map(SingleArticleResponse::new).toList();
+                .map(SingleArticleResponse::from).toList();
         return collect;
+    }
+
+    private BooleanExpression isTitleEqIgnoreCase(final String title) {
+        return StringUtils.hasText(title) ? article.title.equalsIgnoreCase(title) : null;
+    }
+
+    private  BooleanExpression isTitleContainsIgnoreCase(final String title) {
+        if (!StringUtils.hasText(title))
+            return null;
+        return article.title.likeIgnoreCase(title + "%" )
+                .or(article.title.likeIgnoreCase("%" + title + "%"))
+                .or(article.title.likeIgnoreCase("%" + title))
+                .or(isTitleEqIgnoreCase(title));
+    }
+
+    private  BooleanExpression isTitleContainsIgnoreCase2(final String title) {
+        return StringUtils.hasText(title) ? article.title.containsIgnoreCase(title) : null;
     }
 
 }
