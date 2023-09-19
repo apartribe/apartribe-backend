@@ -149,7 +149,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler jsonLoginSuccessHandler() {
-        return new JsonLoginSuccessHandler(jwtService, memberRepository);
+        return new JsonLoginSuccessHandler(jwtService);
     }
 
     @Bean
