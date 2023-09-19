@@ -2,7 +2,6 @@ package kr.apartribebackend.auth;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
-import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.exception.EmailDuplicateException;
@@ -13,7 +12,6 @@ import kr.apartribebackend.token.email.config.EmailTokenContextHolder;
 import kr.apartribebackend.token.email.domain.EmailToken;
 import kr.apartribebackend.token.email.exception.NotAuthenticatedEmailException;
 import kr.apartribebackend.token.email.repository.EmailTokenRepository;
-import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +34,6 @@ public class AuthController {
 
     private final EmailTokenContextHolder emailTokenContextHolder;
 
-    private final JwtService jwtService;
-
     @PostMapping("/join")
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
         if (!memberJoinReq.password().equals(memberJoinReq.passwordConfirm()))
@@ -55,12 +51,7 @@ public class AuthController {
             throw new NotAuthenticatedEmailException();
 
         final MemberDto memberDto = memberJoinReq.toDto();
-        String refToken = jwtService.generateRefreshToken(memberDto.getNickname());
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(refToken)
-                .build();
-
-        final Member member = memberDto.toEntity(refreshToken);
+        final Member member = memberDto.toEntity();
         member.changePassword(passwordEncoder.encode(memberJoinReq.password()));
         emailToken.changeMember(member);
         memberRepository.save(member);
