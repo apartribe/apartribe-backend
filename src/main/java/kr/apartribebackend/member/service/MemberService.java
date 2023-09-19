@@ -1,14 +1,17 @@
 package kr.apartribebackend.member.service;
 
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.dto.MemberChangePasswordReq;
 import kr.apartribebackend.member.dto.MemberDto;
-import kr.apartribebackend.member.exception.UserCantDeleteException;
-import kr.apartribebackend.member.exception.UserCantUpdateException;
-import kr.apartribebackend.member.exception.UserNotFoundException;
+import kr.apartribebackend.member.exception.*;
+import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public MemberDto findSingleMember(final String email) {
@@ -46,14 +51,29 @@ public class MemberService {
                 );
     }
 
-    public Page<MemberDto> findAllMembers(Pageable pageable) {
+    public Page<MemberDto> findAllMembers(final Pageable pageable) {
         return memberRepository.findAll(pageable)
                 .map(MemberDto::from);
     }
 
     @Transactional(readOnly = true)
-    public boolean existsByNickname(String nickname) {
+    public boolean existsByNickname(final String nickname) {
         return memberRepository.existsByNickname(nickname);
+    }
+
+    public void updateSingleMemberPassword(final AuthenticatedMember authenticatedMember,
+                                           final MemberChangePasswordReq memberChangePasswordReq) {
+        if (!passwordEncoder.matches(memberChangePasswordReq.currentPassword(), authenticatedMember.getPassword()))
+            throw new UserCantUpdatePasswordException();
+        final Member member = authenticatedMember.getOriginalEntity();
+        member.changePassword(memberChangePasswordReq.newPassword());
+    }
+
+    public void updateSingleMemberNickname(final AuthenticatedMember authenticatedMember, final String nickname) {
+        if (existsByNickname(nickname))
+            throw new UserCantUpdateNicknameException();
+        final Member member = authenticatedMember.getOriginalEntity();
+        member.updateNickname(nickname);
     }
 
 }

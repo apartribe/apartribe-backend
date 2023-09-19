@@ -87,4 +87,8 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
 }
