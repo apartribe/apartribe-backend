@@ -41,7 +41,7 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
                 authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
         );
 
-        final String refreshToken = memberRepository.findRefreshTokenByEmail(authenticatedMember.email())
+        final String refreshToken = memberRepository.findRefreshTokenByEmail(authenticatedMember.getEmail())
                 .map(Member::getRefreshToken)
                 .map(RefreshToken::getToken)
                 .orElse(null);
