@@ -99,15 +99,16 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         if (jwtService.isAccessTokenValid(accessToken)) {
             final String userEmail = jwtService.extractAllClaims(
                     accessToken, JwtService.TokenType.ACCESS).get("email", String.class);
-            memberRepository.findByEmail(userEmail)
-                    .map(MemberDto::from)
-                    .map(AuthenticatedMember::from)
-                    .ifPresent(authenticatedMember -> {
-
-                        final UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
-                                .authenticated(authenticatedMember, null, authenticatedMember.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    });
+            final Member member = memberRepository.findByEmail(userEmail).orElse(null);
+            if (member != null) {
+                final AuthenticatedMember authenticatedMember = AuthenticatedMember.from(
+                        MemberDto.from(member)
+                );
+                authenticatedMember.setOriginalEntity(member);
+                final UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
+                        .authenticated(authenticatedMember, null, authenticatedMember.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
         }
         filterChain.doFilter(request, response);
     }

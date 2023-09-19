@@ -1,13 +1,20 @@
 package kr.apartribebackend.global.aop;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.ErrorResponse;
+import kr.apartribebackend.global.exception.JwtCustomException;
 import kr.apartribebackend.global.exception.RootException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,7 +68,30 @@ public class GlobalExceptionController {
         return ResponseEntity
                 .status(errorResponse.code())
                 .body(apiResponse);
+    }
 
+    @ExceptionHandler(JwtCustomException.class)
+    public ResponseEntity<APIResponse<ErrorResponse>> jwtCustomException(final JwtCustomException exception) {
+        final String exceptionName = exception.getJwtException().getClass().getSimpleName();
+        final ErrorResponse errorResponse;
+        switch (exceptionName) {
+            case "ExpiredJwtException" -> errorResponse = ErrorResponse.of(401, "토큰 만료.");
+            case "SignatureException" -> errorResponse = ErrorResponse.of(401, "토큰 서명 검증 실패.");
+            default -> errorResponse = ErrorResponse.of(401, "토큰 에러");
+        }
+        final APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    public ResponseEntity<APIResponse<ErrorResponse>> authenticationException(final AuthenticationException exception) {
+        ErrorResponse errorResponse = ErrorResponse.of(401, "아이디 혹은 패스워드가 잘못되었습니다.");
+        APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
     }
 
 }
