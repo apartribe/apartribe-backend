@@ -4,16 +4,16 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Category;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
-import kr.apartribebackend.global.annotation.AuthResolver;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
-import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
+import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,10 +52,10 @@ public class ArticleController {
 
     @PostMapping("/api/article")
     public ResponseEntity<Void> appendArticle(
-            @AuthResolver final Member member,           // TODO 현재는 ArgumentResolver 로 대체. 하지만 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,           // TODO 수정완료
             @Valid @RequestBody final AppendArticleReq appendArticleReq
     ) {
-        final MemberDto memberDto = MemberDto.from(member);
+        final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = appendArticleReq.toDto();
         articleService.appendArticle(articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();

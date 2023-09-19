@@ -5,13 +5,12 @@ import kr.apartribebackend.comment.dto.AppendCommentReq;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.service.CommentService;
-import kr.apartribebackend.global.annotation.AuthResolver;
 import kr.apartribebackend.global.dto.APIResponse;
-import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
+import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,11 +26,11 @@ public class CommentController {
 
     @PostMapping("/api/article/comment/{id}")
     public ResponseEntity<Void> appendCommentToArticle(
-            @AuthResolver final Member member,        // TODO 현재는 ArgumentResolver 로 대체. 하지만 나중에 토큰값에서 꺼내오는것으로 변경해야 한다.
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,        // TODO 수정 완료
             @PathVariable final Optional<Long> id,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
     ) {
-        final MemberDto memberDto = MemberDto.from(member);
+        final MemberDto memberDto = authenticatedMember.toDto();
         final Long articleId = id.orElse(0L);
         final CommentDto commentDto = appendCommentReq.toDto();
         commentService.appendCommentToArticle(memberDto, articleId, commentDto);
