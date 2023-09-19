@@ -43,6 +43,10 @@ public record AuthenticatedMember(
         return nickname;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -61,5 +65,15 @@ public record AuthenticatedMember(
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public MemberDto toDto() {
+        return MemberDto.builder()
+                .id(id)
+                .email(email)
+                .name(name)
+                .nickname(nickname)
+                .password(password)
+                .build();
     }
 }
