@@ -1,6 +1,7 @@
 package kr.apartribebackend.member.dto;
 
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,6 +46,17 @@ public class MemberDto {
                 .password(password)
                 .name(name)
                 .nickname(nickname)
+                .build();
+    }
+
+    public Member toEntity(RefreshToken refreshToken) {
+        return Member.builder()
+                .id(id)
+                .email(email)
+                .password(password)
+                .name(name)
+                .nickname(nickname)
+                .refreshToken(refreshToken)
                 .build();
     }
 
