@@ -26,7 +26,7 @@ public class EmailController {
 
     private final EmailTokenContextHolder emailTokenContextHolder;
 
-    @GetMapping("/api/email/send")
+    @GetMapping("/api/auth/email/send")
     public void sendEmailToken(@RequestParam final String email) {
         final String token = UUID.randomUUID().toString();
         log.info("token = {}", token);
@@ -37,7 +37,7 @@ public class EmailController {
         emailSenderService.send(email, "test", token);
     }
 
-    @GetMapping("/api/email/confirm")
+    @GetMapping("/api/auth/email/confirm")
     public EmailTokenIsValidResponse confirmEmailToken(
             @RequestParam final String email,
             @RequestParam final String token)
