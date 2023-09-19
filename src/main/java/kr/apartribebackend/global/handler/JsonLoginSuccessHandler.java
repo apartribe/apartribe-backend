@@ -34,14 +34,14 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         log.info("JsonLoginSuccessHandler Triggered");
-        final AuthenticatedMember authenticatedUserAccount = (AuthenticatedMember) authentication.getPrincipal();
+        final AuthenticatedMember authenticatedMember = (AuthenticatedMember) authentication.getPrincipal();
 
         final String accessToken = jwtService.generateAccessToken(
-//                authenticatedUserAccount.getUsername(), Map.of("email", authenticatedUserAccount.email())
-                authenticatedUserAccount.getUsername(), Map.of("role", "추가해야함")
+//                authenticatedMember.getUsername(), Map.of("email", authenticatedMember.email())
+                authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
         );
 
-        final String refreshToken = memberRepository.findRefreshTokenByEmail(authenticatedUserAccount.email())
+        final String refreshToken = memberRepository.findRefreshTokenByEmail(authenticatedMember.email())
                 .map(Member::getRefreshToken)
                 .map(RefreshToken::getToken)
                 .orElse(null);
