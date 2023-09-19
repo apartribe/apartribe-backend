@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
-import kr.apartribebackend.member.repository.MemberRepository;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,9 +27,8 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
 
     private final JwtService jwtService;
 
-    private final MemberRepository memberRepository;
 
-    @Override
+    @Override @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -41,12 +40,14 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
                 authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
         );
 
-        final String refreshToken = memberRepository.findRefreshTokenByEmail(authenticatedMember.getEmail())
-                .map(Member::getRefreshToken)
-                .map(RefreshToken::getToken)
-                .orElse(null);
+        String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
+        Member member = ((AuthenticatedMember) authentication.getPrincipal()).getOriginalEntity();
+        RefreshToken refreshToken = RefreshToken.builder()
+                .token(refToken)
+                .build();
+        member.changeRefreshToken(refreshToken);
 
-        final ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)
+        final ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refToken)
                 .path("/")
                 .httpOnly(true)
                 .sameSite("None")
