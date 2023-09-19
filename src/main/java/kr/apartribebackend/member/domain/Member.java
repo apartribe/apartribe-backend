@@ -2,6 +2,7 @@ package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
 import kr.apartribebackend.comment.domain.Comment;
+import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -35,17 +36,23 @@ public class Member {
     @Column(name = "NICKNAME", nullable = false)
     private String nickname;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "REFRESH_TOKEN_ID")
+    private RefreshToken refreshToken;
+
     @Builder
     private Member(Long id,
-                  String email,
-                  String password,
-                  String name,
-                  String nickname) {
+                   String email,
+                   String password,
+                   String name,
+                   String nickname,
+                   RefreshToken refreshToken) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.nickname = nickname;
+        this.refreshToken = refreshToken;
     }
 
     @Override
