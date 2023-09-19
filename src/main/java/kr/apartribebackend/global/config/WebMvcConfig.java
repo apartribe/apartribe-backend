@@ -1,6 +1,7 @@
 package kr.apartribebackend.global.config;
 
 import kr.apartribebackend.global.config.converter.CategoryConverter;
+import kr.apartribebackend.global.resolver.AuthenticationResolver;
 import kr.apartribebackend.global.resolver.TokenResolver;
 import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new TokenResolver(memberRepository));
+        resolvers.add(new AuthenticationResolver());
     }
 }
