@@ -54,7 +54,6 @@ public class AuthController {
         if (emailToken == null || !emailToken.getValue().equals(memberJoinReq.code()))
             throw new NotAuthenticatedEmailException();
 
-        // TODO 이메일토큰을 인증하지않아도 회원가입이되는 것을 수정해야함.
         final MemberDto memberDto = memberJoinReq.toDto();
         String refToken = jwtService.generateRefreshToken(memberDto.getNickname());
         RefreshToken refreshToken = RefreshToken.builder()
