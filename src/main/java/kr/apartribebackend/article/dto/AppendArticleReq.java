@@ -6,11 +6,10 @@ import kr.apartribebackend.global.annotation.IsCategoryValid;
 
 import java.util.Arrays;
 
-// TODO 나중에 첨부파일도 추가하여야 함.
 public record AppendArticleReq(
-        @NotEmpty(message = "이메일은 공백일 수 없습니다") @IsCategoryValid String level,
+        @NotEmpty(message = "카테고리는 공백일 수 없습니다") @IsCategoryValid String level,
         @NotEmpty(message = "제목은 공백일 수 없습니다") String title,
-        @NotEmpty(message = "상세정보는 공백일 수 없습니다") String content
+        @NotEmpty(message = "내용은 공백일 수 없습니다") String content
 ) {
 
     public ArticleDto toDto() {
