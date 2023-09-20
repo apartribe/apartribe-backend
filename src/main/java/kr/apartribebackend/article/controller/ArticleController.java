@@ -15,11 +15,15 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 
 @RequiredArgsConstructor
@@ -50,14 +54,18 @@ public class ArticleController {
         return apiResponse;
     }
 
-    @PostMapping("/api/article")
-    public ResponseEntity<Void> appendArticle(
-            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,           // TODO 수정완료
-            @Valid @RequestBody final AppendArticleReq appendArticleReq
-    ) {
+    @PostMapping(value = "/api/article", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Void> attachmentToAWS(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestPart final AppendArticleReq articleInfo,
+            @RequestPart(required = false) final List<MultipartFile> file) throws IOException
+    {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final ArticleDto articleDto = appendArticleReq.toDto();
-        articleService.appendArticle(articleDto, memberDto);
+        final ArticleDto articleDto = articleInfo.toDto();
+        if (file != null)
+            articleService.appendArticle(articleDto, memberDto, file);
+        else
+            articleService.appendArticle(articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 
@@ -87,5 +95,17 @@ public class ArticleController {
         final APIResponse<List<ArticleInCommunityRes>> apiResponse = APIResponse.SUCCESS(articleInCommunityRes);
         return apiResponse;
     }
+
+    // TODO 첨부파일을 제외한 JSON 으로는 게시글 등록하는 API. 현재는 Deprecated 시킴.
+    //    @PostMapping("/api/article")
+    //    public ResponseEntity<Void> appendArticle(
+    //            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+    //            @Valid @RequestBody final AppendArticleReq appendArticleReq
+    //    ) {
+    //        final MemberDto memberDto = authenticatedMember.toDto();
+    //        final ArticleDto articleDto = appendArticleReq.toDto();
+    //        articleService.appendArticle(articleDto, memberDto);
+    //        return ResponseEntity.status(CREATED).build();
+    //    }
 
 }

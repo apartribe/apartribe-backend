@@ -1,28 +1,26 @@
 package kr.apartribebackend.global.aop;
 
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.ErrorResponse;
 import kr.apartribebackend.global.exception.JwtCustomException;
 import kr.apartribebackend.global.exception.RootException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.apache.tomcat.util.http.fileupload.impl.InvalidContentTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -30,13 +28,15 @@ public class GlobalExceptionController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<APIResponse<ErrorResponse>> bindingResultException(final MethodArgumentNotValidException exception) {
-        final Map<String, String> fieldValidation = !exception.hasFieldErrors() ? Map.of() : exception
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        Objects.requireNonNull(DefaultMessageSourceResolvable::getDefaultMessage)));
-
+        final Map<String, String> fieldValidation = new HashMap<>();
+        if (exception.hasFieldErrors()) {
+            final List<FieldError> fieldErrors = exception.getFieldErrors();
+            for (FieldError fieldError : fieldErrors) {
+                final String field = fieldError.getField();
+                final String defaultMessage = fieldError.getDefaultMessage();
+                fieldValidation.put(field, defaultMessage);
+            }
+        }
         final ErrorResponse errorResponse = ErrorResponse.BAD_REQUEST(fieldValidation);
         final APIResponse<ErrorResponse> apiResponse = APIResponse.VALID_ERROR(errorResponse);
 
@@ -93,5 +93,24 @@ public class GlobalExceptionController {
                 .status(errorResponse.code())
                 .body(apiResponse);
     }
+
+    @ExceptionHandler(InvalidContentTypeException.class)
+    public ResponseEntity<APIResponse<ErrorResponse>> invalidContentTypeException(final InvalidContentTypeException exception) {
+        ErrorResponse errorResponse = ErrorResponse.of(400, "잘못된 Content-Type 요청입니다.");
+        APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<APIResponse<ErrorResponse>> methodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException exception) {
+        ErrorResponse errorResponse = ErrorResponse.of(400, "잘못된 요청입니다.");
+        APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
+    }
+
 
 }
