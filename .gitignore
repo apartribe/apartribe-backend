@@ -1,6 +1,7 @@
 # Custom Exclude Path
 src/main/generated
 docker
+src/main/resources/application-*
 
 # Created by https://www.toptal.com/developers/gitignore/api/java,gradle,intellij+all,intellij+iml,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,gradle,intellij+all,intellij+iml,intellij
