@@ -1,21 +1,53 @@
 spring:
+  profiles:
+    active: local
+
   jpa:
     open-in-view: false
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
+
   data:
     web:
       pageable:
         one-indexed-parameters: true
+
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/apartribe;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  sql:
+    init:
+      mode: always
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: EMAIL
+    password: PASSWORD
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+
   security:
     oauth2:
       client:
         registration:
           kakao:
             client-name: KOAuth2LoginDemo
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: KAKAO_CLINET_ID
+            client-secret: KAKAO_CLINET_SECRET
             client-authentication-method: client_secret_post
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
@@ -27,6 +59,16 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
             user-name-attribute: sub
+
+application:
+  security:
+    jwt:
+      secret-key: ACCESS_TOKEN_SECRET_KEY
+      expiration: ACCESS_TOKEN_EXPIRATION
+      refresh-token:
+        secret-key: REFRESH_TOKEN_SECRET_KEY
+        expiration: REFRESH_TOKEN_EXPIRATION
+
 logging:
   level:
     sql: debug
@@ -34,54 +76,12 @@ logging:
 cloud:
   aws:
     s3:
-      bucket: ${AWS_BUCKET_NAME}
+      bucket: AWS_BUCKET_NAME
     credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
+      access-key: AWS_ACCESS_KEY
+      secret-key: AWS_SECRET_KEY
     region:
       static: ap-northeast-2
       auto: false
     stack:
       auto: false
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${EMAIL_ADDRESS}
-    password: ${EMAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          ssl:
-            trust: "*"
-
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/apartribe;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
-
-application:
-  security:
-    jwt:
-      secret-key: ${ACCESS_TOKEN_SECRET_KEY}
-      expiration: ${ACCESS_TOKEN_EXPIRATION}
-      refresh-token:
-        secret-key: ${REFRESH_TOKEN_SECRET_KEY}
-        expiration: ${REFRESH_TOKEN_EXPIRATION}
