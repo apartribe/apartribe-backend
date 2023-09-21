@@ -78,7 +78,7 @@ public class MemberController {
         memberService.deleteSingleUser(email);
     }
 
-    @GetMapping("/api/member/check")
+    @GetMapping("/api/auth/member/check")
     public NicknameIsValidResponse checkDuplicateNickname(@RequestParam final String nickname) {
         if (memberService.existsByNickname(nickname))
             return new NicknameIsValidResponse(false);

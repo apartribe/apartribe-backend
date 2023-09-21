@@ -26,7 +26,7 @@ public class CommentController {
 
     @PostMapping("/api/article/comment/{id}")
     public ResponseEntity<Void> appendCommentToArticle(
-            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,        // TODO 수정 완료
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @PathVariable final Optional<Long> id,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
     ) {
