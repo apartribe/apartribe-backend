@@ -28,9 +28,11 @@ public class DelegatingRedirectUrlFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        log.info("DelegatingRedirectUrlFilter Triggered");
-        retrieveRedirectUrl(request)
-                .ifPresent(clientRedirectUrlHolder::setRedirectUrl);
+        final String extractedRedirectUrl = retrieveRedirectUrl(request).orElse(null);
+        if (extractedRedirectUrl != null) {
+            log.info("OAuth2 RedirectURL Registered");
+            clientRedirectUrlHolder.setRedirectUrl(extractedRedirectUrl);
+        }
         doFilter(request, response, filterChain);
     }
 
