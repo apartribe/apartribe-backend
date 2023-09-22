@@ -1,8 +1,7 @@
 package kr.apartribebackend.comment.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import kr.apartribebackend.article.domain.Article;
+import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.global.domain.BaseEntity;
 import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
@@ -27,23 +26,27 @@ public class Comment extends BaseEntity {
     private int liked;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ARTICLE_ID")
-    private Article article;
+    @JoinColumn(name = "BOARD_ID")
+    private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "ARTICLE_ID")
+//    private Article article;
+
     @Builder
     private Comment(Long id,
                     String content,
                     int liked,
-                    Article article,
+                    Board board,
                     Member member) {
         this.id = id;
         this.content = content;
         this.liked = liked;
-        this.article = article;
+        this.board = board;
         this.member = member;
     }
 
@@ -61,11 +64,11 @@ public class Comment extends BaseEntity {
 
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
 
-    public void changeArticle(Article article) {
-        if (this.article != null)
-            this.article.getComments().remove(this);
-        this.article = article;
-        article.getComments().add(this);
+    public void registBoard(Board board) {
+        if (this.board != null)
+            this.board.getComments().remove(this);
+        this.board = board;
+        board.getComments().add(this);
     }
 
 }
