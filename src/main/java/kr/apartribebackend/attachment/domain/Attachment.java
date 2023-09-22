@@ -1,7 +1,7 @@
 package kr.apartribebackend.attachment.domain;
 
 import jakarta.persistence.*;
-import kr.apartribebackend.article.domain.Article;
+import kr.apartribebackend.article.domain.Board;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,8 +31,8 @@ public class Attachment {
     private String extension;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ARTICLE_ID")
-    private Article article;
+    @JoinColumn(name = "BOARD_ID")
+    private Board board;
 
     @Builder
     public Attachment(Long id,
@@ -40,13 +40,13 @@ public class Attachment {
                       String contentType,
                       String uploadPath,
                       String extension,
-                      Article article) {
+                      Board board) {
         this.id = id;
         this.fileName = fileName;
         this.contentType = contentType;
         this.uploadPath = uploadPath;
         this.extension = extension;
-        this.article = article;
+        this.board = board;
     }
 
     @Override
@@ -61,9 +61,40 @@ public class Attachment {
         return Objects.hash(id);
     }
 
+    //    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "ARTICLE_ID")
+//    private Article article;
+
+//    @Builder
+//    public Attachment(Long id,
+//                      String fileName,
+//                      String contentType,
+//                      String uploadPath,
+//                      String extension,
+//                      Article article) {
+//        this.id = id;
+//        this.fileName = fileName;
+//        this.contentType = contentType;
+//        this.uploadPath = uploadPath;
+//        this.extension = extension;
+//        this.article = article;
+//    }
+
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
 
-    public void registArticle(Article article) {
-        this.article = article;
+    public void registBoard(Board board) {
+        if (this.board != null)
+            this.board.getAttachments().remove(this);
+        this.board = board;
+        board.getAttachments().add(this);
     }
+
+//    public void registArticle(Article article) {
+//        this.article = article;
+//    }
+
+//    public void registBoard(Board board) {
+//        this.board = board;
+//    }
+
 }

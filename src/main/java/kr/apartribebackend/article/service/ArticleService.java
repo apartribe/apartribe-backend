@@ -4,7 +4,6 @@ import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Category;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
-import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
@@ -43,13 +42,6 @@ public class ArticleService {
     }
 
     @Transactional
-    public void updateLikeByArticleId(final Long articleId) {
-        articleRepository.findById(articleId)
-                .ifPresentOrElse(Article::reflectArticleLike,
-                        () -> { throw new CannotReflectLikeToArticleException(); });
-    }
-
-    @Transactional
     public SingleArticleResponse findSingleArticleById(final Long articleId) {
         return articleRepository.findJoinedArticleById(articleId)
                 .stream().findFirst()
@@ -78,7 +70,7 @@ public class ArticleService {
         Article article = appendArticle(articleDto, memberDto);
         List<Attachment> attachments = attachmentService.saveFiles(file);
         for (Attachment attachment : attachments) {
-            attachment.registArticle(article);
+            attachment.registBoard(article);
         }
         attachmentService.saveAttachments(attachments);
     }
@@ -86,4 +78,12 @@ public class ArticleService {
     public List<ArticleInCommunityRes> searchArticleInCommunity(String title) {
         return articleRepository.searchArticleInCommunity(title);
     }
+
 }
+
+//    @Transactional
+//    public void updateLikeByArticleId(final Long articleId) {
+//        articleRepository.findById(articleId)
+//                .ifPresentOrElse(Article::reflectArticleLike,
+//                        () -> { throw new CannotReflectLikeToArticleException(); });
+//    }

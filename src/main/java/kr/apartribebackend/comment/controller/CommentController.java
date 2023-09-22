@@ -24,7 +24,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/api/article/comment/{id}")
+    @PostMapping("/api/board/comment/{id}")
     public ResponseEntity<Void> appendCommentToArticle(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @PathVariable final Optional<Long> id,
@@ -37,7 +37,7 @@ public class CommentController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @GetMapping("/api/article/comment/best")
+    @GetMapping("/api/board/comment/best")
     public APIResponse<List<BestCommentResponse>> bestCommentUntilLastWeek() {
         final List<BestCommentResponse> bestCommentResponses = commentService.bestCommentRankViaLastWeek();
         final APIResponse<List<BestCommentResponse>> apiResponse = APIResponse.SUCCESS(bestCommentResponses);
