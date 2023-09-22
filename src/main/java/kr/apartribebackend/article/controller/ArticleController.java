@@ -69,12 +69,6 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @GetMapping({"/api/article/{id}/like", "/api/article/like"})
-    public void updateLikeByArticleId(@PathVariable final Optional<Long> id) {
-        final Long articleId = id.orElse(0L);
-        articleService.updateLikeByArticleId(articleId);
-    }
-
     @GetMapping("/api/article/best/liked")
     public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked() {
         final List<Top5ArticleResponse> articleResponses = articleService
@@ -96,16 +90,22 @@ public class ArticleController {
         return apiResponse;
     }
 
-    // TODO 첨부파일을 제외한 JSON 으로는 게시글 등록하는 API. 현재는 Deprecated 시킴.
-    //    @PostMapping("/api/article")
-    //    public ResponseEntity<Void> appendArticle(
-    //            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-    //            @Valid @RequestBody final AppendArticleReq appendArticleReq
-    //    ) {
-    //        final MemberDto memberDto = authenticatedMember.toDto();
-    //        final ArticleDto articleDto = appendArticleReq.toDto();
-    //        articleService.appendArticle(articleDto, memberDto);
-    //        return ResponseEntity.status(CREATED).build();
-    //    }
-
 }
+
+// TODO 첨부파일을 제외한 JSON 으로는 게시글 등록하는 API. 현재는 Deprecated 시킴.
+//    @PostMapping("/api/article")
+//    public ResponseEntity<Void> appendArticle(
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+//            @Valid @RequestBody final AppendArticleReq appendArticleReq
+//    ) {
+//        final MemberDto memberDto = authenticatedMember.toDto();
+//        final ArticleDto articleDto = appendArticleReq.toDto();
+//        articleService.appendArticle(articleDto, memberDto);
+//        return ResponseEntity.status(CREATED).build();
+//    }
+
+//    @GetMapping({"/api/article/{id}/like", "/api/article/like"})
+//    public void updateLikeByArticleId(@PathVariable final Optional<Long> id) {
+//        final Long articleId = id.orElse(0L);
+//        articleService.updateLikeByArticleId(articleId);
+//    }
