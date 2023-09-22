@@ -1,6 +1,7 @@
 package kr.apartribebackend.global.config;
 
 import kr.apartribebackend.global.config.converter.CategoryConverter;
+import kr.apartribebackend.global.config.converter.LevelConverter;
 import kr.apartribebackend.global.resolver.AuthenticationResolver;
 import kr.apartribebackend.global.resolver.TokenResolver;
 import kr.apartribebackend.member.repository.MemberRepository;
@@ -21,6 +22,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new CategoryConverter());
+        registry.addConverter(new LevelConverter());
     }
 
     @Override
