@@ -1,4 +1,4 @@
-package kr.apartribebackend.global.validator;
+package kr.apartribebackend.article.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

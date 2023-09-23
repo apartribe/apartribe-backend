@@ -3,7 +3,7 @@ package kr.apartribebackend.article.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import kr.apartribebackend.global.validator.CategoryValidator;
+import kr.apartribebackend.article.validator.CategoryValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
