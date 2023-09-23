@@ -36,6 +36,9 @@ public class Member {
     @Column(name = "NICKNAME", nullable = false)
     private String nickname;
 
+    @Column(name = "PROFILE_IMAGE")
+    private String profileImageUrl;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "REFRESH_TOKEN_ID")
     private RefreshToken refreshToken;
@@ -46,12 +49,14 @@ public class Member {
                    String password,
                    String name,
                    String nickname,
+                   String profileImageUrl,
                    RefreshToken refreshToken) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
     }
 
@@ -76,11 +81,13 @@ public class Member {
     public void updateMemberInfo(String email,
                                  String password,
                                  String name,
-                                 String nickname) {
+                                 String nickname,
+                                 String profileImageUrl) {
          this.email = email;
          this.password = password;
          this.name = name;
          this.nickname = nickname;
+         this.profileImageUrl = profileImageUrl;
     }
 
     public void changeRefreshToken(RefreshToken refreshToken) {
