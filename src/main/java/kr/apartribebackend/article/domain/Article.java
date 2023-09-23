@@ -1,6 +1,7 @@
 package kr.apartribebackend.article.domain;
 
 import jakarta.persistence.*;
+import kr.apartribebackend.category.domain.Category;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,25 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue(value = "ARTICLE")
 public class Article extends Board {
 
-    @Column(name = "CATEGORY")
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
 }
+
+//@Getter @SuperBuilder
+//@Entity @Table(name = "ARTICLE")
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@DiscriminatorValue(value = "ARTICLE")
+//public class Article extends Board {
+//
+//    @Column(name = "CATEGORY")
+//    @Enumerated(EnumType.STRING)
+//    private Category category;
+//
+//}
+
+
 
 //package kr.apartribebackend.article.domain;
 //
