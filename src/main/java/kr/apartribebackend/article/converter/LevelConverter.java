@@ -1,4 +1,4 @@
-package kr.apartribebackend.global.config.converter;
+package kr.apartribebackend.article.converter;
 
 
 import kr.apartribebackend.article.domain.Level;
