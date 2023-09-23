@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Transactional
 @RequiredArgsConstructor
@@ -40,7 +41,8 @@ public class MemberService {
                                 newMemberInfo.getEmail(),
                                 newMemberInfo.getPassword(),
                                 newMemberInfo.getName(),
-                                newMemberInfo.getNickname()),
+                                newMemberInfo.getNickname(),
+                                newMemberInfo.getProfileImageUrl()),
                         () -> { throw new UserCantUpdateException(); });
     }
 
