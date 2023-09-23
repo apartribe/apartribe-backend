@@ -18,7 +18,7 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> SecurityContextHolder
+        return () -> SecurityContextHolder.getContext().getAuthentication() == null || SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getClass()
