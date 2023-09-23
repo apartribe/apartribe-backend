@@ -5,6 +5,7 @@ import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.exception.EmailDuplicateException;
+import kr.apartribebackend.member.exception.MalformedProfileImageLinkException;
 import kr.apartribebackend.member.exception.NicknameDuplicateException;
 import kr.apartribebackend.member.repository.MemberRepository;
 import kr.apartribebackend.auth.dto.MemberJoinReq;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
@@ -38,6 +40,12 @@ public class AuthController {
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
         if (!memberJoinReq.password().equals(memberJoinReq.passwordConfirm()))
             throw new PasswordNotEqualException();
+
+        if (memberJoinReq.profileImageUrl() != null) {
+            if (StringUtils.containsWhitespace(memberJoinReq.profileImageUrl()) ||
+                    memberJoinReq.profileImageUrl().contains("..") || memberJoinReq.profileImageUrl().contains("\\"))
+                throw new MalformedProfileImageLinkException();
+        }
 
         if (memberRepository.existsByEmail(memberJoinReq.email()))
             throw new EmailDuplicateException();

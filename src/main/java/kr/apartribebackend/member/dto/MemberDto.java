@@ -15,18 +15,21 @@ public class MemberDto {
     private String password;
     private String name;
     private String nickname;
+    private String profileImageUrl;
 
     @Builder
     private MemberDto(Long id,
                       String email,
                       String password,
                       String name,
-                      String nickname) {
+                      String nickname,
+                      String profileImageUrl) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public static MemberDto from(Member member) {
@@ -36,6 +39,7 @@ public class MemberDto {
                 .password(member.getPassword())
                 .name(member.getName())
                 .nickname(member.getNickname())
+                .profileImageUrl(member.getProfileImageUrl())
                 .build();
     }
 
@@ -46,6 +50,7 @@ public class MemberDto {
                 .password(password)
                 .name(name)
                 .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 
@@ -56,6 +61,7 @@ public class MemberDto {
                 .password(password)
                 .name(name)
                 .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
                 .refreshToken(refreshToken)
                 .build();
     }
