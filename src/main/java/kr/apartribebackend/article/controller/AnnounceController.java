@@ -58,7 +58,18 @@ public class AnnounceController {
         return apiResponse;
     }
 
-    @PostMapping(value = "/api/announce", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @PostMapping("/api/announce")
+    public ResponseEntity<Void> appendArticle(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestBody final AppendAnnounceReq announceInfo
+    ) {
+        final MemberDto memberDto = authenticatedMember.toDto();
+        final AnnounceDto announceDto = announceInfo.toDto();
+        announceService.appendArticle(announceDto, memberDto);
+        return ResponseEntity.status(CREATED).build();
+    }
+
+    @PostMapping(value = "/api/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendAnnounceReq announceInfo,
@@ -72,17 +83,5 @@ public class AnnounceController {
             announceService.appendArticle(announceDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
-
-    // TODO 첨부파일을 제외한 JSON 으로는 게시글 등록하는 API. 현재는 Deprecated 시킴.
-    //    @PostMapping("/api/article")
-    //    public ResponseEntity<Void> appendArticle(
-    //            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-    //            @Valid @RequestBody final AppendArticleReq appendArticleReq
-    //    ) {
-    //        final MemberDto memberDto = authenticatedMember.toDto();
-    //        final ArticleDto articleDto = appendArticleReq.toDto();
-    //        articleService.appendArticle(articleDto, memberDto);
-    //        return ResponseEntity.status(CREATED).build();
-    //    }
 
 }
