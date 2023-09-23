@@ -1,17 +1,19 @@
 package kr.apartribebackend.category.domain;
 
 import jakarta.persistence.*;
+import kr.apartribebackend.global.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
 
-@Getter
+@Getter @SuperBuilder
 @Entity @Table(name = "CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category {
+public class Category extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CATEGORY_ID")
@@ -19,12 +21,6 @@ public class Category {
 
     @Column(name = "NAME", nullable = false, length = 50)
     private String name;
-
-    @Builder
-    private Category(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     @Override
     public boolean equals(Object o) {
