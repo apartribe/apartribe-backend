@@ -3,7 +3,7 @@ package kr.apartribebackend.global.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import kr.apartribebackend.category.repository.CategoryRepository;
-import kr.apartribebackend.global.annotation.IsCategoryValid;
+import kr.apartribebackend.article.annotation.IsCategoryValid;
 import lombok.RequiredArgsConstructor;
 
 
@@ -24,7 +24,7 @@ public class CategoryValidator implements ConstraintValidator<IsCategoryValid, S
 //import jakarta.validation.ConstraintValidator;
 //import jakarta.validation.ConstraintValidatorContext;
 //import kr.apartribebackend.article.domain.Category;
-//import kr.apartribebackend.global.annotation.IsCategoryValid;
+//import kr.apartribebackend.article.annotation.IsCategoryValid;
 //
 //import java.util.Arrays;
 //

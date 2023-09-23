@@ -2,7 +2,7 @@ package kr.apartribebackend.article.dto.announce;
 
 import jakarta.validation.constraints.NotEmpty;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.global.annotation.IsLevelValid;
+import kr.apartribebackend.article.annotation.IsLevelValid;
 
 import java.util.Arrays;
 
