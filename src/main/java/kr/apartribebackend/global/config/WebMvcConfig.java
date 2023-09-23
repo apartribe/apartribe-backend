@@ -1,8 +1,8 @@
 package kr.apartribebackend.global.config;
 
 import kr.apartribebackend.category.repository.CategoryRepository;
-import kr.apartribebackend.global.config.converter.CategoryConverter;
-import kr.apartribebackend.global.config.converter.LevelConverter;
+import kr.apartribebackend.article.converter.CategoryConverter;
+import kr.apartribebackend.article.converter.LevelConverter;
 import kr.apartribebackend.global.resolver.AuthenticationResolver;
 import kr.apartribebackend.global.resolver.TokenResolver;
 import kr.apartribebackend.member.repository.MemberRepository;

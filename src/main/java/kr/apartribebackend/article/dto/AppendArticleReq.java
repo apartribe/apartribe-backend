@@ -23,7 +23,7 @@ public record AppendArticleReq(
 //
 //import jakarta.validation.constraints.NotEmpty;
 //import kr.apartribebackend.article.domain.Category;
-//import kr.apartribebackend.global.annotation.IsCategoryValid;
+//import kr.apartribebackend.article.annotation.IsCategoryValid;
 //
 //import java.util.Arrays;
 //
