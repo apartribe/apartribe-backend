@@ -16,6 +16,13 @@ public class CategoryDto {
         this.name = name;
     }
 
+    public static CategoryDto from(Category category) {
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
+    }
+
     public Category toEntity() {
         return Category.builder()
                 .id(id)
