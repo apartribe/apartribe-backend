@@ -1,9 +1,15 @@
 package kr.apartribebackend.comment.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
+import kr.apartribebackend.comment.dto.CommentRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,9 +18,34 @@ import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 
 @RequiredArgsConstructor
-public class CustomCommentRepositoryImpl implements CustomCommentRepository{
+public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public Page<CommentRes> findCommentsByBoardId(final Long boardId,
+                                                  final Pageable pageable) {
+        final List<Comment> commentLists = jpaQueryFactory
+                .selectFrom(comment)
+                .leftJoin(comment.parent).fetchJoin()
+                .where(comment.board.id.eq(boardId))
+                .orderBy(comment.parent.id.asc().nullsFirst(),
+                        comment.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        final List<CommentRes> commentRes = commentLists.stream()
+                .map(CommentRes::from)
+                .toList();
+
+        final JPAQuery<Long> countQuery = jpaQueryFactory
+                .select(comment.count())
+                .from(comment)
+                .leftJoin(comment.parent)
+                .where(comment.board.id.eq(boardId));
+
+        return PageableExecutionUtils.getPage(commentRes, pageable, countQuery::fetchOne);
+    }
 
     @Override
     public List<BestCommentResponse> bestCommentRankViaLastWeek() {
@@ -27,7 +58,8 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
                 .from(comment)
                 .innerJoin(comment.member, member)
                 .where(comment.createdAt.after(LocalDateTime.now().minusDays(7)))
-                .groupBy(member.nickname)
+                .groupBy(member.nickname).orderBy(comment.count().desc())
                 .fetch();
     }
+
 }
