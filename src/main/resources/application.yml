@@ -10,6 +10,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 
   data:
     web:
@@ -85,3 +86,12 @@ cloud:
       auto: false
     stack:
       auto: false
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-exception: false
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never

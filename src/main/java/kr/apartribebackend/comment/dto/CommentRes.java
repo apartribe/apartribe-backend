@@ -1,21 +1,23 @@
-package kr.apartribebackend.article.dto;
+package kr.apartribebackend.comment.dto;
 
+import kr.apartribebackend.article.dto.SingleCommentResponse;
 import kr.apartribebackend.comment.domain.Comment;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record SingleCommentResponse(
+public record CommentRes(
         Long id,
         String content,
         Integer liked,
         LocalDateTime createdAt,
         String createdBy,
-        List<SingleCommentResponse> children
+        List<CommentRes> children
 ) {
-    public static SingleCommentResponse from(Comment comment) {
-        return new SingleCommentResponse(
+
+    public static CommentRes from(Comment comment) {
+        return new CommentRes(
                 comment.getId(),
                 comment.getContent(),
                 comment.getLiked(),
@@ -23,8 +25,9 @@ public record SingleCommentResponse(
                 comment.getCreatedBy(),
                 comment.getChildren()
                         .stream()
-                        .map(SingleCommentResponse::from)
+                        .map(CommentRes::from)
                         .collect(Collectors.toList())
         );
     }
+
 }
