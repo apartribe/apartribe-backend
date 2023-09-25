@@ -12,6 +12,15 @@ public record ErrorResponse (
         String error,
         Map<String, String> validation
 ){
+
+    public static ErrorResponse NOT_FOUND(String error) {
+        return ErrorResponse.of(NOT_FOUND, error);
+    }
+
+    public static ErrorResponse SERVER_ERROR(String error) {
+        return ErrorResponse.of(SERVER_ERROR, error);
+    }
+
     public static ErrorResponse BAD_REQUEST(String error) {
         return ErrorResponse.of(BAD_REQUEST, error);
     }
