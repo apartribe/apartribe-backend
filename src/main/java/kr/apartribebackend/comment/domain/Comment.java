@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
+import java.util.*;
 
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity @Table(name = "COMMENT")
@@ -33,9 +33,13 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "ARTICLE_ID")
-//    private Article article;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @OrderBy("createdAt desc")
+    private final Set<Comment> children = new HashSet<>();
 
     @Builder
     private Comment(Long id,
@@ -69,6 +73,10 @@ public class Comment extends BaseEntity {
             this.board.getComments().remove(this);
         this.board = board;
         board.getComments().add(this);
+    }
+
+    public void registParent(Comment parent) {
+        this.parent = parent;
     }
 
 }
