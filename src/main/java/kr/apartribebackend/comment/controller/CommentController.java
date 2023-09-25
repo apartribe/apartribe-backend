@@ -1,14 +1,16 @@
 package kr.apartribebackend.comment.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.comment.dto.AppendCommentReq;
-import kr.apartribebackend.comment.dto.BestCommentResponse;
-import kr.apartribebackend.comment.dto.CommentDto;
+import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,17 +26,29 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/api/board/comment/{id}")
-    public ResponseEntity<Void> appendCommentToArticle(
+    @PostMapping({"/api/board/{id}/comment", "/api/board/comment"})
+    public ResponseEntity<Void> appendCommentToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @PathVariable final Optional<Long> id,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final Long articleId = id.orElse(0L);
+        final Long parentId = appendCommentReq.parentId();
+        final Long boardId = id.orElse(0L);
         final CommentDto commentDto = appendCommentReq.toDto();
-        commentService.appendCommentToArticle(memberDto, articleId, commentDto);
+        commentService.appendCommentToBoard(memberDto, boardId, parentId, commentDto);
         return ResponseEntity.status(CREATED).build();
+    }
+
+    @GetMapping({"/api/board/{id}/comment", "/api/board/comment"})
+    public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
+            @PathVariable final Optional<Long> id,
+            @PageableDefault final Pageable pageable) {
+        final Long boardId = id.orElse(0L);
+        final Page<CommentRes> commentsByBoardId = commentService.findCommentsByBoardId(boardId, pageable);
+        final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
+        final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
     }
 
     @GetMapping("/api/board/comment/best")
@@ -45,3 +59,16 @@ public class CommentController {
     }
 
 }
+
+//    @PostMapping("/api/board/comment/{id}")
+//    public ResponseEntity<Void> appendCommentToArticle(
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+//            @PathVariable final Optional<Long> id,
+//            @Valid @RequestBody final AppendCommentReq appendCommentReq
+//    ) {
+//        final MemberDto memberDto = authenticatedMember.toDto();
+//        final Long articleId = id.orElse(0L);
+//        final CommentDto commentDto = appendCommentReq.toDto();
+//        commentService.appendCommentToBoard(memberDto, articleId, commentDto);
+//        return ResponseEntity.status(CREATED).build();
+//    }
