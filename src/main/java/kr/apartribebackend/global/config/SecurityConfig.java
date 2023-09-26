@@ -175,15 +175,17 @@ public class SecurityConfig {
     @Bean                                                   // TODO 수정 필요
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.setAllowedMethods(List.of("POST", "GET", "PUT", "OPTIONS", "DELETE", "HEAD"));
-        corsConfiguration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
-        corsConfiguration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
+        corsConfiguration.addAllowedOriginPattern("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return urlBasedCorsConfigurationSource;
     }
 
 }
+
+//        corsConfiguration.setAllowedMethods(List.of("POST", "GET", "PUT", "OPTIONS", "DELETE", "HEAD"));
+//        corsConfiguration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
+//        corsConfiguration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
