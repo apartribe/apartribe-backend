@@ -1,17 +1,17 @@
 package kr.apartribebackend.global.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.apartribebackend.global.dto.TokenResponse;
 import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +23,9 @@ import java.util.Map;
 @Slf4j @RequiredArgsConstructor
 public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private static final String BEARER = "Bearer ";
-
     private final JwtService jwtService;
 
+    private final ObjectMapper objectMapper;
 
     @Override @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -36,26 +35,36 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
         final AuthenticatedMember authenticatedMember = (AuthenticatedMember) authentication.getPrincipal();
 
         final String accessToken = jwtService.generateAccessToken(
-//                authenticatedMember.getUsername(), Map.of("email", authenticatedMember.email())
                 authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
         );
 
-        String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
-        Member member = ((AuthenticatedMember) authentication.getPrincipal()).getOriginalEntity();
-        RefreshToken refreshToken = RefreshToken.builder()
+        final String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
+        final Member member = ((AuthenticatedMember) authentication.getPrincipal()).getOriginalEntity();
+        final RefreshToken refreshToken = RefreshToken.builder()
                 .token(refToken)
                 .build();
-        member.changeRefreshToken(refreshToken);
+        if (member.getRefreshToken() != null) {
+            member.changeRefreshTokenValue(refreshToken);
+        } else {
+            member.changeRefreshToken(refreshToken);
+        }
 
-        final ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refToken)
-                .path("/")
-                .httpOnly(true)
-                .sameSite("None")
-                .secure(true)
-                .build();
+        final TokenResponse tokenResponse = TokenResponse.of(accessToken, refToken);
+        final String tokenResponseJson = objectMapper.writeValueAsString(tokenResponse);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
-        response.setHeader(HttpHeaders.AUTHORIZATION, BEARER + accessToken);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.getWriter().println(tokenResponseJson);
     }
 }
+
+
+//    final ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refToken)
+//            .path("/")
+//            .httpOnly(true)
+//            .sameSite("None")
+//            .secure(true)
+//            .maxAge(60 * 60 * 24)
+//            .build();
+
+//    response.setHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+//    response.setHeader(HttpHeaders.AUTHORIZATION, BEARER + accessToken);
