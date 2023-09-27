@@ -126,7 +126,7 @@ public class SecurityConfig {
     @Bean
     public JwtValidationFilter jwtValidationFilter() {
         final JwtValidationFilter jwtValidationFilter =
-                new JwtValidationFilter(jwtService, memberRepository, refreshTokenRepository);
+                new JwtValidationFilter(jwtService, memberRepository, refreshTokenRepository, objectMapper);
         jwtValidationFilter.setFilterExcludePath(Set.of("/api/auth"));
         jwtValidationFilter.setReIssuedTokenPath("/api/reissue/token");
         return jwtValidationFilter;
@@ -149,7 +149,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler jsonLoginSuccessHandler() {
-        return new JsonLoginSuccessHandler(jwtService);
+        return new JsonLoginSuccessHandler(jwtService, objectMapper);
     }
 
     @Bean
@@ -172,20 +172,18 @@ public class SecurityConfig {
     @Bean
     public OAuth2UserService oAuth2UserService() { return new OAuth2UserService(); }
 
-    @Bean                                                   // TODO 수정 필요
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return urlBasedCorsConfigurationSource;
     }
 
 }
-
-//        corsConfiguration.setAllowedMethods(List.of("POST", "GET", "PUT", "OPTIONS", "DELETE", "HEAD"));
-//        corsConfiguration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
-//        corsConfiguration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE, HttpHeaders.COOKIE));
