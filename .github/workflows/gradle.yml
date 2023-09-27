@@ -1,0 +1,58 @@
+name: Java CD with Gradle
+
+on:
+  push:
+    branches: [ "main" , "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to project
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Make application-dev.yml
+        run: |
+          cd ./src/main/resources
+          echo "${{ secrets.APPLICATION_DEV }}" > ./application-dev.yml
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Delivery File
+        uses: appleboy/ssh-action@master
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./build/libs/*.jar"
+          target: "source"
+          rm: true
+
+      - name: Execute Jar
+        uses: appleboy/ssh-action@master
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: | 
+            PROCESS_ID=$(ps aux | grep -i 'java -jar' | grep -v grep | tr ' ' '\n' | sed -e '/^$/d' | head -2 | tail -1)
+            if [[ -n $PROCESS_ID ]]; then
+                echo "Another Process Running"
+                kill -9 $PROCESS_ID
+                nohup java -jar *.jar --spring.profiles.active=dev &
+            else
+                echo "Nothing Process Running"
+                nohup java -jar *.jar --spring.profiles.active=dev &
+            fi
