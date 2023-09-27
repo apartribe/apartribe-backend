@@ -37,4 +37,11 @@ public class RefreshToken {
         this.id = id;
         this.token = token;
     }
+
+    /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
+
+    public void updateTokenValue(String tokenValue) {
+        this.token = tokenValue;
+    }
+
 }

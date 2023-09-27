@@ -13,8 +13,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class JsonLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -31,9 +33,11 @@ public class JsonLoginAuthenticationFilter extends AbstractAuthenticationProcess
     @Override
         public Authentication attemptAuthentication(HttpServletRequest request,
                 HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-            final LoginReq loginRequest = objectMapper.readValue(request.getInputStream(), LoginReq.class);
-            final UsernamePasswordAuthenticationToken unauthenticatedToken =
-                    UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email(), loginRequest.password());
+        final String loginRequestString = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
+        final LoginReq loginReq = objectMapper.readValue(loginRequestString, LoginReq.class);
+        log.info("loginReq = {}", loginReq);
+        final UsernamePasswordAuthenticationToken unauthenticatedToken =
+                    UsernamePasswordAuthenticationToken.unauthenticated(loginReq.email(), loginReq.password());
             return getAuthenticationManager().authenticate(unauthenticatedToken);
     }
 

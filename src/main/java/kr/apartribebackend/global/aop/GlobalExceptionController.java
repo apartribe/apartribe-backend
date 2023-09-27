@@ -77,6 +77,7 @@ public class GlobalExceptionController {
         switch (exceptionName) {
             case "ExpiredJwtException" -> errorResponse = ErrorResponse.of(401, "토큰 만료.");
             case "SignatureException" -> errorResponse = ErrorResponse.of(401, "토큰 서명 검증 실패.");
+            case "NotExistsRefreshTokenException" -> errorResponse = ErrorResponse.of(401, "Refresh Token 불일치.");
             default -> errorResponse = ErrorResponse.of(401, "토큰 에러");
         }
         final APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
