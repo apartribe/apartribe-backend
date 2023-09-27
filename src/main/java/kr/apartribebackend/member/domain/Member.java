@@ -1,12 +1,9 @@
 package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
-import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity @Getter
@@ -92,6 +89,10 @@ public class Member {
 
     public void changeRefreshToken(RefreshToken refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public void changeRefreshTokenValue(RefreshToken refreshToken) {
+        this.refreshToken.updateTokenValue(refreshToken.getToken());
     }
 
     public void updateNickname(String nickname) {
