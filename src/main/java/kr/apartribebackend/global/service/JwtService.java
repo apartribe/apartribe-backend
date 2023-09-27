@@ -100,7 +100,7 @@ public class JwtService {
 
     public String generateRefreshToken(String subject) {
         return buildToken(subject,
-                new HashMap<>(),
+                new HashMap<>(Map.of("type", "refresh")),
                 refreshTokenExpiration,
                 getSigningKey(refreshTokenSecretKey));
     }
