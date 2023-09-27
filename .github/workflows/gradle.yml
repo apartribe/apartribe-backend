@@ -36,7 +36,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./build/libs/*.jar"
+          source: "build/libs/*.jar"
           target: "source"
           rm: true
 
@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: | 
             PROCESS_ID=$(ps aux | grep -i 'java -jar' | grep -v grep | tr ' ' '\n' | sed -e '/^$/d' | head -2 | tail -1)
-            if [[ -n $PROCESS_ID ]]; then
+            if [[ -z $PROCESS_ID ]]; then
                 echo "Another Process Running"
                 kill -9 $PROCESS_ID
                 nohup java -jar *.jar --spring.profiles.active=dev &
