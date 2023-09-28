@@ -57,5 +57,5 @@ jobs:
                 echo "Another Process Running"
                 kill -9 $PROCESS_ID
             fi
-            nohup java -jar $EXECUTABLE_SPRING_JAR_PATH --spring.profiles.active=dev > output.log 2>&1 &
+            nohup java -jar $EXECUTABLE_SPRING_JAR_PATH --spring.profiles.active=dev > $EXECUTABLE_SPRING_JAR_PATH/output.log 2>&1 &
             sleep 1
