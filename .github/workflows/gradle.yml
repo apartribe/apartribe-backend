@@ -33,10 +33,10 @@ jobs:
       - name: Delivery File
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
           port: 22
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           source: "build/libs/*.jar"
           target: "spring"
           rm: true
@@ -44,9 +44,9 @@ jobs:
       - name: Execute Jar
         uses: appleboy/ssh-action@master
         with:
-          username: ${{ secrets.SSH_USERNAME }}
-          host: ${{ secrets.SSH_HOST }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ${{ secrets.USERNAME }}
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: | 
             PROCESS_ID=$(ps aux | grep -i 'java -jar' | grep -v grep | tr ' ' '\n' | sed -e '/^$/d' | head -2 | tail -1)
             if [[ -z $PROCESS_ID ]]; then
