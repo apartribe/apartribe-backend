@@ -1,7 +1,7 @@
 name: Java CD with Gradle
 
 on:
-  push:
+  pull_request:
     branches: [ "main" , "develop" ]
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         run: ./gradlew build
 
       - name: Delivery File
-        uses: appleboy/ssh-action@master
+        uses: appleboy/scp-action@master
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
