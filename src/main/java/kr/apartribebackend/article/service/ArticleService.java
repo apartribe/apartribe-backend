@@ -1,8 +1,10 @@
 package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Article;
+import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
+import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
@@ -55,6 +57,13 @@ public class ArticleService {
             attachment.registBoard(article);
         }
         attachmentService.saveAttachments(attachments);
+    }
+
+    @Transactional
+    public void updateLikeByArticleId(final Long articleId) {
+        articleRepository.findById(articleId)
+                .ifPresentOrElse(Board::reflectArticleLike,
+                        () -> { throw new CannotReflectLikeToArticleException(); });
     }
 
     public Page<ArticleResponse> findMultipleArticlesByCategory(final String category,
