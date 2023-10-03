@@ -3,6 +3,7 @@ package kr.apartribebackend.article.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
+import kr.apartribebackend.article.service.BoardService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -30,6 +31,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public class ArticleController {
 
     private final ArticleService articleService;
+
+    private final BoardService boardService;
 
     @GetMapping({"/api/article/{id}", "/api/article/"})
     public APIResponse<SingleArticleResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
@@ -78,6 +81,12 @@ public class ArticleController {
         else
             articleService.appendArticle(category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
+    }
+
+    @GetMapping({"/api/article/{id}/like", "/api/article/like"})
+    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
+        final Long articleId = id.orElse(0L);
+        boardService.updateLikeByBoardId(articleId);
     }
 
     @GetMapping("/api/article/best/liked")
