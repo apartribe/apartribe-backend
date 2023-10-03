@@ -1,10 +1,12 @@
 package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Announce;
+import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceDto;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
+import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
@@ -42,6 +44,12 @@ public class AnnounceService {
     public Page<AnnounceDto> findAllAnnounces(final Pageable pageable) {
         return announceRepository.findAll(pageable)
                 .map(AnnounceDto::from);
+    }
+
+    public void updateLikeByAnnounceId(final Long announceId) {
+        announceRepository.findById(announceId)
+                .ifPresentOrElse(Board::reflectArticleLike,
+                        () -> { throw new CannotReflectLikeToArticleException(); });
     }
 
     public SingleAnnounceResponse findSingleAnnounceById(final Long announceId) {

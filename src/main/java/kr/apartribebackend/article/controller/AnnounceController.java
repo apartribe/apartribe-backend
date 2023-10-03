@@ -8,7 +8,6 @@ import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.AppendAnnounceReq;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
 import kr.apartribebackend.article.service.AnnounceService;
-import kr.apartribebackend.article.service.BoardService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -36,8 +35,6 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public class AnnounceController {
 
     private final AnnounceService announceService;
-
-    private final BoardService boardService;
 
     @GetMapping({"/api/announce/{id}", "/api/announce/"})
     public APIResponse<SingleAnnounceResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
@@ -90,7 +87,7 @@ public class AnnounceController {
     @GetMapping({"/api/announce/{id}/like", "/api/announce/like"})
     public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
         final Long announceId = id.orElse(0L);
-        boardService.updateLikeByBoardId(announceId);
+        announceService.updateLikeByAnnounceId(announceId);
     }
 
 }
