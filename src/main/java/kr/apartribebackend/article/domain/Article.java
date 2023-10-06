@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue(value = "ARTICLE")
 public class Article extends Board {
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
