@@ -41,6 +41,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("ApplicationInit Called() -2-");
 
+        if (memberRepository.existsByEmail("bcl0206@naver.com"))
+            return;
+
         Member bcl = createUser("방충림", "white_h4ck3r_bcl", "bcl0206@naver.com", passwordEncoder.encode("방충림1!"), "");
         Member jieun2 = createUser("이지은", "scary_girl", "jieun2@apartlive.com", passwordEncoder.encode("qwer1234!"), "");
         memberRepository.saveAll(List.of(bcl, jieun2));
