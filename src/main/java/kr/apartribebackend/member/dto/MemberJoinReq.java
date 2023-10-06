@@ -1,7 +1,8 @@
-package kr.apartribebackend.auth.dto;
+package kr.apartribebackend.member.dto;
 
-import jakarta.validation.constraints.*;
-import kr.apartribebackend.member.dto.MemberDto;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.util.StringUtils;
 
 public record MemberJoinReq(
