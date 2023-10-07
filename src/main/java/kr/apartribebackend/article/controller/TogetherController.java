@@ -2,17 +2,19 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.together.AppendTogetherReq;
+import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.service.TogetherService;
-import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -27,7 +29,7 @@ public class TogetherController {
 
     @GetMapping({"/api/together/{id}", "/api/together/"})
     public void findSingleArticle() {
-        System.out.println("triggered findSingleArticle");
+        System.out.println("triggered mapping2");
     }
 
     @GetMapping("/api/together")
@@ -45,13 +47,24 @@ public class TogetherController {
     }
 
     @PostMapping(value = "/api/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
-    public void attachmentToAWS() {
-        System.out.println("triggered mapping3");
+    public ResponseEntity<Void> attachmentToAWS(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestPart final AppendTogetherReq togetherInfo,
+            @RequestPart(required = false) final List<MultipartFile> file) throws IOException {
+        final String category = togetherInfo.category();
+        final MemberDto memberDto = authenticatedMember.toDto();
+        final TogetherDto togetherDto = togetherInfo.toDto();
+        if (file != null)
+            togetherService.appendTogether(category, memberDto, togetherDto, file);
+        else
+            togetherService.appendTogether(category, memberDto, togetherDto);
+        return ResponseEntity.status(CREATED).build();
     }
 
     @GetMapping({"/api/together/{id}/like", "/api/together/like"})
-    public void updateLikeByBoardId() {
-        System.out.println("triggered mapping3");
+    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
+        final Long togetherId = id.orElse(0L);
+        togetherService.updateLikeByTogetherId(togetherId);
     }
 
 }
