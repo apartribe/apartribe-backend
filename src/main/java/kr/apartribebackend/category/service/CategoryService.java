@@ -13,6 +13,7 @@ import java.util.List;
 
 import static kr.apartribebackend.category.domain.CategoryTag.*;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class CategoryService {
@@ -32,9 +33,11 @@ public class CategoryService {
     }
 
     public List<ArticleCategoryDto> listArticleCategory() {
-        return categoryRepository.findCategoriesByTag(ARTICLE).stream()
-                .map(ArticleCategoryDto::from)
-                .toList();
+        return listCategory(ARTICLE);
+    }
+
+    public List<ArticleCategoryDto> listTogetherCategory() {
+        return listCategory(TOGETHER);
     }
 
     public void addCategory(final String categoryTag,
@@ -42,6 +45,12 @@ public class CategoryService {
         categoryRepository.findCategoryByTagAndName(categoryTag, category.getName())
                 .ifPresentOrElse(c -> { throw new CategoryAlreadyExistsException(); },
                         () -> categoryRepository.save(category));
+    }
+
+    public List<ArticleCategoryDto> listCategory(final String categoryTag) {
+        return categoryRepository.findCategoriesByTag(categoryTag).stream()
+                .map(ArticleCategoryDto::from)
+                .toList();
     }
 
 }

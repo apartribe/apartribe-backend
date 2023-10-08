@@ -1,7 +1,6 @@
 package kr.apartribebackend.category.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.category.domain.CategoryTag;
 import kr.apartribebackend.category.dto.ArticleCategoryAppendReq;
 import kr.apartribebackend.category.dto.CategoryListRes;
 import kr.apartribebackend.category.dto.TogetherCategoryAppendReq;
@@ -47,9 +46,19 @@ public class CategoryController {
     }
 
     // TODO 나중에 카테고리 리스트를 출력할때, 아파트 정보를 매개변수로 주고, 필터링해야 한다.
-    @GetMapping("/api/category/list")
-    public APIResponse<List<CategoryListRes>> listCategory() {
+    @GetMapping("/api/category/article/list")
+    public APIResponse<List<CategoryListRes>> listArticleCategory() {
         final List<CategoryListRes> categoryListRes = categoryService.listArticleCategory()
+                .stream().map(CategoryListRes::from)
+                .collect(Collectors.toList());
+        final APIResponse<List<CategoryListRes>> apiResponse = APIResponse.SUCCESS(categoryListRes);
+        return apiResponse;
+    }
+
+    // TODO 나중에 카테고리 리스트를 출력할때, 아파트 정보를 매개변수로 주고, 필터링해야 한다.
+    @GetMapping("/api/category/together/list")
+    public APIResponse<List<CategoryListRes>> listTogetherCategory() {
+        final List<CategoryListRes> categoryListRes = categoryService.listTogetherCategory()
                 .stream().map(CategoryListRes::from)
                 .collect(Collectors.toList());
         final APIResponse<List<CategoryListRes>> apiResponse = APIResponse.SUCCESS(categoryListRes);
