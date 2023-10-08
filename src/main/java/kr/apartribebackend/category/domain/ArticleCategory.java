@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "ARTICLE")
+@DiscriminatorValue(value = CategoryTag.ARTICLE)
 public class ArticleCategory extends Category{
 
 }
