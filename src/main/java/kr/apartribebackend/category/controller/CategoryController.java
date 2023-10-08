@@ -29,14 +29,14 @@ public class CategoryController {
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final CategoryAppendReq categoryAppendReq
     ) {
-        categoryService.addCategory(categoryAppendReq.toDto());
+        categoryService.addArticleCategory(categoryAppendReq.toDto());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // TODO 나중에 카테고리 리스트를 출력할때, 아파트 정보를 매개변수로 주고, 필터링해야 한다.
     @GetMapping("/api/category/list")
     public APIResponse<List<CategoryListRes>> listCategory() {
-        final List<CategoryListRes> categoryListRes = categoryService.listCategory()
+        final List<CategoryListRes> categoryListRes = categoryService.listArticleCategory()
                 .stream().map(CategoryListRes::from)
                 .collect(Collectors.toList());
         final APIResponse<List<CategoryListRes>> apiResponse = APIResponse.SUCCESS(categoryListRes);
