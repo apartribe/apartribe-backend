@@ -6,7 +6,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
-import kr.apartribebackend.category.domain.Category;
+import kr.apartribebackend.category.domain.ArticleCategory;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.repository.CommentRepository;
@@ -55,9 +55,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         announces1.addAll(announces3);
         announceRepository.saveAll(announces1);
 
-        Category category1 = createCategory("인기");
-        Category category2 = createCategory("신혼 부부 정보 공유");
-        Category category3 = createCategory("고양이 집사 모임");
+        ArticleCategory category1 = createCategory("인기");
+        ArticleCategory category2 = createCategory("신혼 부부 정보 공유");
+        ArticleCategory category3 = createCategory("고양이 집사 모임");
         categoryRepository.saveAll(List.of(category1, category2, category3));
 
         List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용");
@@ -122,8 +122,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .build();
     }
 
-    private static Category createCategory(String name) {
-        return Category.builder()
+    private static ArticleCategory createCategory(String name) {
+        return ArticleCategory.builder()
                 .name(name)
                 .build();
     }
@@ -143,7 +143,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .collect(Collectors.toList());
     }
 
-    private static Article createArticle(Member member, Category category, String title, String content) {
+    private static Article createArticle(Member member, ArticleCategory category, String title, String content) {
         return Article.builder()
                 .member(member)
                 .category(category)
@@ -152,7 +152,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .build();
     }
 
-    private static List<Article> createArticles(Integer count, Member member, Category category, String title, String content) {
+    private static List<Article> createArticles(Integer count, Member member, ArticleCategory category, String title, String content) {
         return IntStream.rangeClosed(0, count)
                 .mapToObj(integer -> createArticle(member, category, title + " " + integer, content + integer + " " + integer))
                 .collect(Collectors.toList());

@@ -6,8 +6,8 @@ public record CategoryAppendReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다.") String category
 ) {
 
-    public CategoryDto toDto() {
-        return CategoryDto.builder()
+    public ArticleCategoryDto toDto() {
+        return ArticleCategoryDto.builder()
                 .name(category)
                 .build();
     }
