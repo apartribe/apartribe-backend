@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "TOGETHER")
+@DiscriminatorValue(value = CategoryTag.TOGETHER)
 public class TogetherCategory extends Category {
 
 }
