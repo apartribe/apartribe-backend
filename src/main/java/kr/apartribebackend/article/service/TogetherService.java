@@ -8,6 +8,7 @@ import kr.apartribebackend.article.repository.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
+import kr.apartribebackend.category.domain.CategoryTag;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.member.domain.Member;
@@ -19,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
+import static kr.apartribebackend.category.domain.CategoryTag.*;
 
 
 @Transactional(readOnly = true)
@@ -34,7 +37,7 @@ public class TogetherService {
     public Together appendTogether(final String category,
                                    final MemberDto memberDto,
                                    final TogetherDto togetherDto) {
-        final Category categoryEntity = categoryRepository.findByName(category)
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
         final Member member = memberDto.toEntity();
         final Together together = togetherDto.toEntity(categoryEntity, member);
