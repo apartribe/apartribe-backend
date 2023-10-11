@@ -21,15 +21,15 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void addArticleCategory(final String categoryTag,
+    public Category addArticleCategory(final String categoryTag,
                                    final ArticleCategoryDto articleCategoryDto) {
-        addCategory(categoryTag, articleCategoryDto.toEntity());
+        return addCategory(categoryTag, articleCategoryDto.toEntity());
     }
 
     @Transactional
-    public void addTogetherCategory(final String categoryTag,
+    public Category addTogetherCategory(final String categoryTag,
                                     final TogetherCategoryDto togetherCategoryDto) {
-        addCategory(categoryTag, togetherCategoryDto.toEntity());
+        return addCategory(categoryTag, togetherCategoryDto.toEntity());
     }
 
     public List<ArticleCategoryDto> listArticleCategory() {
@@ -40,11 +40,11 @@ public class CategoryService {
         return listCategory(TOGETHER);
     }
 
-    public void addCategory(final String categoryTag,
+    public Category addCategory(final String categoryTag,
                             final Category category) {
         categoryRepository.findCategoryByTagAndName(categoryTag, category.getName())
-                .ifPresentOrElse(c -> { throw new CategoryAlreadyExistsException(); },
-                        () -> categoryRepository.save(category));
+                .ifPresent(c -> { throw new CategoryAlreadyExistsException(); });
+        return categoryRepository.save(category);
     }
 
     public List<ArticleCategoryDto> listCategory(final String categoryTag) {
