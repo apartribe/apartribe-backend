@@ -1,9 +1,8 @@
 package kr.apartribebackend.category.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.category.dto.ArticleCategoryAppendReq;
-import kr.apartribebackend.category.dto.CategoryListRes;
-import kr.apartribebackend.category.dto.TogetherCategoryAppendReq;
+import kr.apartribebackend.category.domain.Category;
+import kr.apartribebackend.category.dto.*;
 import kr.apartribebackend.category.service.CategoryService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
@@ -28,21 +27,25 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/api/category/article/add")
-    public ResponseEntity<Void> addArticleCategory(
+    public ResponseEntity<APIResponse<CategoryResponse>> addArticleCategory(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final ArticleCategoryAppendReq articleCategoryAppendReq
     ) {
-        categoryService.addArticleCategory(ARTICLE, articleCategoryAppendReq.toDto());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        final Category category = categoryService.addArticleCategory(ARTICLE, articleCategoryAppendReq.toDto());
+        final CategoryResponse categoryResponse = CategoryResponse.from(category);
+        final APIResponse<CategoryResponse> apiResponse = APIResponse.SUCCESS(categoryResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     @PostMapping("/api/category/together/add")
-    public ResponseEntity<Void> addTogetherCategory(
+    public ResponseEntity<APIResponse<CategoryResponse>> addTogetherCategory(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final TogetherCategoryAppendReq togetherCategoryAppendReq
     ) {
-        categoryService.addTogetherCategory(TOGETHER, togetherCategoryAppendReq.toDto());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        final Category category = categoryService.addTogetherCategory(TOGETHER, togetherCategoryAppendReq.toDto());
+        final CategoryResponse categoryResponse = CategoryResponse.from(category);
+        final APIResponse<CategoryResponse> apiResponse = APIResponse.SUCCESS(categoryResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     // TODO 나중에 카테고리 리스트를 출력할때, 아파트 정보를 매개변수로 주고, 필터링해야 한다.
