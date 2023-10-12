@@ -1,6 +1,7 @@
 package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
+import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.*;
 
@@ -40,6 +41,10 @@ public class Member {
     @JoinColumn(name = "REFRESH_TOKEN_ID")
     private RefreshToken refreshToken;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "APART_ID")
+    private Apartment apartment;
+
     @Builder
     private Member(Long id,
                    String email,
@@ -47,7 +52,8 @@ public class Member {
                    String name,
                    String nickname,
                    String profileImageUrl,
-                   RefreshToken refreshToken) {
+                   RefreshToken refreshToken,
+                   Apartment apartment) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -55,6 +61,7 @@ public class Member {
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
+        this.apartment = apartment;
     }
 
     @Override
@@ -97,6 +104,14 @@ public class Member {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void changeApartment(Apartment apartment) {
+        if (this.apartment != null) {
+            this.apartment.getMembers().remove(this);
+        }
+        this.apartment = apartment;
+        apartment.getMembers().add(this);
     }
 
 }

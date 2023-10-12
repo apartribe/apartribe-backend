@@ -14,6 +14,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -107,6 +108,15 @@ public class GlobalExceptionController {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<APIResponse<ErrorResponse>> methodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException exception) {
         ErrorResponse errorResponse = ErrorResponse.of(400, "잘못된 요청입니다.");
+        APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
+    }
+
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<APIResponse<ErrorResponse>> missingPathVariableException(final MissingPathVariableException exception) {
+        ErrorResponse errorResponse = ErrorResponse.of(400, "uri 에 path 변수를 명시해야합니다. 다시 확인해주세요.");
         APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
         return ResponseEntity
                 .status(errorResponse.code())
