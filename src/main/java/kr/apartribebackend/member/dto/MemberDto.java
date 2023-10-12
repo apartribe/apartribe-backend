@@ -1,5 +1,6 @@
 package kr.apartribebackend.member.dto;
 
+import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.AccessLevel;
@@ -16,6 +17,8 @@ public class MemberDto {
     private String name;
     private String nickname;
     private String profileImageUrl;
+    private RefreshToken refreshToken;
+    private Apartment apartment;
 
     @Builder
     private MemberDto(Long id,
@@ -23,13 +26,17 @@ public class MemberDto {
                       String password,
                       String name,
                       String nickname,
-                      String profileImageUrl) {
+                      String profileImageUrl,
+                      RefreshToken refreshToken,
+                      Apartment apartment) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+        this.refreshToken = refreshToken;
+        this.apartment = apartment;
     }
 
     public static MemberDto from(Member member) {
