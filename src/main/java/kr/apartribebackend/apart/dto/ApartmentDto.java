@@ -19,6 +19,13 @@ public class ApartmentDto {
         this.name = name;
     }
 
+    public static ApartmentDto from(Apartment apartment) {
+        return ApartmentDto.builder()
+                .code(apartment.getCode())
+                .name(apartment.getName())
+                .build();
+    }
+
     public Apartment toEntity() {
         return Apartment.builder()
                 .id(id)
