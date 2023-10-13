@@ -21,13 +21,25 @@ public record AppendTogetherReq(
         @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus
 ) {
     public TogetherDto toDto() {
+        final RecruitStatus recruitStatus;
+        final LocalDate currentDay = LocalDate.now();
+        final LocalDate from = LocalDate.parse(recruitFrom);
+        final LocalDate to = LocalDate.parse(recruitFrom);
+
+        if (currentDay.isBefore(from)) {
+            recruitStatus = RecruitStatus.NOT_YET;
+        } else if (currentDay.isAfter(to)) {
+            recruitStatus = RecruitStatus.END;
+        } else {
+            recruitStatus = RecruitStatus.STILL;
+        }
         return TogetherDto.builder()
                 .title(title)
                 .description(description)
                 .content(content)
-                .recruitFrom(LocalDate.parse(recruitFrom))
-                .recruitTo(LocalDate.parse(recruitTo))
-                .recruitStatus(RecruitStatus.STILL)
+                .recruitFrom(from)
+                .recruitTo(to)
+                .recruitStatus(recruitStatus)
                 .meetTime(meetTime)
                 .target(target)
                 .location(location)
