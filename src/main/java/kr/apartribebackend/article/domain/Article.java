@@ -18,6 +18,15 @@ public class Article extends Board {
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
+    public Article updateArticle(Category category,
+                              String title,
+                              String content) {
+        this.category = category;
+        setTitle(title);
+        setContent(content);
+        return this;
+    }
+
 }
 
 //@Getter @SuperBuilder
