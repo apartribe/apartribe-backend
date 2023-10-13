@@ -47,4 +47,28 @@ public class Together extends Board {
 
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
 
+    public Together updateTogether(Category category,
+                                   String title,
+                                   String description,
+                                   String content,
+                                   LocalDate recruitFrom,
+                                   LocalDate recruitTo,
+                                   String meetTime,
+                                   String target,
+                                   String location,
+                                   Boolean contributeStatus,
+                                   RecruitStatus recruitStatus) {
+        this.category = category;
+        setTitle(title);
+        this.description = description;
+        setContent(content);
+        this.recruitFrom = recruitFrom;
+        this.recruitTo = recruitTo;
+        this.meetTime = meetTime;
+        this.target = target;
+        this.location = location;
+        this.contributeStatus = contributeStatus;
+        this.recruitStatus = recruitStatus;
+        return this;
+    }
 }
