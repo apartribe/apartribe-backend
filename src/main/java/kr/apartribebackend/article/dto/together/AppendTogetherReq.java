@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import kr.apartribebackend.article.annotation.LocalDateIsValid;
+import kr.apartribebackend.article.domain.RecruitStatus;
 
 import java.time.LocalDate;
 
@@ -26,6 +27,7 @@ public record AppendTogetherReq(
                 .content(content)
                 .recruitFrom(LocalDate.parse(recruitFrom))
                 .recruitTo(LocalDate.parse(recruitTo))
+                .recruitStatus(RecruitStatus.STILL)
                 .meetTime(meetTime)
                 .target(target)
                 .location(location)

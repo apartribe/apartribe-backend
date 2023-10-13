@@ -1,6 +1,7 @@
 package kr.apartribebackend.article.dto.together;
 
 
+import kr.apartribebackend.article.domain.RecruitStatus;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.member.domain.Member;
@@ -18,6 +19,7 @@ public class TogetherDto {
     private String content;
     private LocalDate recruitFrom;
     private LocalDate recruitTo;
+    private RecruitStatus recruitStatus;
     private String meetTime;
     private String target;
     private String location;
@@ -30,6 +32,7 @@ public class TogetherDto {
                        String content,
                        LocalDate recruitFrom,
                        LocalDate recruitTo,
+                       RecruitStatus recruitStatus,
                        String meetTime,
                        String target,
                        String location,
@@ -40,6 +43,7 @@ public class TogetherDto {
         this.content = content;
         this.recruitFrom = recruitFrom;
         this.recruitTo = recruitTo;
+        this.recruitStatus = recruitStatus;
         this.meetTime = meetTime;
         this.target = target;
         this.location = location;
@@ -55,6 +59,7 @@ public class TogetherDto {
                 .content(content)
                 .recruitFrom(recruitFrom)
                 .recruitTo(recruitTo)
+                .recruitStatus(recruitStatus)
                 .meetTime(meetTime)
                 .target(target)
                 .location(location)
