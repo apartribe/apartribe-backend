@@ -3,17 +3,19 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.together.TogetherDto;
+import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
-import kr.apartribebackend.article.repository.TogetherRepository;
+import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
-import kr.apartribebackend.category.domain.CategoryTag;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +64,10 @@ public class TogetherService {
         togetherRepository.findById(togetherId)
                 .ifPresentOrElse(Board::reflectArticleLike,
                         () -> { throw new CannotReflectLikeToArticleException(); });
+    }
+
+    public Page<TogetherResponse> findMultipleTogethersByCategory(final String category, final Pageable pageable) {
+        return togetherRepository.findMultipleTogethersByCategory(category, pageable);
     }
 
 }

@@ -1,12 +1,19 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.article.dto.ArticleResponse;
 import kr.apartribebackend.article.dto.together.AppendTogetherReq;
 import kr.apartribebackend.article.dto.together.TogetherDto;
+import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.service.TogetherService;
+import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +40,15 @@ public class TogetherController {
     }
 
     @GetMapping("/api/together")
-    public void findMultipleArticlesByCategory() {
-        System.out.println("triggered mapping3");
+    public APIResponse<PageResponse<TogetherResponse>> findMultipleTogethers(
+            @RequestParam(required = false, defaultValue = "") final String category,
+            @PageableDefault final Pageable pageable)
+    {
+        final Page<TogetherResponse> togetherResponses =
+                togetherService.findMultipleTogethersByCategory(category, pageable);
+        final PageResponse<TogetherResponse> pageResponse = PageResponse.from(togetherResponses);
+        final APIResponse<PageResponse<TogetherResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
     }
 
     @PostMapping("/api/together")
