@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter @SuperBuilder
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "BOARD_TYPE")
@@ -39,7 +40,7 @@ public abstract class Board extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "board")
     @OrderBy("createdAt desc")
     private final List<Comment> comments = new ArrayList<>();
 
