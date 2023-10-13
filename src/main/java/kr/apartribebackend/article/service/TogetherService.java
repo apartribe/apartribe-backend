@@ -1,7 +1,9 @@
 package kr.apartribebackend.article.service;
 
+import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
@@ -59,6 +61,25 @@ public class TogetherService {
             attachment.registBoard(together);
         }
         attachmentService.saveAttachments(attachments);
+    }
+
+    @Transactional
+    public SingleTogetherResponse updateTogether(final Long togetherId,
+                               final String category,
+                               final TogetherDto togetherDto,
+                               final MemberDto memberDto) {
+        final Together togetherEntity = togetherRepository.findById(togetherId)
+                .orElseThrow(ArticleNotFoundException::new);
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
+                .orElseThrow(CategoryNonExistsException::new);
+        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        final Together updatedTogether = togetherEntity.updateTogether(
+                categoryEntity, togetherDto.getTitle(), togetherDto.getDescription(),
+                togetherDto.getContent(), togetherDto.getRecruitFrom(), togetherDto.getRecruitTo(),
+                togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
+                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus()
+        );
+        return SingleTogetherResponse.from(updatedTogether);
     }
 
     @Transactional
