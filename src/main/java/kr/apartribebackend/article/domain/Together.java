@@ -29,6 +29,10 @@ public class Together extends Board {
     @Column(name = "RECRUIT_TO", nullable = false)
     private LocalDate recruitTo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "RECRUIT_STATUS", nullable = false)
+    private RecruitStatus recruitStatus;
+
     @Column(name = "MEET_TIME", nullable = false)
     private String meetTime;
 
