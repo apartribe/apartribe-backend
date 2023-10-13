@@ -2,8 +2,10 @@ package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
+import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
@@ -68,6 +70,13 @@ public class TogetherService {
 
     public Page<TogetherResponse> findMultipleTogethersByCategory(final String category, final Pageable pageable) {
         return togetherRepository.findMultipleTogethersByCategory(category, pageable);
+    }
+
+    @Transactional
+    public SingleTogetherResponse findSingleTogetherById(final Long togetherId) {
+        return togetherRepository.findJoinedTogetherById(togetherId)
+                .stream().findFirst()
+                .orElseThrow(ArticleNotFoundException::new);
     }
 
 }

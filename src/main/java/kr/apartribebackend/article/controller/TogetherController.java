@@ -1,8 +1,8 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.ArticleResponse;
 import kr.apartribebackend.article.dto.together.AppendTogetherReq;
+import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.service.TogetherService;
@@ -35,8 +35,11 @@ public class TogetherController {
     private final TogetherService togetherService;
 
     @GetMapping({"/api/together/{id}", "/api/together/"})
-    public void findSingleArticle() {
-        System.out.println("triggered mapping2");
+    public APIResponse<SingleTogetherResponse> findSingleTogether(@PathVariable final Optional<Long> id) {
+        final Long togetherId = id.orElse(0L);
+        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(togetherId);
+        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+        return apiResponse;
     }
 
     @GetMapping("/api/together")
