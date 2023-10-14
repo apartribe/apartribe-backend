@@ -6,13 +6,15 @@ import jakarta.validation.constraints.NotEmpty;
 public record AppendArticleReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다") String title,
-        @NotEmpty(message = "내용은 공백일 수 없습니다") String content
+        @NotEmpty(message = "내용은 공백일 수 없습니다") String content,
+        String thumbnail
 ) {
 
     public ArticleDto toDto() {
         return ArticleDto.builder()
                 .title(title)
                 .content(content)
+                .thumbnail(thumbnail == null ? "" : thumbnail)
                 .build();
     }
 }
