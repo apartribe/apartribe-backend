@@ -1,12 +1,18 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.together.AppendTogetherReq;
-import kr.apartribebackend.article.dto.together.TogetherDto;
+import kr.apartribebackend.article.dto.SingleArticleResponse;
+import kr.apartribebackend.article.dto.UpdateArticleReq;
+import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.service.TogetherService;
+import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +34,23 @@ public class TogetherController {
     private final TogetherService togetherService;
 
     @GetMapping({"/api/together/{id}", "/api/together/"})
-    public void findSingleArticle() {
-        System.out.println("triggered mapping2");
+    public APIResponse<SingleTogetherResponse> findSingleTogether(@PathVariable final Optional<Long> id) {
+        final Long togetherId = id.orElse(0L);
+        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(togetherId);
+        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+        return apiResponse;
     }
 
     @GetMapping("/api/together")
-    public void findMultipleArticlesByCategory() {
-        System.out.println("triggered mapping3");
+    public APIResponse<PageResponse<TogetherResponse>> findMultipleTogethers(
+            @RequestParam(required = false, defaultValue = "") final String category,
+            @PageableDefault final Pageable pageable)
+    {
+        final Page<TogetherResponse> togetherResponses =
+                togetherService.findMultipleTogethersByCategory(category, pageable);
+        final PageResponse<TogetherResponse> pageResponse = PageResponse.from(togetherResponses);
+        final APIResponse<PageResponse<TogetherResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
     }
 
     @PostMapping("/api/together")
@@ -65,6 +81,19 @@ public class TogetherController {
     public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
         final Long togetherId = id.orElse(0L);
         togetherService.updateLikeByTogetherId(togetherId);
+    }
+
+    @PutMapping({"/api/together/{id}", "/api/together/"})
+    public APIResponse<SingleTogetherResponse> updateTogether(
+            @PathVariable final Optional<Long> id,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestBody final UpdateTogetherReq updateTogetherReq
+    ) {
+        final Long togetherId = id.orElse(0L);
+        final SingleTogetherResponse singleTogetherResponse = togetherService.updateTogether(
+                togetherId, updateTogetherReq.category(), updateTogetherReq.toDto(), authenticatedMember.toDto());
+        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleTogetherResponse);
+        return apiResponse;
     }
 
 }

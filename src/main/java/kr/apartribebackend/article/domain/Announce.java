@@ -17,4 +17,13 @@ public class Announce extends Board {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    public Announce updateAnnounce(Level level,
+                                   String title,
+                                   String content) {
+        this.level = level;
+        setTitle(title);
+        setContent(content);
+        return this;
+    }
+
 }

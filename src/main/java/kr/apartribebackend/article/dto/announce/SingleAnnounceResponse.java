@@ -9,28 +9,30 @@ import java.util.stream.Collectors;
 public record SingleAnnounceResponse(
         Long id,
         String createdBy,
+        String level,
         String title,
         String content,
         int liked,
         int saw,
-        long commentCounts,
-        List<SingleCommentResponse> comments
+        long commentCounts
+//        List<SingleCommentResponse> comments
 ) {
     public static SingleAnnounceResponse from(Announce announce) {
         announce.reflectArticleSaw();
         List<SingleCommentResponse> commentResponses = announce.getComments()
                 .stream()
                 .map(SingleCommentResponse::from)
-                .collect(Collectors.toList());
+                .toList();
         return new SingleAnnounceResponse(
                 announce.getId(),
                 announce.getCreatedBy(),
+                announce.getLevel().getName(),
                 announce.getTitle(),
                 announce.getContent(),
                 announce.getLiked(),
                 announce.getSaw(),
-                commentResponses.size(),
-                commentResponses
+                commentResponses.size()
+//                commentResponses
         );
     }
 }

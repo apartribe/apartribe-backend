@@ -1,19 +1,25 @@
 package kr.apartribebackend.article.service;
 
+import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.SingleArticleResponse;
+import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
+import kr.apartribebackend.article.dto.together.TogetherResponse;
+import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
-import kr.apartribebackend.article.repository.TogetherRepository;
+import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
-import kr.apartribebackend.category.domain.CategoryTag;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,10 +64,40 @@ public class TogetherService {
     }
 
     @Transactional
+    public SingleTogetherResponse updateTogether(final Long togetherId,
+                               final String category,
+                               final TogetherDto togetherDto,
+                               final MemberDto memberDto) {
+        final Together togetherEntity = togetherRepository.findById(togetherId)
+                .orElseThrow(ArticleNotFoundException::new);
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
+                .orElseThrow(CategoryNonExistsException::new);
+        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        final Together updatedTogether = togetherEntity.updateTogether(
+                categoryEntity, togetherDto.getTitle(), togetherDto.getDescription(),
+                togetherDto.getContent(), togetherDto.getRecruitFrom(), togetherDto.getRecruitTo(),
+                togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
+                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus()
+        );
+        return SingleTogetherResponse.from(updatedTogether);
+    }
+
+    @Transactional
     public void updateLikeByTogetherId(final Long togetherId) {
         togetherRepository.findById(togetherId)
                 .ifPresentOrElse(Board::reflectArticleLike,
                         () -> { throw new CannotReflectLikeToArticleException(); });
+    }
+
+    public Page<TogetherResponse> findMultipleTogethersByCategory(final String category, final Pageable pageable) {
+        return togetherRepository.findMultipleTogethersByCategory(category, pageable);
+    }
+
+    @Transactional
+    public SingleTogetherResponse findSingleTogetherById(final Long togetherId) {
+        return togetherRepository.findJoinedTogetherById(togetherId)
+                .stream().findFirst()
+                .orElseThrow(ArticleNotFoundException::new);
     }
 
 }

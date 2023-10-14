@@ -3,12 +3,14 @@ package kr.apartribebackend.article.dto.together;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import kr.apartribebackend.article.annotation.IsRecruitStatusValid;
 import kr.apartribebackend.article.annotation.LocalDateIsValid;
 import kr.apartribebackend.article.domain.RecruitStatus;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
-public record AppendTogetherReq(
+public record UpdateTogetherReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다.") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다.") String title,
         @NotEmpty(message = "설명은 공백일 수 없습니다.") @Size(min = 1, max = 20, message = "설명은 20 자 이하여야 합니다.") String description,
@@ -18,28 +20,22 @@ public record AppendTogetherReq(
         @NotEmpty(message = "활동 시간은 공백일 수 없습니다.") String meetTime,
         @NotEmpty(message = "모집 대상은 공백일 수 없습니다.") String target,
         @NotEmpty(message = "활동 장소는 공백일 수 없습니다.") String location,
-        @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus
+        @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus,
+        @NotEmpty(message = "모집 상태는 공백일 수 없습니다.") @IsRecruitStatusValid String recruitStatus
 ) {
     public TogetherDto toDto() {
-        final RecruitStatus recruitStatus;
-        final LocalDate currentDay = LocalDate.now();
-        final LocalDate from = LocalDate.parse(recruitFrom);
-        final LocalDate to = LocalDate.parse(recruitFrom);
-
-        if (currentDay.isBefore(from)) {
-            recruitStatus = RecruitStatus.NOT_YET;
-        } else if (currentDay.isAfter(to)) {
-            recruitStatus = RecruitStatus.END;
-        } else {
-            recruitStatus = RecruitStatus.STILL;
-        }
         return TogetherDto.builder()
                 .title(title)
                 .description(description)
                 .content(content)
-                .recruitFrom(from)
-                .recruitTo(to)
-                .recruitStatus(recruitStatus)
+                .recruitFrom(LocalDate.parse(recruitFrom))
+                .recruitTo(LocalDate.parse(recruitTo))
+                .recruitStatus(
+                        Arrays.stream(RecruitStatus.values())
+                                .filter(status -> status.getName().equals(recruitStatus))
+                                .findFirst()
+                                .get()
+                )
                 .meetTime(meetTime)
                 .target(target)
                 .location(location)

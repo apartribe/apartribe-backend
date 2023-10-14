@@ -3,10 +3,9 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.article.dto.announce.AnnounceDto;
-import kr.apartribebackend.article.dto.announce.AnnounceResponse;
-import kr.apartribebackend.article.dto.announce.AppendAnnounceReq;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.article.dto.SingleArticleResponse;
+import kr.apartribebackend.article.dto.UpdateArticleReq;
+import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
@@ -84,10 +83,32 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @PutMapping({"/api/announce/{id}", "/api/announce/"})
+    public APIResponse<SingleAnnounceResponse> updateAnnounce(
+            @PathVariable final Optional<Long> id,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestBody final UpdateAnnounceReq updateAnnounceReq
+    ) {
+        final Long announceId = id.orElse(0L);
+        final SingleAnnounceResponse singleAnnounceResponse = announceService
+                .updateAnnounce(announceId, updateAnnounceReq.toDto(), authenticatedMember.toDto());
+        final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceResponse);
+        return apiResponse;
+    }
+
     @GetMapping({"/api/announce/{id}/like", "/api/announce/like"})
     public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
         final Long announceId = id.orElse(0L);
         announceService.updateLikeByAnnounceId(announceId);
     }
+
+//    @DeleteMapping("/api/announce")
+//    public void removeArticle(
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+//            @RequestParam Long announceId
+//    ) {
+//        Announce board = Announce.builder().id(announceId).build();
+//        boardService.removeArticle(board);
+//    }
 
 }
