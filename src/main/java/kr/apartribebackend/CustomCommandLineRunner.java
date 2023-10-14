@@ -3,9 +3,10 @@ package kr.apartribebackend;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
 import kr.apartribebackend.article.domain.*;
 import kr.apartribebackend.article.repository.ArticleRepository;
-import kr.apartribebackend.article.repository.TogetherRepository;
+import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.category.domain.ArticleCategory;
+import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.domain.TogetherCategory;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.comment.domain.Comment;
@@ -74,9 +75,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         TogetherCategory category5 = createTogetherCategory("당구 동호회");
         TogetherCategory category6 = createTogetherCategory("하기싫다 동호회");
         categoryRepository.saveAll(List.of(category4, category5, category6));
-        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), "만나는 시간", "우리 집", true, "유아");
-        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), "만나는 시간", "니 집", false, "청소년");
-        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), "만나는 시간", "모두의 집", true, "성인");
+        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아");
+        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년");
+        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인");
         togethers1.addAll(togethers2);
         togethers1.addAll(togethers3);
         togetherRepository.saveAll(togethers1);
@@ -202,6 +203,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                                            String description,
                                            LocalDate recruitFrom,
                                            LocalDate recruitTo,
+                                           RecruitStatus recruitStatus,
                                            String meetTime,
                                            String location,
                                            boolean contributeStatus,
@@ -214,6 +216,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .description(description)
                 .recruitFrom(recruitFrom)
                 .recruitTo(recruitTo)
+                .recruitStatus(recruitStatus)
                 .meetTime(meetTime)
                 .location(location)
                 .contributeStatus(contributeStatus)
@@ -229,6 +232,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                                                   String description,
                                                   LocalDate recruitFrom,
                                                   LocalDate recruitTo,
+                                                  RecruitStatus recruitStatus,
                                                   String meetTime,
                                                   String location,
                                                   boolean contributeStatus,
@@ -242,6 +246,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                         description,
                         recruitFrom,
                         recruitTo,
+                        recruitStatus,
                         meetTime,
                         location,
                         contributeStatus,
