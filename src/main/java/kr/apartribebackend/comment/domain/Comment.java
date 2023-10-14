@@ -79,4 +79,10 @@ public class Comment extends BaseEntity {
         this.parent = parent;
     }
 
+    public Comment updateComment(String content) {
+        this.content = content;
+        return this;
+    }
+
+
 }
