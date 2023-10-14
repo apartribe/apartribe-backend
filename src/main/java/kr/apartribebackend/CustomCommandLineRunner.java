@@ -53,9 +53,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         Member revi1337 = createUser("이경학", "?_?_*_<", "david122123@gmail.com", passwordEncoder.encode("asdf"), "");
         memberRepository.saveAll(List.of(bcl, jieun2, revi1337));
 
-        List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!");
-        List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!");
-        List<Announce> announces3 = createAnnounces(30, jieun2, EMERGENCY, "긴급 공지사항", "비상 콘텐츠 비사사사사사아아앙ㅇ앙아!!!");
+        List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "schema://user:password@subdomain.domain.tld");
+        List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "schema://user:password@subdomain.domain.tld");
+        List<Announce> announces3 = createAnnounces(30, jieun2, EMERGENCY, "긴급 공지사항", "비상 콘텐츠 비사사사사사아아앙ㅇ앙아!!!", "schema://user:password@subdomain.domain.tld");
         announces1.addAll(announces2);
         announces1.addAll(announces3);
         announceRepository.saveAll(announces1);
@@ -64,9 +64,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         ArticleCategory category2 = createArticleCategory("신혼 부부 정보 공유");
         ArticleCategory category3 = createArticleCategory("고양이 집사 모임");
         categoryRepository.saveAll(List.of(category1, category2, category3));
-        List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용");
-        List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용");
-        List<Article> articles3 = createArticles(30, bcl, category3, "고양이 집사 모임", "야옹");
+        List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용", "schema://user:password@subdomain.domain.tld");
+        List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용", "schema://user:password@subdomain.domain.tld");
+        List<Article> articles3 = createArticles(30, bcl, category3, "고양이 집사 모임", "야옹", "schema://user:password@subdomain.domain.tld");
         articles1.addAll(articles2);
         articles1.addAll(articles3);
         articleRepository.saveAll(articles1);
@@ -75,9 +75,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         TogetherCategory category5 = createTogetherCategory("당구 동호회");
         TogetherCategory category6 = createTogetherCategory("하기싫다 동호회");
         categoryRepository.saveAll(List.of(category4, category5, category6));
-        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아");
-        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년");
-        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인");
+        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아", "schema://user:password@subdomain.domain.tld");
+        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년", "schema://user:password@subdomain.domain.tld");
+        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인", "schema://user:password@subdomain.domain.tld");
         togethers1.addAll(togethers2);
         togethers1.addAll(togethers3);
         togetherRepository.saveAll(togethers1);
@@ -149,33 +149,35 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .build();
     }
 
-    private static Announce createAnnounce(Member member, Level level, String title, String content) {
+    private static Announce createAnnounce(Member member, Level level, String title, String content, String thumbnail) {
         return Announce.builder()
                 .member(member)
                 .level(level)
                 .title(title)
                 .content(content)
+                .thumbnail(thumbnail)
                 .build();
     }
 
-    private static List<Announce> createAnnounces(Integer count, Member member, Level level, String title, String content) {
+    private static List<Announce> createAnnounces(Integer count, Member member, Level level, String title, String content, String thumbnail) {
         return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createAnnounce(member, level, title + " " + integer, content + integer + " " + integer))
+                .mapToObj(integer -> createAnnounce(member, level, title + " " + integer, content + integer + " " + integer, thumbnail))
                 .collect(Collectors.toList());
     }
 
-    private static Article createArticle(Member member, ArticleCategory category, String title, String content) {
+    private static Article createArticle(Member member, ArticleCategory category, String title, String content, String thumbnail) {
         return Article.builder()
                 .member(member)
                 .category(category)
                 .title(title)
                 .content(content)
+                .thumbnail(thumbnail)
                 .build();
     }
 
-    private static List<Article> createArticles(Integer count, Member member, ArticleCategory category, String title, String content) {
+    private static List<Article> createArticles(Integer count, Member member, ArticleCategory category, String title, String content, String thumbnail) {
         return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createArticle(member, category, title + " " + integer, content + integer + " " + integer))
+                .mapToObj(integer -> createArticle(member, category, title + " " + integer, content + integer + " " + integer, thumbnail))
                 .collect(Collectors.toList());
     }
 
@@ -207,7 +209,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                                            String meetTime,
                                            String location,
                                            boolean contributeStatus,
-                                           String target) {
+                                           String target,
+                                           String thumbnail) {
         return Together.builder()
                 .member(member)
                 .title(title)
@@ -221,6 +224,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .location(location)
                 .contributeStatus(contributeStatus)
                 .target(target)
+                .thumbnail(thumbnail)
                 .build();
     }
 
@@ -236,7 +240,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                                                   String meetTime,
                                                   String location,
                                                   boolean contributeStatus,
-                                                  String target) {
+                                                  String target,
+                                                  String thumbnail) {
         return IntStream.rangeClosed(0, count)
                 .mapToObj(integer -> createTogether(
                         member,
@@ -250,7 +255,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                         meetTime,
                         location,
                         contributeStatus,
-                        target
+                        target,
+                        thumbnail
                         )
                 )
                 .collect(Collectors.toList());
