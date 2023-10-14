@@ -29,6 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -91,7 +92,9 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname);
             final RefreshToken newRefreshToken = RefreshToken.builder().token(reIssuedRefreshToken).build();
             refreshTokenRepository.updateToken(newRefreshToken.getToken());
-            final String reIssuedAccessToken = jwtService.generateAccessToken(subjectNickname);
+            final String reIssuedAccessToken = jwtService.generateAccessToken(
+                    member.getNickname(), Map.of("email", member.getEmail(), "role", "추가해야함")
+            );
             final String reIssuedTokenResponse =
                     objectMapper.writeValueAsString(TokenResponse.of(reIssuedAccessToken, reIssuedRefreshToken));
 
