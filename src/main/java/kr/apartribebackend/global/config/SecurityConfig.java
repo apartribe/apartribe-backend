@@ -48,13 +48,9 @@ import java.util.Set;
 public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
-
     private final MemberRepository memberRepository;
-
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final JwtService jwtService;
-
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     public SecurityConfig(ObjectMapper objectMapper,
@@ -83,8 +79,11 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService()))
                         .successHandler(OAuth2SuccessHandler()))
-                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
-                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
+//                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
+//                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
+//                .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
+//                .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
+                .addFilterAfter(jwtExceptionTranslationFilter(), LogoutFilter.class)
                 .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
                 .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
                 .build();
