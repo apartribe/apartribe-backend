@@ -57,7 +57,8 @@ public class Together extends Board {
                                    String target,
                                    String location,
                                    Boolean contributeStatus,
-                                   RecruitStatus recruitStatus) {
+                                   RecruitStatus recruitStatus,
+                                   String thumbnail) {
         this.category = category;
         setTitle(title);
         this.description = description;
@@ -69,6 +70,7 @@ public class Together extends Board {
         this.location = location;
         this.contributeStatus = contributeStatus;
         this.recruitStatus = recruitStatus;
+        setThumbnail(thumbnail);
         return this;
     }
 }

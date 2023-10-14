@@ -36,6 +36,9 @@ public abstract class Board extends BaseEntity {
     @Column(name = "SAW")
     private int saw;
 
+    @Column(name = "THUMBNAIL")
+    private String thumbnail;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;

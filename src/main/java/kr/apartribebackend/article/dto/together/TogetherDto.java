@@ -24,6 +24,7 @@ public class TogetherDto {
     private String target;
     private String location;
     private boolean contributeStatus;
+    private String thumbnail;
 
     @Builder
     private TogetherDto(Category category,
@@ -36,7 +37,8 @@ public class TogetherDto {
                        String meetTime,
                        String target,
                        String location,
-                       boolean contributeStatus) {
+                       boolean contributeStatus,
+                       String thumbnail) {
         this.category = category;
         this.title = title;
         this.description = description;
@@ -48,6 +50,7 @@ public class TogetherDto {
         this.target = target;
         this.location = location;
         this.contributeStatus = contributeStatus;
+        this.thumbnail = thumbnail;
     }
 
     public Together toEntity(Category category, Member member) {
@@ -64,6 +67,7 @@ public class TogetherDto {
                 .target(target)
                 .location(location)
                 .contributeStatus(contributeStatus)
+                .thumbnail(thumbnail)
                 .build();
     }
 }
