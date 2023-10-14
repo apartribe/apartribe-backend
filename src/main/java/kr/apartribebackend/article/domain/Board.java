@@ -26,8 +26,7 @@ public abstract class Board extends BaseEntity {
     @Column(name = "TITLE", nullable = false, length = 200)
     private String title;
 
-    @Lob
-    @Column(name = "CONTENT", nullable = false)
+    @Column(name = "CONTENT", columnDefinition="TEXT", nullable = false)
     private String content;
 
     @Column(name = "LIKES")
