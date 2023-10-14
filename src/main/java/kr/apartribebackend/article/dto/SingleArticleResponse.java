@@ -13,7 +13,8 @@ public record SingleArticleResponse(
         String content,
         int liked,
         int saw,
-        long commentCounts
+        long commentCounts,
+        String thumbnail
 //        List<SingleCommentResponse> comments
 ) {
     public static SingleArticleResponse from(Article article) {
@@ -30,7 +31,8 @@ public record SingleArticleResponse(
                 article.getContent(),
                 article.getLiked(),
                 article.getSaw(),
-                commentResponses.size()
+                commentResponses.size(),
+                article.getThumbnail()
 //                commentResponses
         );
     }
