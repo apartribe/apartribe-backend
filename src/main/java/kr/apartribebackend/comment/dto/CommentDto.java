@@ -6,6 +6,8 @@ import kr.apartribebackend.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class CommentDto {
 
@@ -13,16 +15,22 @@ public class CommentDto {
     private String content;
     private int liked;
     private Board board;
+    private String createdBy;
+    private LocalDateTime createdAt;
 
     @Builder
     private CommentDto(Long id,
                        String content,
                        int liked,
-                       Board board) {
+                       Board board,
+                       String createdBy,
+                       LocalDateTime createdAt) {
         this.id = id;
         this.content = content;
         this.liked = liked;
         this.board = board;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
     }
 
     public static CommentDto from(Comment comment) {
@@ -31,6 +39,8 @@ public class CommentDto {
                 .content(comment.getContent())
                 .liked(comment.getLiked())
                 .board(comment.getBoard())
+                .createdBy(comment.getCreatedBy())
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 
