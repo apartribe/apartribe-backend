@@ -8,6 +8,7 @@ import kr.apartribebackend.article.domain.RecruitStatus;
 
 import java.time.LocalDate;
 
+// TODO thumbnail 에 url 이 담기기 떄문에 악의적인 문자를 필터링해야한다.
 public record AppendTogetherReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다.") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다.") String title,
@@ -18,7 +19,8 @@ public record AppendTogetherReq(
         @NotEmpty(message = "활동 시간은 공백일 수 없습니다.") String meetTime,
         @NotEmpty(message = "모집 대상은 공백일 수 없습니다.") String target,
         @NotEmpty(message = "활동 장소는 공백일 수 없습니다.") String location,
-        @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus
+        @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus,
+        String thumbnail
 ) {
     public TogetherDto toDto() {
         final RecruitStatus recruitStatus;
@@ -33,6 +35,7 @@ public record AppendTogetherReq(
         } else {
             recruitStatus = RecruitStatus.STILL;
         }
+
         return TogetherDto.builder()
                 .title(title)
                 .description(description)
@@ -44,6 +47,7 @@ public record AppendTogetherReq(
                 .target(target)
                 .location(location)
                 .contributeStatus(contributeStatus)
+                .thumbnail(thumbnail == null ? "" : thumbnail)
                 .build();
     }
 }

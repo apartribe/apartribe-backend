@@ -20,17 +20,19 @@ public class AnnounceDto {
     private Member member;
     private LocalDateTime createdAt;
     private String createdBy;
+    private String thumbnail;
 
     @Builder
     private AnnounceDto(Long id,
-                       String title,
-                       String content,
-                       int liked,
-                       int saw,
-                       Level level,
-                       Member member,
-                       LocalDateTime createdAt,
-                        String createdBy) {
+                        String title,
+                        String content,
+                        int liked,
+                        int saw,
+                        Level level,
+                        Member member,
+                        LocalDateTime createdAt,
+                        String createdBy,
+                        String thumbnail) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -40,6 +42,7 @@ public class AnnounceDto {
         this.member = member;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
+        this.thumbnail = thumbnail;
     }
 
     public static AnnounceDto from(Announce announce) {
@@ -53,6 +56,7 @@ public class AnnounceDto {
                 .member(announce.getMember())
                 .createdAt(announce.getCreatedAt())
                 .createdBy(announce.getCreatedBy())
+                .thumbnail(announce.getThumbnail())
                 .build();
     }
 
@@ -67,6 +71,7 @@ public class AnnounceDto {
                 .member(member)
                 .createdAt(createdAt)
                 .createdBy(createdBy)
+                .thumbnail(thumbnail)
                 .build();
     }
 }
