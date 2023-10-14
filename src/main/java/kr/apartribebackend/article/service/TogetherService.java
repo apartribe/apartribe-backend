@@ -77,7 +77,7 @@ public class TogetherService {
                 categoryEntity, togetherDto.getTitle(), togetherDto.getDescription(),
                 togetherDto.getContent(), togetherDto.getRecruitFrom(), togetherDto.getRecruitTo(),
                 togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
-                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus()
+                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail()
         );
         return SingleTogetherResponse.from(updatedTogether);
     }
