@@ -31,7 +31,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public void appendCommentToBoard(final MemberDto memberDto,
+    public CommentDto appendCommentToBoard(final MemberDto memberDto,
                                      final Long boardId,
                                      final Long parentId,
                                      final CommentDto commentDto) {
@@ -47,7 +47,8 @@ public class CommentService {
             comment.registParent(parentComment);
         }
         comment.registBoard(board);
-        commentRepository.save(comment);
+        final Comment savedComment = commentRepository.save(comment);
+        return CommentDto.from(savedComment);
     }
 
     public List<BestCommentResponse> bestCommentRankViaLastWeek() {
