@@ -2,7 +2,7 @@ package kr.apartribebackend.article.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 
-
+// TODO thumbnail 에 url 이 담기기 떄문에 악의적인 문자를 필터링해야한다.
 public record AppendArticleReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다") String title,
