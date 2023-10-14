@@ -1,6 +1,7 @@
 package kr.apartribebackend.comment.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -27,7 +28,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping({"/api/board/{id}/comment", "/api/board/comment"})
-    public ResponseEntity<Void> appendCommentToBoard(
+    public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @PathVariable final Optional<Long> id,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
@@ -36,8 +37,11 @@ public class CommentController {
         final Long parentId = appendCommentReq.parentId();
         final Long boardId = id.orElse(0L);
         final CommentDto commentDto = appendCommentReq.toDto();
-        commentService.appendCommentToBoard(memberDto, boardId, parentId, commentDto);
-        return ResponseEntity.status(CREATED).build();
+        final CommentDto savedCommentDto = commentService
+                .appendCommentToBoard(memberDto, boardId, parentId, commentDto);
+        final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
+        final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
+        return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
     @GetMapping({"/api/board/{id}/comment", "/api/board/comment"})
@@ -48,6 +52,21 @@ public class CommentController {
         final Page<CommentRes> commentsByBoardId = commentService.findCommentsByBoardId(boardId, pageable);
         final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
         final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
+    }
+
+    @PutMapping({"/api/board/{id}/comment", "/api/board/comment"})
+    public APIResponse<SingleCommentResponse> updateArticle(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @PathVariable final Optional<Long> id,
+            @Valid @RequestBody final UpdateCommentReq updateCommentReq
+    ) {
+        final MemberDto memberDto = authenticatedMember.toDto();
+        final Long boardId = id.orElse(0L);
+        final CommentDto commentDto = updateCommentReq.toDto();
+        final CommentDto updatedCommentDto = commentService.updateCommentForBoard(memberDto, boardId, commentDto);
+        final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(updatedCommentDto);
+        final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return apiResponse;
     }
 
