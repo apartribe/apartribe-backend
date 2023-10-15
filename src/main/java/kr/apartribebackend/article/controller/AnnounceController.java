@@ -49,8 +49,8 @@ public class AnnounceController {
             @PageableDefault final Pageable pageable
     ) {
         final Page<AnnounceResponse> announceResponses = announceService
-                .findMultipleAnnouncesByLevel(level, pageable)
-                .map(AnnounceResponse::from);
+                .findMultipleAnnouncesByLevel(level, pageable);
+//                .map(AnnounceResponse::from);
 
         final PageResponse<AnnounceResponse> pageResponse = PageResponse.from(announceResponses);
         final APIResponse<PageResponse<AnnounceResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);

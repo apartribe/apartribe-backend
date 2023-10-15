@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.SingleCommentResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record SingleTogetherResponse(
@@ -14,6 +15,7 @@ public record SingleTogetherResponse(
         int liked,
         long commentCounts,
         String createdBy,
+        LocalDateTime createdAt,
         LocalDate recruitFrom,
         LocalDate recruitTo,
         String meetTime,
@@ -39,6 +41,7 @@ public record SingleTogetherResponse(
                 together.getLiked(),
                 commentResponses.size(),
                 together.getCreatedBy(),
+                together.getCreatedAt(),
                 together.getRecruitFrom(),
                 together.getRecruitTo(),
                 together.getMeetTime(),
