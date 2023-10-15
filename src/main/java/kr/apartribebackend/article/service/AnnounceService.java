@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceDto;
+import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
@@ -34,18 +35,18 @@ public class AnnounceService {
     private final AttachmentRepository attachmentRepository;
 
     @Transactional(readOnly = true)
-    public Page<AnnounceDto> findMultipleAnnouncesByLevel(final Level level,
+    public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final Level level,
                                                           final Pageable pageable) {
         if (level.equals(Level.ALL))
             return findAllAnnounces(pageable);
         return announceRepository.findAnnouncesByLevel(level, pageable)
-                .map(AnnounceDto::from);
+                .map(AnnounceResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public Page<AnnounceDto> findAllAnnounces(final Pageable pageable) {
+    public Page<AnnounceResponse> findAllAnnounces(final Pageable pageable) {
         return announceRepository.findAll(pageable)
-                .map(AnnounceDto::from);
+                .map(AnnounceResponse::from);
     }
 
     public void updateLikeByAnnounceId(final Long announceId) {
