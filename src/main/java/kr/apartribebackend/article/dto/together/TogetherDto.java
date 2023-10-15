@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class TogetherDto {
@@ -25,6 +26,8 @@ public class TogetherDto {
     private String location;
     private boolean contributeStatus;
     private String thumbnail;
+    private LocalDateTime createdAt;
+    private String createdBy;
 
     @Builder
     private TogetherDto(Category category,
@@ -38,7 +41,9 @@ public class TogetherDto {
                        String target,
                        String location,
                        boolean contributeStatus,
-                       String thumbnail) {
+                       String thumbnail,
+                       String createdBy,
+                       LocalDateTime createdAt) {
         this.category = category;
         this.title = title;
         this.description = description;
@@ -51,6 +56,8 @@ public class TogetherDto {
         this.location = location;
         this.contributeStatus = contributeStatus;
         this.thumbnail = thumbnail;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
     }
 
     public Together toEntity(Category category, Member member) {

@@ -2,12 +2,14 @@ package kr.apartribebackend.article.dto;
 
 import kr.apartribebackend.article.domain.Article;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public record SingleArticleResponse(
         Long id,
         String createdBy,
+        LocalDateTime createdAt,
         String category,
         String title,
         String content,
@@ -26,6 +28,7 @@ public record SingleArticleResponse(
         return new SingleArticleResponse(
                 article.getId(),
                 article.getCreatedBy(),
+                article.getCreatedAt(),
                 article.getCategory().getName(),
                 article.getTitle(),
                 article.getContent(),
