@@ -14,6 +14,7 @@ public record AnnounceResponse(
         int saw,
         String title,
         String content,
+        String thumbnail,
         long commentCounts,
         LocalDateTime createdAt,
         String createdBy
@@ -31,6 +32,7 @@ public record AnnounceResponse(
                 announce.getSaw(),
                 announce.getTitle(),
                 announce.getContent(),
+                announce.getThumbnail(),
                 commentResponses.size(),
                 announce.getCreatedAt(),
                 announce.getCreatedBy()

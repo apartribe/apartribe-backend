@@ -14,6 +14,7 @@ public record ArticleResponse(
         int saw,
         String title,
         String content,
+        String thumbnail,
         long commentCounts,
         LocalDateTime createdAt,
         String createdBy
@@ -31,6 +32,7 @@ public record ArticleResponse(
                 article.getSaw(),
                 article.getTitle(),
                 article.getContent(),
+                article.getThumbnail(),
                 commentResponses.size(),
                 article.getCreatedAt(),
                 article.getCreatedBy()

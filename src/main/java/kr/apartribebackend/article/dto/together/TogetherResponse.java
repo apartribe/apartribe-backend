@@ -10,9 +10,9 @@ public record TogetherResponse(
         String recruitStatus,
         String createdBy,
         String title,
+        String thumbnail,
         String description,
-        LocalDateTime createdAt
-){
+        LocalDateTime createdAt){
     public static TogetherResponse from(Together together) {
         return new TogetherResponse(
                 together.getId(),
@@ -20,6 +20,7 @@ public record TogetherResponse(
                 together.getRecruitStatus().getName(),
                 together.getCreatedBy(),
                 together.getTitle(),
+                together.getThumbnail(),
                 together.getDescription(),
                 together.getCreatedAt()
         );
