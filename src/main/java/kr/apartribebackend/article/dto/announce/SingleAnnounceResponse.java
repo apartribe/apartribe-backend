@@ -16,8 +16,7 @@ public record SingleAnnounceResponse(
         String content,
         int liked,
         int saw,
-        long commentCounts,
-        String thumbnail
+        long commentCounts
 //        List<SingleCommentResponse> comments
 ) {
     public static SingleAnnounceResponse from(Announce announce) {
@@ -35,8 +34,7 @@ public record SingleAnnounceResponse(
                 announce.getContent(),
                 announce.getLiked(),
                 announce.getSaw(),
-                commentResponses.size(),
-                announce.getThumbnail()
+                commentResponses.size()
 //                commentResponses
         );
     }
