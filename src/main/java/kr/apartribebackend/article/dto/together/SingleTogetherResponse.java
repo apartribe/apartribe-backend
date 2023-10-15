@@ -23,8 +23,7 @@ public record SingleTogetherResponse(
         String target,
         boolean contributeStatus,
         String recruitStatus,
-        String content,
-        String thumbnail
+        String content
 ) {
 
     public static SingleTogetherResponse from(Together together) {
@@ -49,8 +48,7 @@ public record SingleTogetherResponse(
                 together.getTarget(),
                 together.isContributeStatus(),
                 together.getRecruitStatus().getName(),
-                together.getContent(),
-                together.getThumbnail()
+                together.getContent()
         );
     }
 
