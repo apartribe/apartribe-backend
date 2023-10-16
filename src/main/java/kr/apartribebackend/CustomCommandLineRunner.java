@@ -1,5 +1,6 @@
 package kr.apartribebackend;
 
+import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
 import kr.apartribebackend.article.domain.*;
 import kr.apartribebackend.article.repository.ArticleRepository;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,17 +43,25 @@ public class CustomCommandLineRunner implements CommandLineRunner {
     private final TogetherRepository togetherRepository;
     private final ApartmentRepository apartmentRepository;
 
-    @Override
+    @Override @Transactional
     public void run(String... args) throws Exception {
         log.info("ApplicationInit Called() -2-");
 
         if (memberRepository.existsByEmail("bcl0206@naver.com"))
             return;
 
+        Apartment apart1 = createApart(1);
+        Apartment apart2 = createApart(2);
+        apartmentRepository.save(apart1);
+        apartmentRepository.save(apart2);
+
         Member bcl = createUser("방충림", "white_h4ck3r_bcl", "bcl0206@naver.com", passwordEncoder.encode("방충림1!"), "");
         Member jieun2 = createUser("이지은", "scary_girl", "jieun2@apartlive.com", passwordEncoder.encode("qwer1234!"), "");
         Member revi1337 = createUser("이경학", "?_?_*_<", "david122123@gmail.com", passwordEncoder.encode("asdf"), "");
         memberRepository.saveAll(List.of(bcl, jieun2, revi1337));
+        bcl.changeApartment(apart1);
+        jieun2.changeApartment(apart1);
+        revi1337.changeApartment(apart2);
 
         List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "schema://user:password@subdomain.domain.tld");
         List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "schema://user:password@subdomain.domain.tld");
@@ -121,6 +131,13 @@ public class CustomCommandLineRunner implements CommandLineRunner {
             }
         }
         commentRepository.saveAll(articleCommentReplies);
+    }
+
+    public static Apartment createApart(int memberIndex) {
+        return Apartment.builder()
+                .code(String.format("apart_code_%s", memberIndex))
+                .name(String.format("apart_name_%s", memberIndex))
+                .build();
     }
 
     private static Member createUser(String name,
