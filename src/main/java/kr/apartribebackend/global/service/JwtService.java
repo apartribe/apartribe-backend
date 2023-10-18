@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -103,6 +104,20 @@ public class JwtService {
                 new HashMap<>(Map.of("type", "refresh")),
                 refreshTokenExpiration,
                 getSigningKey(refreshTokenSecretKey));
+    }
+
+    public String generateRefreshToken(String subject, String createdAt) {
+        return buildToken(
+                subject,
+                new HashMap<>(
+                        Map.of(
+                                "type", "refresh",
+                                "createdAt", createdAt
+                        )
+                ),
+                refreshTokenExpiration,
+                getSigningKey(refreshTokenSecretKey)
+        );
     }
 
     private String buildToken(String subject, Map<String, ?> extraClaims, long expiration) {
