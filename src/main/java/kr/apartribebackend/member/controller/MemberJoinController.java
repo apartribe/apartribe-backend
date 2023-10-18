@@ -100,8 +100,11 @@ public class MemberJoinController {
             throw new PasswordNotEqualException();
         }
         if (memberJoinReq.profileImageUrl() != null) {
-            if (StringUtils.containsWhitespace(memberJoinReq.profileImageUrl()) ||
-                    memberJoinReq.profileImageUrl().contains("..") || memberJoinReq.profileImageUrl().contains("\\")) {
+            if (
+                    StringUtils.containsWhitespace(memberJoinReq.profileImageUrl()) ||
+                    memberJoinReq.profileImageUrl().contains("..") ||
+                    memberJoinReq.profileImageUrl().contains("\\")
+            ) {
                 throw new MalformedProfileImageLinkException();
             }
         }
