@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberDto {
 
@@ -17,6 +19,7 @@ public class MemberDto {
     private String name;
     private String nickname;
     private String profileImageUrl;
+    private LocalDateTime createdAt;
     private RefreshToken refreshToken;
     private Apartment apartment;
 
@@ -27,6 +30,7 @@ public class MemberDto {
                       String name,
                       String nickname,
                       String profileImageUrl,
+                      LocalDateTime createdAt,
                       RefreshToken refreshToken,
                       Apartment apartment) {
         this.id = id;
@@ -35,6 +39,7 @@ public class MemberDto {
         this.name = name;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+        this.createdAt = createdAt;
         this.refreshToken = refreshToken;
         this.apartment = apartment;
     }
@@ -47,6 +52,7 @@ public class MemberDto {
                 .name(member.getName())
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
+                .createdAt(member.getCreatedAt())
                 .build();
     }
 
