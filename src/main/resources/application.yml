@@ -61,6 +61,12 @@ spring:
             user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
             user-name-attribute: sub
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
 application:
   security:
     jwt:
