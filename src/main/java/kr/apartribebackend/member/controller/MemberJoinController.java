@@ -43,6 +43,7 @@ public class MemberJoinController {
     private final EmailService emailService;
     private final EmailSenderService emailSenderService;
 
+    // TODO 인증번호를 발급받고, 회원가입은 하지 않은 사용자는 HashMap 에 남아있기때문에, Scheduling 혹은 Spring Batch 로 주기적으로 비워주어야 한다.
     @PostMapping("/join")
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
         final EmailToken emailToken = validateMemberRequest(memberJoinReq);
