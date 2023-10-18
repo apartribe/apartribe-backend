@@ -17,13 +17,16 @@ import java.nio.charset.StandardCharsets;
 @Service @RequiredArgsConstructor @Slf4j
 public class EmailSenderService {
 
-     private final JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
-     @Value("${spring.mail.username}")
-     private String email;
+    @Value("${spring.mail.username}")
+    private String email;
+
+    @Value("${application.mail.subject}")
+    private String subject;
 
     @Async
-    public void send(String to, String subject, String body) {
+    public void send(String to, String body) {
         try {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(

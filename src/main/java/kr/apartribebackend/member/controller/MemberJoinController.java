@@ -91,11 +91,11 @@ public class MemberJoinController {
     public void sendEmailToken(@RequestParam final String email) {
         final String token = UUID.randomUUID().toString();
         log.info("token = {}", token);
-        EmailToken emailToken = EmailToken.builder()
+        final EmailToken emailToken = EmailToken.builder()
                 .value(token)
                 .build();
         emailTokenContextHolder.appendEmailToken(email, emailToken);
-        emailSenderService.send(email, "test", token);
+        emailSenderService.send(email, token);
     }
 
     @GetMapping("/email/confirm")
