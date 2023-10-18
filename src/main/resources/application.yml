@@ -69,6 +69,8 @@ application:
       refresh-token:
         secret-key: REFRESH_TOKEN_SECRET_KEY
         expiration: REFRESH_TOKEN_EXPIRATION
+  mail:
+    subject: MAIL_SUBJECT
 
 logging:
   level:
