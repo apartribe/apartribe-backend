@@ -12,8 +12,7 @@ import java.util.Objects;
 @Table(
         name = "MEMBER",
         uniqueConstraints = {
-                @UniqueConstraint(name = "nickname", columnNames = "NICKNAME"),
-                @UniqueConstraint(name = "email", columnNames = "EMAIL"),
+                @UniqueConstraint(name = "email", columnNames = "EMAIL")
         }
 )
 public class Member {
