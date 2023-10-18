@@ -40,32 +40,12 @@ public class MemberJoinController {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailTokenContextHolder emailTokenContextHolder;
-    private final MemberService memberService;
     private final EmailService emailService;
     private final EmailSenderService emailSenderService;
 
     @PostMapping("/join")
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
-        if (!memberJoinReq.password().equals(memberJoinReq.passwordConfirm()))
-            throw new PasswordNotEqualException();
-
-        if (memberJoinReq.profileImageUrl() != null) {
-            if (StringUtils.containsWhitespace(memberJoinReq.profileImageUrl()) ||
-                    memberJoinReq.profileImageUrl().contains("..") || memberJoinReq.profileImageUrl().contains("\\"))
-                throw new MalformedProfileImageLinkException();
-        }
-
-        if (memberRepository.existsByEmail(memberJoinReq.email()))
-            throw new EmailDuplicateException();
-
-        if (memberRepository.existsByNickname(memberJoinReq.nickname()))
-            throw new NicknameDuplicateException();
-
-        final EmailToken emailToken = emailTokenContextHolder
-                .retrieveEmailTokenByEmail(memberJoinReq.email());
-        if (emailToken == null || !emailToken.getValue().equals(memberJoinReq.code()))
-            throw new NotAuthenticatedEmailException();
-
+        final EmailToken emailToken = validateMemberRequest(memberJoinReq);
         final MemberDto memberDto = memberJoinReq.toDto();
         final Member member = memberDto.toEntity();
         member.changePassword(passwordEncoder.encode(memberJoinReq.password()));
@@ -82,7 +62,7 @@ public class MemberJoinController {
 
     @GetMapping("/member/check")
     public NicknameIsValidResponse checkDuplicateNickname(@RequestParam final String nickname) {
-        if (memberService.existsByNickname(nickname))
+        if (memberRepository.existsByNickname(nickname))
             return new NicknameIsValidResponse(false);
         return new NicknameIsValidResponse(true);
     }
@@ -94,6 +74,7 @@ public class MemberJoinController {
         final EmailToken emailToken = EmailToken.builder()
                 .value(token)
                 .build();
+
         emailTokenContextHolder.appendEmailToken(email, emailToken);
         emailSenderService.send(email, token);
     }
@@ -104,22 +85,56 @@ public class MemberJoinController {
             @RequestParam final String token)
     {
         final EmailToken emailToken = emailTokenContextHolder.retrieveEmailTokenByEmail(email);
-        if (emailToken == null)
+        boolean isReadyToConfirmEmailToken = isReadyToConfirmEmailToken(token, emailToken);
+        if (!isReadyToConfirmEmailToken) {
             return new EmailTokenIsValidResponse(false);
-
-        final String extractedTokenValue = emailToken.getValue();
-        if (!extractedTokenValue.equals(token))
-            return new EmailTokenIsValidResponse(false);
-
-        if (emailService.existsByValue(token))
-            return new EmailTokenIsValidResponse(false);
-
-        if (emailToken.getExpiredAt().isBefore(LocalDateTime.now()))
-            return new EmailTokenIsValidResponse(false);
-
+        }
         log.info("EmailToken isValid");
         emailToken.confirmEmailToken();
-
         return new EmailTokenIsValidResponse(true);
+    }
+
+    private EmailToken validateMemberRequest(final MemberJoinReq memberJoinReq) {
+        if (!memberJoinReq.password().equals(memberJoinReq.passwordConfirm())) {
+            throw new PasswordNotEqualException();
+        }
+        if (memberJoinReq.profileImageUrl() != null) {
+            if (StringUtils.containsWhitespace(memberJoinReq.profileImageUrl()) ||
+                    memberJoinReq.profileImageUrl().contains("..") || memberJoinReq.profileImageUrl().contains("\\")) {
+                throw new MalformedProfileImageLinkException();
+            }
+        }
+        if (memberRepository.existsByEmail(memberJoinReq.email())) {
+            throw new EmailDuplicateException();
+        }
+        if (memberRepository.existsByNickname(memberJoinReq.nickname())) {
+            throw new NicknameDuplicateException();
+        }
+        return retrieveEmailToken(memberJoinReq);
+    }
+
+    private EmailToken retrieveEmailToken(final MemberJoinReq memberJoinReq) {
+        final EmailToken emailToken = emailTokenContextHolder
+                .retrieveEmailTokenByEmail(memberJoinReq.email());
+        if (emailToken == null || !emailToken.getValue().equals(memberJoinReq.code()))
+            throw new NotAuthenticatedEmailException();
+        return emailToken;
+    }
+
+    private boolean isReadyToConfirmEmailToken(final String token, final EmailToken emailToken) {
+        if (emailToken == null) {
+            return false;
+        }
+        final String extractedTokenValue = emailToken.getValue();
+        if (!extractedTokenValue.equals(token)) {
+            return false;
+        }
+        if (emailService.existsByValue(token)) {
+            return false;
+        }
+        if (emailToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+        return true;
     }
 }
