@@ -35,7 +35,12 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
         final AuthenticatedMember authenticatedMember = (AuthenticatedMember) authentication.getPrincipal();
 
         final String accessToken = jwtService.generateAccessToken(
-                authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
+                authenticatedMember.getUsername(),
+                Map.of("email", authenticatedMember.getEmail(),
+                        "role", "추가해야함",
+                        "apartCode", authenticatedMember.getApartCode(),
+                        "apartName", authenticatedMember.getApartName()
+                )
         );
 
         final String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
