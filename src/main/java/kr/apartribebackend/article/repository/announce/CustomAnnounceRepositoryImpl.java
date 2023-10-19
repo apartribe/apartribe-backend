@@ -9,6 +9,7 @@ import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.member.domain.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,6 @@ import java.util.Optional;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QAnnounce.*;
-import static kr.apartribebackend.comment.domain.QComment.comment;
 import static kr.apartribebackend.member.domain.QMember.*;
 
 @RequiredArgsConstructor
@@ -73,22 +73,21 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
         return Optional.ofNullable(result);
     }
 
-//    @Override
-//    public List<SingleAnnounceResponse> findJoinedAnnounceById(final String apartId, final Long announceId) {
-//        final List<Announce> announces = jpaQueryFactory
-//                .selectFrom(announce)
-//                .innerJoin(announce.member, member).fetchJoin()
-//                .innerJoin(member.apartment, apartment).fetchJoin()
-//                .where(
-//                        apartmentCondition(apartId),
-//                        announce.id.eq(announceId)
-//                )
-//                .fetch();
-//
-//        final List<SingleAnnounceResponse> results = announces.stream()
-//                .map(SingleAnnounceResponse::from).toList();
-//        return results;
-//    }
+    @Override
+    public Optional<Announce> findAnnounceForApartId(final String apartId, final Long announceId) {
+        final Announce result = jpaQueryFactory
+                .selectFrom(announce)
+                .innerJoin(announce.member, member).fetchJoin()
+                .innerJoin(member.apartment, apartment).fetchJoin()
+                .where(
+                        apartmentCondition(apartId),
+                        announce.id.eq(announceId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
 
     private BooleanExpression levelCondition(final Level level) {
         return level != Level.ALL ? announce.level.eq(level) : null;

@@ -88,10 +88,11 @@ public class AnnounceService {
         attachmentService.saveAttachments(attachments);
     }
 
-    public SingleAnnounceResponse updateAnnounce(final Long announceId,
+    public SingleAnnounceResponse updateAnnounce(final String apartId,
+                                                 final Long announceId,
                                                  final AnnounceDto announceDto,
                                                  final MemberDto memberDto) {
-        final Announce announceEntity = announceRepository.findById(announceId)
+        final Announce announceEntity = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Announce updatedAnnounce = announceEntity

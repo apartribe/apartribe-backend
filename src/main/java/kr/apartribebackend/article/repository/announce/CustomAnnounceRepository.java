@@ -14,4 +14,5 @@ public interface CustomAnnounceRepository {
 
     Optional<Announce> findJoinedAnnounceById(String apartId, Long announceId);
 
+    Optional<Announce> findAnnounceForApartId(String apartId, Long announceId);
 }

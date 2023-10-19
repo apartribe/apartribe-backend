@@ -85,15 +85,15 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping({"/api/announce/{id}", "/api/announce/"})
+    @PutMapping("/api/{apartId}/announce/{announceId}")
     public APIResponse<SingleAnnounceResponse> updateAnnounce(
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final UpdateAnnounceReq updateAnnounceReq
     ) {
-        final Long announceId = id.orElse(0L);
         final SingleAnnounceResponse singleAnnounceResponse = announceService
-                .updateAnnounce(announceId, updateAnnounceReq.toDto(), authenticatedMember.toDto());
+                .updateAnnounce(apartId, announceId, updateAnnounceReq.toDto(), authenticatedMember.toDto());
         final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceResponse);
         return apiResponse;
     }
