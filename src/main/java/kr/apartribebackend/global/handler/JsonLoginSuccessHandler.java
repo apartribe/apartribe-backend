@@ -38,8 +38,8 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
                 authenticatedMember.getUsername(),
                 Map.of("email", authenticatedMember.getEmail(),
                         "role", "추가해야함",
-                        "apartCode", authenticatedMember.getApartCode(),
-                        "apartName", authenticatedMember.getApartName()
+                        "apartCode", authenticatedMember.getApartmentDto().getCode(),
+                        "apartName", authenticatedMember.getApartmentDto().getName()
                 )
         );
 

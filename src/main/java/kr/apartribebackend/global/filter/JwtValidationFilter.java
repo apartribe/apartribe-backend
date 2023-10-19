@@ -124,10 +124,10 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         if (jwtService.isAccessTokenValid(accessToken)) {
             final String userEmail = jwtService.extractAllClaims(
                     accessToken, JwtService.TokenType.ACCESS).get("email", String.class);
-            final Member member = memberRepository.findByEmail(userEmail).orElse(null);
+            final Member member = memberRepository.findMemberWithApartInfoByEmail(userEmail).orElse(null);
             if (member != null) {
                 final AuthenticatedMember authenticatedMember = AuthenticatedMember.from(
-                        MemberDto.from(member)
+                        MemberDto.from(member), ApartmentDto.from(member.getApartment())
                 );
                 authenticatedMember.setOriginalEntity(member);
                 final UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
