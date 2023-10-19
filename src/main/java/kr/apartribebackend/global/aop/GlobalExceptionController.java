@@ -13,6 +13,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -123,5 +124,13 @@ public class GlobalExceptionController {
                 .body(apiResponse);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<APIResponse<ErrorResponse>> httpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException exception) {
+        ErrorResponse errorResponse = ErrorResponse.of(405, "해당 endpoint 에는 요청한 METHOD 를 지원하지 않습니다.");
+        APIResponse<ErrorResponse> apiResponse = APIResponse.ERROR(errorResponse);
+        return ResponseEntity
+                .status(errorResponse.code())
+                .body(apiResponse);
+    }
 
 }
