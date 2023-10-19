@@ -113,6 +113,9 @@ public class AuthenticatedMember implements UserDetails {
                 .name(name)
                 .nickname(nickname)
                 .password(password)
+                .refreshTokenDto(refreshTokenDto)
+                .apartmentDto(apartmentDto)
+                .createdAt(createdAt)
                 .build();
     }
 
