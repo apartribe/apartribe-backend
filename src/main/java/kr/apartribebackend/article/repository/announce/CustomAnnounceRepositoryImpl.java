@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.repository.announce;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -12,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QAnnounce.*;
@@ -34,7 +38,7 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 .innerJoin(announce.member, member).fetchJoin()
                 .innerJoin(member.apartment, apartment).fetchJoin()
                 .where(
-                        apartment.code.eq(apartId),
+                        apartmentCondition(apartId),
                         levelCondition(level)
                 )
                 .fetch();
@@ -47,7 +51,7 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 .innerJoin(announce.member, member)
                 .innerJoin(member.apartment, apartment)
                 .where(
-                        apartment.code.eq(apartId),
+                        apartmentCondition(apartId),
                         levelCondition(level)
                 );
 
@@ -55,20 +59,43 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
     }
 
     @Override
-    public List<SingleAnnounceResponse> findJoinedAnnounceById(Long announceId) {
-        final List<Announce> results = jpaQueryFactory
+    public Optional<Announce> findJoinedAnnounceById(final String apartId, final Long announceId) {
+        final Announce result = jpaQueryFactory
                 .selectFrom(announce)
-                .leftJoin(announce.comments, comment).fetchJoin()
-                .where(announce.id.eq(announceId))
-                .fetch();
+                .innerJoin(announce.member, member).fetchJoin()
+                .innerJoin(member.apartment, apartment).fetchJoin()
+                .where(
+                        apartmentCondition(apartId),
+                        announce.id.eq(announceId)
+                )
+                .fetchOne();
 
-        final List<SingleAnnounceResponse> collect = results.stream()
-                .map(SingleAnnounceResponse::from).toList();
-        return collect;
+        return Optional.ofNullable(result);
     }
+
+//    @Override
+//    public List<SingleAnnounceResponse> findJoinedAnnounceById(final String apartId, final Long announceId) {
+//        final List<Announce> announces = jpaQueryFactory
+//                .selectFrom(announce)
+//                .innerJoin(announce.member, member).fetchJoin()
+//                .innerJoin(member.apartment, apartment).fetchJoin()
+//                .where(
+//                        apartmentCondition(apartId),
+//                        announce.id.eq(announceId)
+//                )
+//                .fetch();
+//
+//        final List<SingleAnnounceResponse> results = announces.stream()
+//                .map(SingleAnnounceResponse::from).toList();
+//        return results;
+//    }
 
     private BooleanExpression levelCondition(final Level level) {
         return level != Level.ALL ? announce.level.eq(level) : null;
+    }
+
+    private BooleanExpression apartmentCondition(final String apartId) {
+        return StringUtils.hasText(apartId) ? apartment.code.eq(apartId) : null;
     }
 
 }

@@ -35,15 +35,17 @@ public class AnnounceController {
 
     private final AnnounceService announceService;
 
-    @GetMapping({"/api/announce/{id}", "/api/announce/"})
-    public APIResponse<SingleAnnounceResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
-        final Long announceId = id.orElse(0L);
-        final SingleAnnounceResponse singleAnnounceById = announceService.findSingleAnnounceById(announceId);
+    @GetMapping("/api/{apartId}/announce/{announceId}")
+    public APIResponse<SingleAnnounceResponse> findSingleArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId
+    ) {
+        final SingleAnnounceResponse singleAnnounceById = announceService.findSingleAnnounceById(apartId, announceId);
         final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceById);
         return apiResponse;
     }
 
-    @GetMapping({"/api/{apartId}/announce", "/api/announce"})
+    @GetMapping("/api/{apartId}/announce")
     public APIResponse<PageResponse<AnnounceResponse>> findMultipleArticlesByCategory(
             @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final Level level,
