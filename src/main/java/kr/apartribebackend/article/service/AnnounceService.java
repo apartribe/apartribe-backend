@@ -32,15 +32,12 @@ public class AnnounceService {
     private final AnnounceRepository announceRepository;
 
     private final AttachmentService attachmentService;
-    private final AttachmentRepository attachmentRepository;
 
     @Transactional(readOnly = true)
-    public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final Level level,
-                                                          final Pageable pageable) {
-        if (level.equals(Level.ALL))
-            return findAllAnnounces(pageable);
-        return announceRepository.findAnnouncesByLevel(level, pageable)
-                .map(AnnounceResponse::from);
+    public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final String apartId,
+                                                               final Level level,
+                                                               final Pageable pageable) {
+        return announceRepository.findAnnouncesByLevel(apartId, level, pageable);
     }
 
     @Transactional(readOnly = true)

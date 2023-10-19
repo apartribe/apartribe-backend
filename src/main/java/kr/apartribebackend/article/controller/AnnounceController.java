@@ -43,14 +43,14 @@ public class AnnounceController {
         return apiResponse;
     }
 
-    @GetMapping("/api/announce")
+    @GetMapping({"/api/{apartId}/announce", "/api/announce"})
     public APIResponse<PageResponse<AnnounceResponse>> findMultipleArticlesByCategory(
+            @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final Level level,
             @PageableDefault final Pageable pageable
     ) {
         final Page<AnnounceResponse> announceResponses = announceService
-                .findMultipleAnnouncesByLevel(level, pageable);
-//                .map(AnnounceResponse::from);
+                .findMultipleAnnouncesByLevel(apartId, level, pageable);
 
         final PageResponse<AnnounceResponse> pageResponse = PageResponse.from(announceResponses);
         final APIResponse<PageResponse<AnnounceResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
