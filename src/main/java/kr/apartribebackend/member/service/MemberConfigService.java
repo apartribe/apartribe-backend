@@ -51,8 +51,9 @@ public class MemberConfigService {
 
     @Transactional(readOnly = true)
     public Page<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto,
+                                                         final ApartmentDto apartmentDto,
                                                          final Pageable pageable) {
-        return memberConfigRepository.findCommentsForMember(memberDto.toEntity(), pageable);
+        return memberConfigRepository.findCommentsForMember(memberDto.toEntity(), apartmentDto.toEntity(), pageable);
     }
 
     @Transactional(readOnly = true)

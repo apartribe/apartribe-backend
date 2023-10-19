@@ -59,7 +59,8 @@ public class MemberConfigController {
             @PageableDefault final Pageable pageable
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final Page<MemberCommentRes> memberCommentRes = memberConfigService.fetchCommentsForMember(memberDto, pageable);
+        final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
+        final Page<MemberCommentRes> memberCommentRes = memberConfigService.fetchCommentsForMember(memberDto, apartmentDto, pageable);
         final PageResponse<MemberCommentRes> pageResponse = PageResponse.from(memberCommentRes);
         final APIResponse<PageResponse<MemberCommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;
