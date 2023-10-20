@@ -28,16 +28,16 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public CommentDto appendCommentToBoard(final MemberDto memberDto,
+    public CommentDto appendCommentToBoard(final String apartCode,
+                                           final MemberDto memberDto,
                                            final Long boardId,
                                            final Long parentId,
                                            final CommentDto commentDto) {
-        final Board board = boardRepository.findById(boardId)
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         if (parentId != null) {
-            Comment parentComment = commentRepository
-                    .findCommentByBoardIdAndCommentId(boardId, parentId)
+            final Comment parentComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
                     .orElseThrow(CannotFoundParentCommentInBoardException::new);
             if (parentComment.getParent() != null)
                 throw new CommentDepthException();
