@@ -1,6 +1,5 @@
 package kr.apartribebackend.article.repository.announce;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -8,15 +7,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
-import kr.apartribebackend.member.domain.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,21 +52,6 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 );
 
         return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
-    }
-
-    @Override
-    public Optional<Announce> findJoinedAnnounceById(final String apartId, final Long announceId) {
-        final Announce result = jpaQueryFactory
-                .selectFrom(announce)
-                .innerJoin(announce.member, member).fetchJoin()
-                .innerJoin(member.apartment, apartment).fetchJoin()
-                .where(
-                        apartmentCondition(apartId),
-                        announce.id.eq(announceId)
-                )
-                .fetchOne();
-
-        return Optional.ofNullable(result);
     }
 
     @Override

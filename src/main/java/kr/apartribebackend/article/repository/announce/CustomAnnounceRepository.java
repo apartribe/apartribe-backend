@@ -12,7 +12,6 @@ public interface CustomAnnounceRepository {
 
     Page<AnnounceResponse> findAnnouncesByLevel(String apartId, Level level, Pageable pageable);
 
-    Optional<Announce> findJoinedAnnounceById(String apartId, Long announceId);
-
     Optional<Announce> findAnnounceForApartId(String apartId, Long announceId);
+
 }

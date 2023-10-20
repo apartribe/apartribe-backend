@@ -1,19 +1,20 @@
 package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Announce;
+import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceDto;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
-import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,10 +30,10 @@ import java.util.List;
 @Service
 public class AnnounceService {
 
+    private final BoardRepository boardRepository;
     private final AnnounceRepository announceRepository;
     private final AttachmentService attachmentService;
     private final LikeService likeService;
-    private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
     public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final String apartId,
@@ -42,7 +43,7 @@ public class AnnounceService {
     }
 
     public void updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
-        final Announce announce = announceRepository.findJoinedAnnounceById(apartId, announceId)
+        final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
 
         likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
@@ -52,20 +53,8 @@ public class AnnounceService {
                 );
     }
 
-//    public void removeArticle(final Board board) {
-//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
-//        final List<Comment> children = comments.stream()
-//                .filter(comment -> !comment.getChildren().isEmpty())
-//                .flatMap(comment -> comment.getChildren().stream())
-//                .toList();
-//
-//        commentRepository.deleteAllInBatch(children);
-//        commentRepository.deleteAllInBatch(comments);
-//        boardRepository.delete(board);
-//    }
-
     public SingleAnnounceResponse findSingleAnnounceById(final String apartId, final Long announceId) {
-        return announceRepository.findJoinedAnnounceById(apartId, announceId)
+        return announceRepository.findAnnounceForApartId(apartId, announceId)
                 .map(announce -> SingleAnnounceResponse.from(announce, announce.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
     }
@@ -76,7 +65,6 @@ public class AnnounceService {
         final Announce article = announceDto.toEntity(member);
         return announceRepository.save(article);
     }
-
 
     public void appendArticle(final AnnounceDto announceDto,
                               final MemberDto memberDto,
@@ -100,5 +88,17 @@ public class AnnounceService {
                 .updateAnnounce(announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent());
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
     }
+
+//    public void removeArticle(final Board board) {
+//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
+//        final List<Comment> children = comments.stream()
+//                .filter(comment -> !comment.getChildren().isEmpty())
+//                .flatMap(comment -> comment.getChildren().stream())
+//                .toList();
+//
+//        commentRepository.deleteAllInBatch(children);
+//        commentRepository.deleteAllInBatch(comments);
+//        boardRepository.delete(board);
+//    }
 
 }
