@@ -71,18 +71,17 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto updateCommentForBoard(final MemberDto memberDto,
-                                      final Long boardId,
-                                      final CommentDto commentDto) {
-        final Board board = boardRepository.findById(boardId)
+    public CommentDto updateCommentForBoard(final String apartCode,
+                                            final Long boardId,
+                                            final CommentDto commentDto) {
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
-        final Comment comment = commentRepository
-                .findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
+        final Comment comment = commentRepository.findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
                 .orElseThrow(CannotFoundParentCommentInBoardException::new);
+        final Member member = board.getMember();
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Comment updatedComment = comment.updateComment(commentDto.getContent());
-        final CommentDto updatedCommentDto = CommentDto.from(updatedComment);
-        return updatedCommentDto;
+        return CommentDto.from(updatedComment, member);
     }
 
 //    public List<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto) {

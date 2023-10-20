@@ -69,16 +69,15 @@ public class CommentController {
         return apiResponse;
     }
 
-    @PutMapping({"/api/board/{id}/comment", "/api/board/comment"})
+    @PutMapping("/api/{apartCode}/board/{boardId}/comment")
     public APIResponse<SingleCommentResponse> updateArticle(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartCode,
+            @PathVariable final Long boardId,
             @Valid @RequestBody final UpdateCommentReq updateCommentReq
     ) {
-        final MemberDto memberDto = authenticatedMember.toDto();
-        final Long boardId = id.orElse(0L);
         final CommentDto commentDto = updateCommentReq.toDto();
-        final CommentDto updatedCommentDto = commentService.updateCommentForBoard(memberDto, boardId, commentDto);
+        final CommentDto updatedCommentDto = commentService.updateCommentForBoard(apartCode, boardId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(updatedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return apiResponse;
@@ -92,16 +91,3 @@ public class CommentController {
     }
 
 }
-
-//    @PostMapping("/api/board/comment/{id}")
-//    public ResponseEntity<Void> appendCommentToArticle(
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-//            @PathVariable final Optional<Long> id,
-//            @Valid @RequestBody final AppendCommentReq appendCommentReq
-//    ) {
-//        final MemberDto memberDto = authenticatedMember.toDto();
-//        final Long articleId = id.orElse(0L);
-//        final CommentDto commentDto = appendCommentReq.toDto();
-//        commentService.appendCommentToBoard(memberDto, articleId, commentDto);
-//        return ResponseEntity.status(CREATED).build();
-//    }
