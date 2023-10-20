@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CustomCommentRepository {
 
-    List<BestCommentResponse> bestCommentRankViaLastWeek();
+    List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode);
 
     Page<CommentRes> findCommentsByBoardId(final Long boardId, final Pageable pageable);
 

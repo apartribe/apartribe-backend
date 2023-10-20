@@ -62,8 +62,8 @@ public class CommentService {
         return CommentDto.from(savedComment, member);
     }
 
-    public List<BestCommentResponse> bestCommentRankViaLastWeek() {
-        return commentRepository.bestCommentRankViaLastWeek();
+    public List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode) {
+        return commentRepository.bestCommentRankViaLastWeek(apartCode);
     }
 
     public Page<CommentRes> findCommentsByBoardId(final Long boardId, final Pageable pageable) {

@@ -3,6 +3,7 @@ package kr.apartribebackend.comment.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentRes;
@@ -14,6 +15,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 
@@ -48,7 +50,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
     }
 
     @Override
-    public List<BestCommentResponse> bestCommentRankViaLastWeek() {
+    public List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode) {
         return jpaQueryFactory
                 .select(Projections.fields(
                         BestCommentResponse.class,
@@ -57,7 +59,11 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                         comment.count().as("commentCount")))
                 .from(comment)
                 .innerJoin(comment.member, member)
-                .where(comment.createdAt.after(LocalDateTime.now().minusDays(7)))
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        comment.createdAt.after(LocalDateTime.now().minusDays(7)),
+                        apartment.code.eq(apartCode)
+                )
                 .groupBy(member.nickname).orderBy(comment.count().desc())
                 .fetch();
     }
