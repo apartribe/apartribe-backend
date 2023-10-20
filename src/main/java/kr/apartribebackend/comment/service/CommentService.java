@@ -10,6 +10,7 @@ import kr.apartribebackend.comment.eception.CannotApplyCommentException;
 import kr.apartribebackend.comment.eception.CommentDepthException;
 import kr.apartribebackend.comment.eception.CannotFoundParentCommentInBoardException;
 import kr.apartribebackend.comment.repository.CommentRepository;
+import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,17 +36,19 @@ public class CommentService {
                                            final CommentDto commentDto) {
         final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
+        final Member member = board.getMember();
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         if (parentId != null) {
             final Comment parentComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
                     .orElseThrow(CannotFoundParentCommentInBoardException::new);
-            if (parentComment.getParent() != null)
+            if (parentComment.getParent() != null) {
                 throw new CommentDepthException();
+            }
             comment.registParent(parentComment);
         }
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
-        return CommentDto.from(savedComment);
+        return CommentDto.from(savedComment, member);
     }
 
     public List<BestCommentResponse> bestCommentRankViaLastWeek() {
