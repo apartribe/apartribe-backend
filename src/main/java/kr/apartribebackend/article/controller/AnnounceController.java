@@ -98,10 +98,12 @@ public class AnnounceController {
         return apiResponse;
     }
 
-    @GetMapping({"/api/announce/{id}/like", "/api/announce/like"})
-    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
-        final Long announceId = id.orElse(0L);
-        announceService.updateLikeByAnnounceId(announceId);
+    @GetMapping("/api/{apartId}/announce/{announceId}/like")
+    public void updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
+        announceService.updateLikeByAnnounceId(authenticatedMember.toDto(), apartId, announceId);
     }
 
 //    @DeleteMapping("/api/announce")
