@@ -1,7 +1,6 @@
 package kr.apartribebackend.comment.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -35,15 +34,30 @@ public class CommentController {
             @Valid @RequestBody final AppendCommentReq appendCommentReq
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final Long parentId = appendCommentReq.parentId();
         final CommentDto commentDto = appendCommentReq.toDto();
         final CommentDto savedCommentDto = commentService
-                .appendCommentToBoard(apartCode, memberDto, boardId, parentId, commentDto);
+                .appendCommentToBoard(apartCode, memberDto, boardId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
-    
+
+    @PostMapping("/api/{apartCode}/board/{boardId}/comment/reply")
+    public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentReplyToBoard(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @PathVariable final String apartCode,
+            @PathVariable final Long boardId,
+            @Valid @RequestBody final AppendCommentReplyReq appendCommentReplyReq
+    ) {
+        final Long parentId = appendCommentReplyReq.parentId();
+        final CommentDto commentDto = appendCommentReplyReq.toDto();
+        final CommentDto savedCommentDto = commentService
+                .appendCommentReplyToBoard(apartCode, boardId, parentId, commentDto);
+        final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
+        final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
+        return ResponseEntity.status(CREATED).body(apiResponse);
+    }
+
     @GetMapping({"/api/board/{id}/comment", "/api/board/comment"})
     public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
             @PathVariable final Optional<Long> id,

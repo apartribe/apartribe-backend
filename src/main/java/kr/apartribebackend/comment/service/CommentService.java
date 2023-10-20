@@ -32,20 +32,31 @@ public class CommentService {
     public CommentDto appendCommentToBoard(final String apartCode,
                                            final MemberDto memberDto,
                                            final Long boardId,
-                                           final Long parentId,
                                            final CommentDto commentDto) {
         final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
         final Member member = board.getMember();
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
-        if (parentId != null) {
-            final Comment parentComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
-                    .orElseThrow(CannotFoundParentCommentInBoardException::new);
-            if (parentComment.getParent() != null) {
-                throw new CommentDepthException();
-            }
-            comment.registParent(parentComment);
+        comment.registBoard(board);
+        final Comment savedComment = commentRepository.save(comment);
+        return CommentDto.from(savedComment, member);
+    }
+
+    @Transactional
+    public CommentDto appendCommentReplyToBoard(final String apartCode,
+                                                final Long boardId,
+                                                final Long parentId,
+                                                final CommentDto commentDto) {
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+                .orElseThrow(CannotApplyCommentException::new);
+        final Comment boardComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
+                .orElseThrow(CannotFoundParentCommentInBoardException::new);
+        if (boardComment.getParent() != null) {
+            throw new CommentDepthException();
         }
+        final Member member = board.getMember();
+        final Comment comment = commentDto.toEntity(member, board);
+        comment.registParent(boardComment);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
         return CommentDto.from(savedComment, member);
