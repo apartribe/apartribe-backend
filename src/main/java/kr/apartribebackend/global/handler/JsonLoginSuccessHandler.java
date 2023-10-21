@@ -35,10 +35,17 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
         final AuthenticatedMember authenticatedMember = (AuthenticatedMember) authentication.getPrincipal();
 
         final String accessToken = jwtService.generateAccessToken(
-                authenticatedMember.getUsername(), Map.of("email", authenticatedMember.getEmail(), "role", "추가해야함")
+                authenticatedMember.getUsername(),
+                Map.of("email", authenticatedMember.getEmail(),
+                        "role", "추가해야함",
+                        "apartCode", authenticatedMember.getApartmentDto().getCode(),
+                        "apartName", authenticatedMember.getApartmentDto().getName()
+                )
         );
 
-        final String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
+        final String refToken = jwtService.generateRefreshToken(
+                authenticatedMember.getUsername(), authenticatedMember.getCreatedAt().toString()
+        );
         final Member member = ((AuthenticatedMember) authentication.getPrincipal()).getOriginalEntity();
         final RefreshToken refreshToken = RefreshToken.builder()
                 .token(refToken)

@@ -1,6 +1,7 @@
 package kr.apartribebackend.member.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -55,25 +57,26 @@ public class MemberConfigController {
     @GetMapping("/comment")
     public APIResponse<PageResponse<MemberCommentRes>> fetchCommentsForMember(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final Page<MemberCommentRes> memberCommentRes = memberConfigService.fetchCommentsForMember(memberDto, pageable);
+        final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
+        final Page<MemberCommentRes> memberCommentRes = memberConfigService.fetchCommentsForMember(memberDto, apartmentDto, pageable);
         final PageResponse<MemberCommentRes> pageResponse = PageResponse.from(memberCommentRes);
-        APIResponse<PageResponse<MemberCommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        final APIResponse<PageResponse<MemberCommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;
     }
 
-    // TODO 시간이 남으면 댓글 CountQuery 까지 해보자.
     @GetMapping("/article")
-    public APIResponse<PageResponse<MemberArticleRes>> fetchArticlesForMember(
+    public APIResponse<PageResponse<MemberBoardResponse>> fetchArticlesForMember(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
-        final Page<MemberArticleRes> memberArticleRes = memberConfigService.fetchArticlesForMember(memberDto, pageable);
-        final PageResponse<MemberArticleRes> pageResponse = PageResponse.from(memberArticleRes);
-        final APIResponse<PageResponse<MemberArticleRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
+        final Page<MemberBoardResponse> memberArticleRes = memberConfigService.fetchArticlesForMember(memberDto, apartmentDto, pageable);
+        final PageResponse<MemberBoardResponse> pageResponse = PageResponse.from(memberArticleRes);
+        final APIResponse<PageResponse<MemberBoardResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;
     }
 

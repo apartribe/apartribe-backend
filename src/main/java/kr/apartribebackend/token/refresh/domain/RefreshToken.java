@@ -17,7 +17,7 @@ public class RefreshToken {
     @Column(name = "REFRESH_TOKEN_ID")
     private Long id;
 
-    @Column(name = "TOKEN")
+    @Column(name = "TOKEN", length = 400)
     private String token;
 
     @Override

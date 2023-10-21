@@ -10,6 +10,7 @@ import kr.apartribebackend.comment.eception.CannotApplyCommentException;
 import kr.apartribebackend.comment.eception.CommentDepthException;
 import kr.apartribebackend.comment.eception.CannotFoundParentCommentInBoardException;
 import kr.apartribebackend.comment.repository.CommentRepository;
+import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,28 +29,41 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public CommentDto appendCommentToBoard(final MemberDto memberDto,
+    public CommentDto appendCommentToBoard(final String apartCode,
+                                           final MemberDto memberDto,
                                            final Long boardId,
-                                           final Long parentId,
                                            final CommentDto commentDto) {
-        final Board board = boardRepository.findById(boardId)
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
+        final Member member = board.getMember();
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
-        if (parentId != null) {
-            Comment parentComment = commentRepository
-                    .findCommentByBoardIdAndCommentId(boardId, parentId)
-                    .orElseThrow(CannotFoundParentCommentInBoardException::new);
-            if (parentComment.getParent() != null)
-                throw new CommentDepthException();
-            comment.registParent(parentComment);
-        }
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
-        return CommentDto.from(savedComment);
+        return CommentDto.from(savedComment, member);
     }
 
-    public List<BestCommentResponse> bestCommentRankViaLastWeek() {
-        return commentRepository.bestCommentRankViaLastWeek();
+    @Transactional
+    public CommentDto appendCommentReplyToBoard(final String apartCode,
+                                                final Long boardId,
+                                                final Long parentId,
+                                                final CommentDto commentDto) {
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+                .orElseThrow(CannotApplyCommentException::new);
+        final Comment boardComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
+                .orElseThrow(CannotFoundParentCommentInBoardException::new);
+        if (boardComment.getParent() != null) {
+            throw new CommentDepthException();
+        }
+        final Member member = board.getMember();
+        final Comment comment = commentDto.toEntity(member, board);
+        comment.registParent(boardComment);
+        comment.registBoard(board);
+        final Comment savedComment = commentRepository.save(comment);
+        return CommentDto.from(savedComment, member);
+    }
+
+    public List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode) {
+        return commentRepository.bestCommentRankViaLastWeek(apartCode);
     }
 
     public Page<CommentRes> findCommentsByBoardId(final Long boardId, final Pageable pageable) {
@@ -57,18 +71,17 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto updateCommentForBoard(final MemberDto memberDto,
-                                      final Long boardId,
-                                      final CommentDto commentDto) {
-        final Board board = boardRepository.findById(boardId)
+    public CommentDto updateCommentForBoard(final String apartCode,
+                                            final Long boardId,
+                                            final CommentDto commentDto) {
+        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
-        final Comment comment = commentRepository
-                .findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
+        final Comment comment = commentRepository.findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
                 .orElseThrow(CannotFoundParentCommentInBoardException::new);
+        final Member member = board.getMember();
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Comment updatedComment = comment.updateComment(commentDto.getContent());
-        final CommentDto updatedCommentDto = CommentDto.from(updatedComment);
-        return updatedCommentDto;
+        return CommentDto.from(updatedComment, member);
     }
 
 //    public List<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto) {

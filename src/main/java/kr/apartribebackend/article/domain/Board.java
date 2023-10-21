@@ -70,6 +70,10 @@ public abstract class Board extends BaseEntity {
         this.liked += 1;
     }
 
+    public void decreaseArticleLike() {
+        this.liked -= 1;
+    }
+
     public void reflectArticleSaw() {
         this.saw += 1;
     }

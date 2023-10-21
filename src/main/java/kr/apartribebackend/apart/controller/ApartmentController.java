@@ -27,7 +27,11 @@ public class ApartmentController {
             @Valid @RequestBody final AppendApartmentReq appendApartmentReq,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        apartmentService.appendApartment(appendApartmentReq.toDto(), authenticatedMember.getOriginalEntity());
+        apartmentService.appendApartment(
+                authenticatedMember.toDto(),
+                appendApartmentReq.toDto(),
+                authenticatedMember.getOriginalEntity()
+        );
         return ResponseEntity.status(CREATED).build();
     }
 

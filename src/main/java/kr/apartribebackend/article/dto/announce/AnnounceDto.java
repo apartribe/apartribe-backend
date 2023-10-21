@@ -6,6 +6,7 @@ import kr.apartribebackend.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,6 +22,8 @@ public class AnnounceDto {
     private LocalDateTime createdAt;
     private String createdBy;
     private String thumbnail;
+    private LocalDate floatFrom;
+    private LocalDate floatTo;
 
     @Builder
     private AnnounceDto(Long id,
@@ -32,7 +35,9 @@ public class AnnounceDto {
                         Member member,
                         LocalDateTime createdAt,
                         String createdBy,
-                        String thumbnail) {
+                        String thumbnail,
+                        LocalDate floatFrom,
+                        LocalDate floatTo) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -43,6 +48,8 @@ public class AnnounceDto {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.thumbnail = thumbnail;
+        this.floatFrom = floatFrom;
+        this.floatTo = floatTo;
     }
 
     public static AnnounceDto from(Announce announce) {
@@ -57,6 +64,8 @@ public class AnnounceDto {
                 .createdAt(announce.getCreatedAt())
                 .createdBy(announce.getCreatedBy())
                 .thumbnail(announce.getThumbnail())
+                .floatFrom(announce.getFloatFrom())
+                .floatTo(announce.getFloatFrom())
                 .build();
     }
 
@@ -72,6 +81,8 @@ public class AnnounceDto {
                 .createdAt(createdAt)
                 .createdBy(createdBy)
                 .thumbnail(thumbnail)
+                .floatFrom(floatFrom)
+                .floatTo(floatTo)
                 .build();
     }
 }

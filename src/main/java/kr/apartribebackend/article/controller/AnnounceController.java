@@ -14,6 +14,7 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,22 +36,24 @@ public class AnnounceController {
 
     private final AnnounceService announceService;
 
-    @GetMapping({"/api/announce/{id}", "/api/announce/"})
-    public APIResponse<SingleAnnounceResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
-        final Long announceId = id.orElse(0L);
-        final SingleAnnounceResponse singleAnnounceById = announceService.findSingleAnnounceById(announceId);
+    @GetMapping("/api/{apartId}/announce/{announceId}")
+    public APIResponse<SingleAnnounceResponse> findSingleArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId
+    ) {
+        final SingleAnnounceResponse singleAnnounceById = announceService.findSingleAnnounceById(apartId, announceId);
         final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceById);
         return apiResponse;
     }
 
-    @GetMapping("/api/announce")
+    @GetMapping("/api/{apartId}/announce")
     public APIResponse<PageResponse<AnnounceResponse>> findMultipleArticlesByCategory(
+            @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final Level level,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final Page<AnnounceResponse> announceResponses = announceService
-                .findMultipleAnnouncesByLevel(level, pageable);
-//                .map(AnnounceResponse::from);
+                .findMultipleAnnouncesByLevel(apartId, level, pageable);
 
         final PageResponse<AnnounceResponse> pageResponse = PageResponse.from(announceResponses);
         final APIResponse<PageResponse<AnnounceResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
@@ -83,23 +86,35 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping({"/api/announce/{id}", "/api/announce/"})
+    @PutMapping("/api/{apartId}/announce/{announceId}")
     public APIResponse<SingleAnnounceResponse> updateAnnounce(
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final UpdateAnnounceReq updateAnnounceReq
     ) {
-        final Long announceId = id.orElse(0L);
         final SingleAnnounceResponse singleAnnounceResponse = announceService
-                .updateAnnounce(announceId, updateAnnounceReq.toDto(), authenticatedMember.toDto());
+                .updateAnnounce(apartId, announceId, updateAnnounceReq.toDto(), authenticatedMember.toDto());
         final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceResponse);
         return apiResponse;
     }
 
-    @GetMapping({"/api/announce/{id}/like", "/api/announce/like"})
-    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
-        final Long announceId = id.orElse(0L);
-        announceService.updateLikeByAnnounceId(announceId);
+    @GetMapping("/api/{apartId}/announce/{announceId}/like")
+    public void updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
+        announceService.updateLikeByAnnounceId(authenticatedMember.toDto(), apartId, announceId);
+    }
+
+    @GetMapping("/api/{apartId}/announce/widget")
+    public APIResponse<List<AnnounceWidgetRes>> updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @Valid @RequestBody final AnnounceWidgetReq announceWidgetReq
+    ) {
+        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId, announceWidgetReq.toDto());
+        final APIResponse<List<AnnounceWidgetRes>> apiResponse = APIResponse.SUCCESS(widgetValues);
+        return apiResponse;
     }
 
 //    @DeleteMapping("/api/announce")

@@ -2,21 +2,25 @@ package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
 import kr.apartribebackend.apart.domain.Apartment;
+import kr.apartribebackend.global.domain.BaseEntity;
+import kr.apartribebackend.global.domain.TimeBaseEntity;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
 
+@SuperBuilder
 @Entity @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "MEMBER",
         uniqueConstraints = {
                 @UniqueConstraint(name = "nickname", columnNames = "NICKNAME"),
-                @UniqueConstraint(name = "email", columnNames = "EMAIL"),
+                @UniqueConstraint(name = "email", columnNames = "EMAIL")
         }
 )
-public class Member {
+public class Member extends TimeBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MEMBER_ID")
@@ -44,25 +48,6 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "APART_ID")
     private Apartment apartment;
-
-    @Builder
-    private Member(Long id,
-                   String email,
-                   String password,
-                   String name,
-                   String nickname,
-                   String profileImageUrl,
-                   RefreshToken refreshToken,
-                   Apartment apartment) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.nickname = nickname;
-        this.profileImageUrl = profileImageUrl;
-        this.refreshToken = refreshToken;
-        this.apartment = apartment;
-    }
 
     @Override
     public boolean equals(Object o) {

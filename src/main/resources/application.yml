@@ -61,6 +61,12 @@ spring:
             user-info-uri: https://kapi.kakao.com/v1/oidc/userinfo
             user-name-attribute: sub
 
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
 application:
   security:
     jwt:
@@ -69,6 +75,8 @@ application:
       refresh-token:
         secret-key: REFRESH_TOKEN_SECRET_KEY
         expiration: REFRESH_TOKEN_EXPIRATION
+  mail:
+    subject: MAIL_SUBJECT
 
 logging:
   level:
