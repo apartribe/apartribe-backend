@@ -71,7 +71,7 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
         final Announce result = jpaQueryFactory
                 .selectFrom(announce)
                 .innerJoin(announce.member, member).fetchJoin()
-                .innerJoin(member.apartment, apartment).fetchJoin()
+                .innerJoin(member.apartment, apartment)
                 .where(
                         apartmentCondition(apartId),
                         announce.id.eq(announceId)
