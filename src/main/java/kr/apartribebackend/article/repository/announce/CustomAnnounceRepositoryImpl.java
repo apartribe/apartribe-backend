@@ -39,7 +39,8 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 )
                 .fetch();
 
-        final List<AnnounceResponse> contents = announces.stream().map(AnnounceResponse::from).toList();
+        final List<AnnounceResponse> contents = announces.stream()
+                .map(announce -> AnnounceResponse.from(announce, announce.getMember())).toList();
 
         final JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(Wildcard.count)
