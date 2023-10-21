@@ -1,6 +1,8 @@
 package kr.apartribebackend.member.repository;
 
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -9,6 +11,7 @@ import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.QBoard;
+import kr.apartribebackend.global.utils.QueryDslUtil;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.QMember;
 import kr.apartribebackend.member.dto.MemberArticleRes;
@@ -17,19 +20,17 @@ import kr.apartribebackend.member.dto.MemberCommentRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kr.apartribebackend.apart.domain.QApartment.*;
-import static kr.apartribebackend.apart.domain.QApartment.apartment;
-import static kr.apartribebackend.article.domain.QArticle.*;
 import static kr.apartribebackend.article.domain.QBoard.board;
-import static kr.apartribebackend.category.domain.QCategory.*;
 import static kr.apartribebackend.comment.domain.QComment.comment;
-import static kr.apartribebackend.member.domain.QMember.member;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RequiredArgsConstructor
 @Repository
@@ -41,6 +42,8 @@ public class MemberConfigRepository {
     public Page<MemberCommentRes> findCommentsForMember(final Member member,
                                                         final Apartment apartment,
                                                         final Pageable pageable) {
+        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
         List<MemberCommentRes> memberCommentRes = jpaQueryFactory
                 .select(Projections.fields(
                         MemberCommentRes.class,
@@ -59,6 +62,7 @@ public class MemberConfigRepository {
                         QApartment.apartment.name.eq(apartment.getName()),
                         QMember.member.email.eq(member.getEmail())
                 )
+                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -77,6 +81,8 @@ public class MemberConfigRepository {
     public Page<MemberBoardResponse> findArticlesForMember(final Member member,
                                                            final Apartment apartment,
                                                            final Pageable pageable) {
+        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
         List<Board> contents = jpaQueryFactory
                 .select(board)
                 .from(board)
@@ -87,6 +93,7 @@ public class MemberConfigRepository {
                         QApartment.apartment.name.eq(apartment.getName()),
                         QMember.member.email.eq(member.getEmail())
                 )
+                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -104,6 +111,25 @@ public class MemberConfigRepository {
                 );
 
         return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
+    }
+
+    private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
+        List<OrderSpecifier> ORDERS = new ArrayList<>();
+        if (!isEmpty(pageable.getSort())) {
+            for (Sort.Order order : pageable.getSort()) {
+                Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+                switch (order.getProperty()) {
+                    case "createdAt":
+                        OrderSpecifier<?> createdAt = QueryDslUtil.getSortedColumn(direction, board, "createdAt");
+                        ORDERS.add(createdAt);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return ORDERS;
     }
 
 }

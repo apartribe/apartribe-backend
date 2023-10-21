@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +57,7 @@ public class MemberConfigController {
     @GetMapping("/comment")
     public APIResponse<PageResponse<MemberCommentRes>> fetchCommentsForMember(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
         final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
@@ -69,7 +70,7 @@ public class MemberConfigController {
     @GetMapping("/article")
     public APIResponse<PageResponse<MemberBoardResponse>> fetchArticlesForMember(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
         final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
