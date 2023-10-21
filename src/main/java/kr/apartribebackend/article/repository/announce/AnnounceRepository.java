@@ -10,5 +10,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AnnounceRepository extends
         JpaRepository<Announce, Long>, CustomAnnounceRepository {
 
-    Page<Announce> findAnnouncesByLevel(Level level, Pageable pageable);
 }

@@ -1,10 +1,8 @@
 package kr.apartribebackend.member.service;
 
+import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.member.domain.Member;
-import kr.apartribebackend.member.dto.MemberArticleRes;
-import kr.apartribebackend.member.dto.MemberChangePasswordReq;
-import kr.apartribebackend.member.dto.MemberCommentRes;
-import kr.apartribebackend.member.dto.MemberDto;
+import kr.apartribebackend.member.dto.*;
 import kr.apartribebackend.member.exception.UserCantDeleteException;
 import kr.apartribebackend.member.exception.UserCantUpdateNicknameException;
 import kr.apartribebackend.member.exception.UserCantUpdatePasswordException;
@@ -53,14 +51,20 @@ public class MemberConfigService {
 
     @Transactional(readOnly = true)
     public Page<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto,
+                                                         final ApartmentDto apartmentDto,
                                                          final Pageable pageable) {
-        return memberConfigRepository.findCommentsForMember(memberDto.toEntity(), pageable);
+        return memberConfigRepository.findCommentsForMember(memberDto.toEntity(), apartmentDto.toEntity(), pageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<MemberArticleRes> fetchArticlesForMember(final MemberDto memberDto,
-                                                         final Pageable pageable) {
-        return memberConfigRepository.findArticlesForMember(memberDto.toEntity(), pageable);
+    public Page<MemberBoardResponse> fetchArticlesForMember(final MemberDto memberDto,
+                                                            final ApartmentDto apartmentDto,
+                                                            final Pageable pageable) {
+        return memberConfigRepository.findArticlesForMember(
+                memberDto.toEntity(),
+                apartmentDto.toEntity(),
+                pageable
+        );
     }
 
 }

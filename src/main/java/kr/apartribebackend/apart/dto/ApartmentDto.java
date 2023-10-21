@@ -5,6 +5,8 @@ import kr.apartribebackend.apart.domain.Apartment;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class ApartmentDto {
 
@@ -21,8 +23,8 @@ public class ApartmentDto {
 
     public static ApartmentDto from(Apartment apartment) {
         return ApartmentDto.builder()
-                .code(apartment.getCode())
-                .name(apartment.getName())
+                .code(apartment != null ? apartment.getCode() : "EMPTY")
+                .name(apartment != null ? apartment.getName() : "EMPTY")
                 .build();
     }
 
@@ -33,4 +35,5 @@ public class ApartmentDto {
                 .name(name)
                 .build();
     }
+
 }

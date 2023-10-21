@@ -1,11 +1,22 @@
 package kr.apartribebackend.article.repository.announce;
 
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.article.domain.Announce;
+import kr.apartribebackend.article.domain.Level;
+import kr.apartribebackend.article.dto.announce.AnnounceResponse;
+import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomAnnounceRepository {
 
-    List<SingleAnnounceResponse> findJoinedAnnounceById(Long announceId);
+    Page<AnnounceResponse> findAnnouncesByLevel(String apartId, Level level, Pageable pageable);
+
+    Optional<Announce> findAnnounceForApartId(String apartId, Long announceId);
+
+    List<AnnounceWidgetRes> findWidgetValues(String apartId, LocalDate floatFrom, LocalDate floatTo);
 
 }
