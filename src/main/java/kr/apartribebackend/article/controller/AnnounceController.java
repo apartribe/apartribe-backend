@@ -107,6 +107,16 @@ public class AnnounceController {
         announceService.updateLikeByAnnounceId(authenticatedMember.toDto(), apartId, announceId);
     }
 
+    @GetMapping("/api/{apartId}/announce/widget")
+    public APIResponse<List<AnnounceWidgetRes>> updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @Valid @RequestBody final AnnounceWidgetReq announceWidgetReq
+    ) {
+        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId, announceWidgetReq.toDto());
+        final APIResponse<List<AnnounceWidgetRes>> apiResponse = APIResponse.SUCCESS(widgetValues);
+        return apiResponse;
+    }
+
 //    @DeleteMapping("/api/announce")
 //    public void removeArticle(
 //            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,

@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
+import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,9 +18,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QAnnounce.*;
@@ -81,6 +84,23 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
         return Optional.ofNullable(result);
     }
 
+    @Override
+    public List<AnnounceWidgetRes> findWidgetValues(final String apartId,
+                                                    final LocalDate floatFrom,
+                                                    final LocalDate floatTo) {
+        final List<Announce> announces = jpaQueryFactory
+                .selectFrom(announce)
+                .innerJoin(announce.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        isDateRangeWithin(floatFrom, floatTo)
+                )
+                .fetch();
+
+        return announces.stream().map(AnnounceWidgetRes::from).collect(Collectors.toList());
+    }
+
 
     private BooleanExpression levelCondition(final Level level) {
         return level != Level.ALL ? announce.level.eq(level) : null;
@@ -113,6 +133,12 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
         }
 
         return ORDERS;
+    }
+
+    public BooleanExpression isDateRangeWithin(final LocalDate floatFrom, final LocalDate floatTo) {
+        return announce.floatFrom.between(floatFrom, floatTo)
+                .or(announce.floatTo.between(floatFrom, floatTo))
+                .or(announce.floatFrom.before(floatFrom).and(announce.floatTo.after(floatTo)));
     }
 
 //    private OrderSpecifier[] createOrderSpecifier(Pageable pageable) {

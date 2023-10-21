@@ -5,6 +5,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceDto;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
+import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
 import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
@@ -87,6 +88,11 @@ public class AnnounceService {
         final Announce updatedAnnounce = announceEntity
                 .updateAnnounce(announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent());
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AnnounceWidgetRes> findWidgetValues(final String apartId, final AnnounceDto announceDto) {
+        return announceRepository.findWidgetValues(apartId, announceDto.getFloatFrom(), announceDto.getFloatTo());
     }
 
 //    public void removeArticle(final Board board) {
