@@ -1,9 +1,7 @@
 package kr.apartribebackend.article.service;
 
-import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
@@ -94,9 +92,9 @@ public class TogetherService {
     }
 
     @Transactional
-    public SingleTogetherResponse findSingleTogetherById(final Long togetherId) {
-        return togetherRepository.findJoinedTogetherById(togetherId)
-                .stream().findFirst()
+    public SingleTogetherResponse findSingleTogetherById(final String apartId, final Long togetherId) {
+        return togetherRepository.findTogetherForApartId(apartId, togetherId)
+                .map(together -> SingleTogetherResponse.from(together, together.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
     }
 

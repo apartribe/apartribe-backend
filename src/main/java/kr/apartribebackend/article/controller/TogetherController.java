@@ -33,10 +33,12 @@ public class TogetherController {
 
     private final TogetherService togetherService;
 
-    @GetMapping({"/api/together/{id}", "/api/together/"})
-    public APIResponse<SingleTogetherResponse> findSingleTogether(@PathVariable final Optional<Long> id) {
-        final Long togetherId = id.orElse(0L);
-        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(togetherId);
+    @GetMapping("/api/{apartId}/together/{togetherId}")
+    public APIResponse<SingleTogetherResponse> findSingleTogether(
+            @PathVariable final String apartId,
+            @PathVariable final Long togetherId
+    ) {
+        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(apartId, togetherId);
         final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
         return apiResponse;
     }
