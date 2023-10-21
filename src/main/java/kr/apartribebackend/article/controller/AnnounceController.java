@@ -14,6 +14,7 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,7 +50,7 @@ public class AnnounceController {
     public APIResponse<PageResponse<AnnounceResponse>> findMultipleArticlesByCategory(
             @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final Level level,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
         final Page<AnnounceResponse> announceResponses = announceService
                 .findMultipleAnnouncesByLevel(apartId, level, pageable);
