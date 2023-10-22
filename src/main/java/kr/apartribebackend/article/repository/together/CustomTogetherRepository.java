@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface CustomTogetherRepository {
 
-    Page<TogetherResponse> findMultipleTogethersByCategory(String category, Pageable pageable);
+    Page<TogetherResponse> findMultipleTogethersByCategory(String apartId, String category, Pageable pageable);
 
     Optional<Together> findTogetherForApartId(String apartId, Long togetherId);
 

@@ -87,8 +87,10 @@ public class TogetherService {
                         () -> { throw new CannotReflectLikeToArticleException(); });
     }
 
-    public Page<TogetherResponse> findMultipleTogethersByCategory(final String category, final Pageable pageable) {
-        return togetherRepository.findMultipleTogethersByCategory(category, pageable);
+    public Page<TogetherResponse> findMultipleTogethersByCategory(final String apartId,
+                                                                  final String category,
+                                                                  final Pageable pageable) {
+        return togetherRepository.findMultipleTogethersByCategory(apartId, category, pageable);
     }
 
     @Transactional

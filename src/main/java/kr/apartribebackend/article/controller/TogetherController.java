@@ -12,6 +12,7 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,13 +44,14 @@ public class TogetherController {
         return apiResponse;
     }
 
-    @GetMapping("/api/together")
+    @GetMapping("/api/{apartId}/together")
     public APIResponse<PageResponse<TogetherResponse>> findMultipleTogethers(
+            @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final String category,
-            @PageableDefault final Pageable pageable)
-    {
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
+    ) {
         final Page<TogetherResponse> togetherResponses =
-                togetherService.findMultipleTogethersByCategory(category, pageable);
+                togetherService.findMultipleTogethersByCategory(apartId, category, pageable);
         final PageResponse<TogetherResponse> pageResponse = PageResponse.from(togetherResponses);
         final APIResponse<PageResponse<TogetherResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;
