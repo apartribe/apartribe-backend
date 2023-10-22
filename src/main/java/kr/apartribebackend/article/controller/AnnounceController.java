@@ -111,14 +111,16 @@ public class AnnounceController {
     }
 
     @GetMapping("/api/{apartId}/announce/widget")
-    public APIResponse<List<AnnounceWidgetRes>> updateLikeByBoardId(
+    public APIResponse<List<AnnounceWidgetRes>> announceWidgets(
             @PathVariable final String apartId,
-            @Valid @RequestBody final AnnounceWidgetReq announceWidgetReq
+            @Valid final AnnounceWidgetDuration announceWidgetDuration
     ) {
-        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId, announceWidgetReq.toDto());
+        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId, announceWidgetDuration.toDto());
         final APIResponse<List<AnnounceWidgetRes>> apiResponse = APIResponse.SUCCESS(widgetValues);
         return apiResponse;
     }
+
+}
 
 //    @DeleteMapping("/api/announce")
 //    public void removeArticle(
@@ -128,5 +130,3 @@ public class AnnounceController {
 //        Announce board = Announce.builder().id(announceId).build();
 //        boardService.removeArticle(board);
 //    }
-
-}
