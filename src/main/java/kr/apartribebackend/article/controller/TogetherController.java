@@ -34,12 +34,14 @@ public class TogetherController {
     private final TogetherService togetherService;
 
     @GetMapping("/api/{apartId}/together/{togetherId}")
-    public APIResponse<SingleTogetherResponse> findSingleTogether(
+    public APIResponse<SingleTogetherWithLikedResponse> findSingleTogether(
             @PathVariable final String apartId,
-            @PathVariable final Long togetherId
+            @PathVariable final Long togetherId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(apartId, togetherId);
-        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+        final SingleTogetherWithLikedResponse singleTogetherWithLikedResponse = togetherService
+                .findSingleTogetherById(authenticatedMember.toDto(), apartId, togetherId);
+        final APIResponse<SingleTogetherWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleTogetherWithLikedResponse);
         return apiResponse;
     }
 
@@ -106,3 +108,14 @@ public class TogetherController {
     }
 
 }
+
+
+//    @GetMapping("/api/{apartId}/together/{togetherId}")
+//    public APIResponse<SingleTogetherResponse> findSingleTogether(
+//            @PathVariable final String apartId,
+//            @PathVariable final Long togetherId,
+//    ) {
+//        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(apartId, togetherId);
+//        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+//        return apiResponse;
+//    }

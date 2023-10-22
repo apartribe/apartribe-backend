@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
+import kr.apartribebackend.article.dto.together.SingleTogetherWithLikedResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
@@ -16,6 +17,7 @@ import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -106,10 +108,25 @@ public class TogetherService {
     }
 
     @Transactional
-    public SingleTogetherResponse findSingleTogetherById(final String apartId, final Long togetherId) {
-        return togetherRepository.findTogetherForApartId(apartId, togetherId)
+    public SingleTogetherWithLikedResponse findSingleTogetherById(final MemberDto memberDto,
+                                                         final String apartId,
+                                                         final Long togetherId) {
+        final SingleTogetherResponse singleTogetherResponse = togetherRepository
+                .findTogetherForApartId(apartId, togetherId)
                 .map(together -> SingleTogetherResponse.from(together, together.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), togetherId);
+        return SingleTogetherWithLikedResponse.from(singleTogetherResponse, memberLikedToBoard);
     }
 
 }
+
+
+//    @Transactional
+//    public SingleTogetherResponse findSingleTogetherById(final String apartId,
+//                                                         final Long togetherId) {
+//        return togetherRepository.findTogetherForApartId(apartId, togetherId)
+//                .map(together -> SingleTogetherResponse.from(together, together.getMember()))
+//                .orElseThrow(ArticleNotFoundException::new);
+//    }
