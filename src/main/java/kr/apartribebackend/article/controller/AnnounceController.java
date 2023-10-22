@@ -3,8 +3,6 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
-import kr.apartribebackend.article.dto.UpdateArticleReq;
 import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -24,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -38,12 +35,14 @@ public class AnnounceController {
     private final AnnounceService announceService;
 
     @GetMapping("/api/{apartId}/announce/{announceId}")
-    public APIResponse<SingleAnnounceResponse> findSingleArticle(
+    public APIResponse<SingleAnnounceWithLikedResponse> findSingleArticle(
             @PathVariable final String apartId,
-            @PathVariable final Long announceId
+            @PathVariable final Long announceId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleAnnounceResponse singleAnnounceById = announceService.findSingleAnnounceById(apartId, announceId);
-        final APIResponse<SingleAnnounceResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceById);
+        final SingleAnnounceWithLikedResponse singleAnnounceWithLikedResponse = announceService
+                .findSingleAnnounceById(authenticatedMember.toDto(), apartId, announceId);
+        final APIResponse<SingleAnnounceWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceWithLikedResponse);
         return apiResponse;
     }
 

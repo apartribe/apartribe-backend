@@ -3,10 +3,7 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.article.dto.announce.AnnounceDto;
-import kr.apartribebackend.article.dto.announce.AnnounceResponse;
-import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.BoardRepository;
@@ -57,10 +54,15 @@ public class AnnounceService {
         return likeService.increaseLikesToBoard(memberDto.toEntity(), announce);
     }
 
-    public SingleAnnounceResponse findSingleAnnounceById(final String apartId, final Long announceId) {
-        return announceRepository.findAnnounceForApartId(apartId, announceId)
+    public SingleAnnounceWithLikedResponse findSingleAnnounceById(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long announceId) {
+        final SingleAnnounceResponse singleAnnounceResponse = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .map(announce -> SingleAnnounceResponse.from(announce, announce.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), announceId);
+        return SingleAnnounceWithLikedResponse.from(singleAnnounceResponse, memberLikedToBoard);
     }
 
     public Announce appendArticle(final AnnounceDto announceDto,
