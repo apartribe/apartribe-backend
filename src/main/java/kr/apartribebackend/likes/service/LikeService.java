@@ -37,4 +37,13 @@ public class LikeService {
         return new BoardLikedRes(false);
     }
 
+    @Transactional(readOnly = true)
+    public BoardLikedRes isMemberLikedToBoard(final Long memberId, final Long boardId) {
+        final Integer memberLikedToBoard = boardLikesRepository.isMemberLikedToBoard(memberId, boardId);
+        if (memberLikedToBoard != null) {
+            return new BoardLikedRes(true);
+        }
+        return new BoardLikedRes(false);
+    }
+
 }
