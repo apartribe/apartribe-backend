@@ -2,17 +2,21 @@ package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
+import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +37,11 @@ import static kr.apartribebackend.category.domain.CategoryTag.*;
 @Service
 public class TogetherService {
 
+    private final BoardRepository boardRepository;
     private final TogetherRepository togetherRepository;
     private final CategoryRepository categoryRepository;
     private final AttachmentService attachmentService;
+    private final LikeService likeService;
 
     @Transactional
     public Together appendTogether(final String category,
@@ -81,10 +87,16 @@ public class TogetherService {
     }
 
     @Transactional
-    public void updateLikeByTogetherId(final Long togetherId) {
-        togetherRepository.findById(togetherId)
-                .ifPresentOrElse(Board::reflectArticleLike,
-                        () -> { throw new CannotReflectLikeToArticleException(); });
+    public BoardLikedRes updateLikeByTogetherId(final MemberDto memberDto, final String apartId, final Long togetherId) {
+        final Board together = boardRepository.findBoardForApartId(apartId, togetherId)
+                .orElseThrow(CannotReflectLikeToArticleException::new);
+
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), together.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, together);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), together);
     }
 
     public Page<TogetherResponse> findMultipleTogethersByCategory(final String apartId,

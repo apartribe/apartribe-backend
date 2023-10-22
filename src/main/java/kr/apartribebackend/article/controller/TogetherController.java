@@ -1,8 +1,7 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
-import kr.apartribebackend.article.dto.UpdateArticleReq;
+import kr.apartribebackend.article.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.service.TogetherService;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -81,10 +80,16 @@ public class TogetherController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @GetMapping({"/api/together/{id}/like", "/api/together/like"})
-    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
-        final Long togetherId = id.orElse(0L);
-        togetherService.updateLikeByTogetherId(togetherId);
+    @GetMapping("/api/{apartId}/together/{togetherId}/like")
+    public APIResponse<BoardLikedRes> updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @PathVariable final Long togetherId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final BoardLikedRes boardLikedRes = togetherService
+                .updateLikeByTogetherId(authenticatedMember.toDto(), apartId, togetherId);
+        final APIResponse<BoardLikedRes> apiResponse = APIResponse.SUCCESS(boardLikedRes);
+        return apiResponse;
     }
 
     @PutMapping({"/api/together/{id}", "/api/together/"})
