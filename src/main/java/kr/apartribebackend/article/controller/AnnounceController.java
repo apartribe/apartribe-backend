@@ -9,6 +9,7 @@ import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -100,11 +101,14 @@ public class AnnounceController {
     }
 
     @GetMapping("/api/{apartId}/announce/{announceId}/like")
-    public void updateLikeByBoardId(
+    public APIResponse<BoardLikedRes> updateLikeByBoardId(
             @PathVariable final String apartId,
             @PathVariable final Long announceId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
-        announceService.updateLikeByAnnounceId(authenticatedMember.toDto(), apartId, announceId);
+        final BoardLikedRes boardLikedRes = announceService
+                .updateLikeByAnnounceId(authenticatedMember.toDto(), apartId, announceId);
+        final APIResponse<BoardLikedRes> apiResponse = APIResponse.SUCCESS(boardLikedRes);
+        return apiResponse;
     }
 
     @GetMapping("/api/{apartId}/announce/widget")

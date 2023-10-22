@@ -13,6 +13,8 @@ import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
+import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -43,15 +45,16 @@ public class AnnounceService {
         return announceRepository.findAnnouncesByLevel(apartId, level, pageable);
     }
 
-    public void updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
+    public BoardLikedRes updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
         final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
 
-        likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
-                .ifPresentOrElse(
-                        boardLiked -> likeService.decreaseLikesToBoard(boardLiked, announce),
-                        () -> likeService.increaseLikesToBoard(memberDto.toEntity(), announce)
-                );
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, announce);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), announce);
     }
 
     public SingleAnnounceResponse findSingleAnnounceById(final String apartId, final Long announceId) {
