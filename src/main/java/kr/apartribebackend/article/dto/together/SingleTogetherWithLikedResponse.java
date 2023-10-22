@@ -1,6 +1,6 @@
 package kr.apartribebackend.article.dto.together;
 
-import kr.apartribebackend.article.dto.BoardLikedRes;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

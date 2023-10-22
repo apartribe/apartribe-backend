@@ -1,10 +1,9 @@
 package kr.apartribebackend.likes.service;
 
 import kr.apartribebackend.article.domain.Board;
-import kr.apartribebackend.article.dto.BoardLikedRes;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
-import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

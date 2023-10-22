@@ -2,7 +2,7 @@ package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
-import kr.apartribebackend.article.dto.BoardLikedRes;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
 import kr.apartribebackend.article.dto.together.SingleTogetherWithLikedResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
@@ -17,7 +17,6 @@ import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
-import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;

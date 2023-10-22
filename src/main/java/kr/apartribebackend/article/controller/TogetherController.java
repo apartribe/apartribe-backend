@@ -1,7 +1,7 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.BoardLikedRes;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.service.TogetherService;
 import kr.apartribebackend.global.dto.APIResponse;
