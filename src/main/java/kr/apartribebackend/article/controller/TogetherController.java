@@ -94,15 +94,20 @@ public class TogetherController {
         return apiResponse;
     }
 
-    @PutMapping({"/api/together/{id}", "/api/together/"})
+    @PutMapping("/api/{apartId}/together/{togetherId}")
     public APIResponse<SingleTogetherResponse> updateTogether(
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartId,
+            @PathVariable final Long togetherId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final UpdateTogetherReq updateTogetherReq
     ) {
-        final Long togetherId = id.orElse(0L);
         final SingleTogetherResponse singleTogetherResponse = togetherService.updateTogether(
-                togetherId, updateTogetherReq.category(), updateTogetherReq.toDto(), authenticatedMember.toDto());
+                apartId,
+                togetherId,
+                updateTogetherReq.category(),
+                updateTogetherReq.toDto(),
+                authenticatedMember.toDto()
+        );
         final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleTogetherResponse);
         return apiResponse;
     }

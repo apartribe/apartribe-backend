@@ -69,11 +69,12 @@ public class TogetherService {
     }
 
     @Transactional
-    public SingleTogetherResponse updateTogether(final Long togetherId,
-                               final String category,
-                               final TogetherDto togetherDto,
-                               final MemberDto memberDto) {
-        final Together togetherEntity = togetherRepository.findById(togetherId)
+    public SingleTogetherResponse updateTogether(final String apartId,
+                                                 final Long togetherId,
+                                                 final String category,
+                                                 final TogetherDto togetherDto,
+                                                 final MemberDto memberDto) {
+        final Together togetherEntity = togetherRepository.findTogetherForApartId(apartId, togetherId)
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
@@ -84,7 +85,7 @@ public class TogetherService {
                 togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
                 togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail()
         );
-        return SingleTogetherResponse.from(updatedTogether);
+        return SingleTogetherResponse.from(updatedTogether, togetherEntity.getMember());
     }
 
     @Transactional
