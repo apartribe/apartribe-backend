@@ -27,10 +27,14 @@ public class Announce extends Board {
 
     public Announce updateAnnounce(Level level,
                                    String title,
-                                   String content) {
+                                   String content,
+                                   LocalDate floatFrom,
+                                   LocalDate floatTo) {
         this.level = level;
         setTitle(title);
         setContent(content);
+        this.floatFrom = floatFrom;
+        this.floatTo = floatTo;
         return this;
     }
 

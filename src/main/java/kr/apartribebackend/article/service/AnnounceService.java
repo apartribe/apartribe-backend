@@ -90,8 +90,13 @@ public class AnnounceService {
         final Announce announceEntity = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
-        final Announce updatedAnnounce = announceEntity
-                .updateAnnounce(announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent());
+        final Announce updatedAnnounce = announceEntity.updateAnnounce(
+                announceDto.getLevel(),
+                announceDto.getTitle(),
+                announceDto.getContent(),
+                announceDto.getFloatFrom(),
+                announceDto.getFloatTo()
+        );
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
     }
 
