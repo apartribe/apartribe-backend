@@ -1,16 +1,17 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,22 +33,26 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @GetMapping({"/api/article/{id}", "/api/article/"})
-    public APIResponse<SingleArticleResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
-        final Long articleId = id.orElse(0L);
-        final SingleArticleResponse singleArticleById = articleService.findSingleArticleById(articleId);
-        final APIResponse<SingleArticleResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+    @GetMapping("/api/{apartId}/article/{articleId}")
+    public APIResponse<SingleArticleWithLikedResponse> findSingleArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final SingleArticleWithLikedResponse singleArticleWithLikedResponse = articleService
+                .findSingleArticleById(authenticatedMember.toDto(), apartId, articleId);
+        final APIResponse<SingleArticleWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleArticleWithLikedResponse);
         return apiResponse;
     }
 
-    @GetMapping("/api/article")
+    @GetMapping("/api/{apartId}/article")
     public APIResponse<PageResponse<ArticleResponse>> findMultipleArticlesByCategory(
+            @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final String category,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
-        final Page<ArticleResponse> articleResponse = articleService
-                .findMultipleArticlesByCategory(category, pageable);
-
+        final Page<ArticleResponse> articleResponse =
+                articleService.findMultipleArticlesByCategory(apartId, category, pageable);
         final PageResponse<ArticleResponse> pageResponse = PageResponse.from(articleResponse);
         final APIResponse<PageResponse<ArticleResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;
@@ -81,33 +86,30 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping({"/api/article/{id}", "/api/article/"})
+    @PutMapping("/api/{apartId}/article/{articleId}")
     public APIResponse<SingleArticleResponse> updateArticle(
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final UpdateArticleReq articleInfo
     ) {
-        final Long articleId = id.orElse(0L);
         final SingleArticleResponse singleArticleResponse = articleService
-                .updateArticle(articleId, articleInfo.category(), articleInfo.toDto(), authenticatedMember.toDto());
+                .updateArticle(apartId, articleId, articleInfo.category(), articleInfo.toDto(), authenticatedMember.toDto());
         final APIResponse<SingleArticleResponse> apiResponse = APIResponse.SUCCESS(singleArticleResponse);
         return apiResponse;
     }
 
-    @GetMapping({"/api/article/{id}/like", "/api/article/like"})
-    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
-        final Long articleId = id.orElse(0L);
-        articleService.updateLikeByArticleId(articleId);
+    @GetMapping("/api/{apartId}/article/{articleId}/like")
+    public APIResponse<BoardLikedRes> updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final BoardLikedRes boardLikedRes = articleService
+                .updateLikeByArticleId(authenticatedMember.toDto(), apartId, articleId);
+        final APIResponse<BoardLikedRes> apiResponse = APIResponse.SUCCESS(boardLikedRes);
+        return apiResponse;
     }
-
-//    @DeleteMapping("/api/article")
-//    public void removeArticle(
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-//            @RequestParam Long articleId
-//    ) {
-//        Article board = Article.builder().id(articleId).build();
-//        boardService.removeArticle(board);
-//    }
 
     @GetMapping("/api/{apartId}/article/best/liked")
     public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked(
@@ -140,3 +142,12 @@ public class ArticleController {
     }
 
 }
+
+//    @DeleteMapping("/api/article")
+//    public void removeArticle(
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+//            @RequestParam Long articleId
+//    ) {
+//        Article board = Article.builder().id(articleId).build();
+//        boardService.removeArticle(board);
+//    }

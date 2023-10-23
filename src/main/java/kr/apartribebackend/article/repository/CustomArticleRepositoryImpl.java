@@ -1,33 +1,37 @@
 package kr.apartribebackend.article.repository;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Article;
-import kr.apartribebackend.article.domain.QBoard;
+import kr.apartribebackend.article.domain.RecruitStatus;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.article.dto.Top5ArticleResponse;
-import kr.apartribebackend.member.domain.QMember;
+import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QArticle.*;
 import static kr.apartribebackend.article.domain.QBoard.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
-import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.member.domain.QMember.*;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 
 @RequiredArgsConstructor
@@ -36,38 +40,55 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<ArticleResponse> findArticlesByCategory(final String categoryName,
+    public Page<ArticleResponse> findArticlesByCategory(final String apartId,
+                                                        final String categoryName,
                                                         final Pageable pageable) {
+        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+
         final List<Article> content = jpaQueryFactory
                 .selectFrom(article)
+                .innerJoin(article.member, member)
                 .innerJoin(article.category, category)
-                .where(categoryNameEq(categoryName))
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        categoryNameEq(categoryName)
+                )
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        final List<ArticleResponse> articleResponses = content.stream().map(ArticleResponse::from).toList();
+        final List<ArticleResponse> articleResponses = content.stream()
+                .map(article -> ArticleResponse.from(article, article.getMember())).toList();
 
         final JPAQuery<Long> countQuery = jpaQueryFactory
-                .select(article.count())
+                .select(Wildcard.count)
                 .from(article)
+                .innerJoin(article.member, member)
                 .innerJoin(article.category, category)
-                .where(categoryNameEq(categoryName));
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        categoryNameEq(categoryName)
+                );
 
         return PageableExecutionUtils.getPage(articleResponses, pageable, countQuery::fetchOne);
     }
 
     @Override
-    public List<SingleArticleResponse> findJoinedArticleById(final Long articleId) {
-        final List<Article> results = jpaQueryFactory
+    public Optional<Article> findArticleForApartId(final String apartId, final Long articleId) {
+        final Article result = jpaQueryFactory
                 .selectFrom(article)
-                .leftJoin(article.comments, comment).fetchJoin()
-                .where(article.id.eq(articleId))
-                .fetch();
+                .innerJoin(article.member, member).fetchJoin()
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        article.id.eq(articleId)
+                )
+                .fetchOne();
 
-        final List<SingleArticleResponse> collect = results.stream()
-                .map(SingleArticleResponse::from).toList();
-        return collect;
+        return Optional.ofNullable(result);
     }
 
     @Override
@@ -144,6 +165,30 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
     private BooleanExpression apartmentCondition(final String apartId) {
         return StringUtils.hasText(apartId) ? apartment.code.eq(apartId) : null;
+    }
+
+    private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
+        List<OrderSpecifier> ORDERS = new ArrayList<>();
+        if (!isEmpty(pageable.getSort())) {
+            for (Sort.Order order : pageable.getSort()) {
+                Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
+                switch (order.getProperty()) {
+                    case "saw":
+                        OrderSpecifier<?> saw = QueryDslUtil.getSortedColumn(direction, article, "saw");
+                        ORDERS.add(saw);
+                        break;
+                    case "liked":
+                        OrderSpecifier<?> liked = QueryDslUtil.getSortedColumn(direction, article, "liked");
+                        ORDERS.add(liked);
+                        break;
+                    default:
+                        OrderSpecifier<?> createdAt = QueryDslUtil.getSortedColumn(direction, article, "createdAt");
+                        ORDERS.add(createdAt);
+                        break;
+                }
+            }
+        }
+        return ORDERS;
     }
 
 }
