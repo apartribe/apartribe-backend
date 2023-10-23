@@ -3,6 +3,7 @@ package kr.apartribebackend.article.dto;
 
 
 import kr.apartribebackend.article.domain.Article;
+import kr.apartribebackend.member.domain.Member;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,10 +18,11 @@ public record ArticleResponse(
         String thumbnail,
         long commentCounts,
         LocalDateTime createdAt,
-        String createdBy
+        String createdBy,
+        String profileImage
 ) {
 
-    public static ArticleResponse from(Article article) {
+    public static ArticleResponse from(Article article, Member member) {
         List<SingleCommentResponse> commentResponses = article.getComments()
                 .stream()
                 .map(SingleCommentResponse::from)
@@ -35,7 +37,8 @@ public record ArticleResponse(
                 article.getThumbnail(),
                 commentResponses.size(),
                 article.getCreatedAt(),
-                article.getCreatedBy()
+                article.getCreatedBy(),
+                member.getProfileImageUrl()
         );
     }
 }
