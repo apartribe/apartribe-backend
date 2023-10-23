@@ -2,13 +2,18 @@ package kr.apartribebackend.article.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Article;
+import kr.apartribebackend.article.domain.QBoard;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
 import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.article.dto.Top5ArticleResponse;
+import kr.apartribebackend.member.domain.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +22,12 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QArticle.*;
+import static kr.apartribebackend.article.domain.QBoard.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
 import static kr.apartribebackend.comment.domain.QComment.*;
+import static kr.apartribebackend.member.domain.QMember.*;
 
 
 @RequiredArgsConstructor
@@ -63,38 +71,54 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
         return jpaQueryFactory
                 .select(Projections.fields(Top5ArticleResponse.class,
-                        article.id.as("id"),
-                        article.title.as("title")))
-                .from(article)
-                .orderBy(article.liked.desc())
+                        board.id.as("id"),
+                        board.boardType.as("boardType"),
+                        board.title.as("title")))
+                .from(board)
+                .innerJoin(board.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(apartmentCondition(apartId))
+                .orderBy(board.liked.desc())
                 .limit(5)
                 .fetch();
     }
 
     @Override
-    public List<Top5ArticleResponse> findTop5ArticleViaView() {
+    public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {
         return jpaQueryFactory
                 .select(Projections.fields(Top5ArticleResponse.class,
-                        article.id.as("id"),
-                        article.title.as("title")))
-                .from(article)
-                .orderBy(article.saw.desc())
+                        board.id.as("id"),
+                        board.boardType.as("boardType"),
+                        board.title.as("title")))
+                .from(board)
+                .innerJoin(board.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(apartmentCondition(apartId))
+                .orderBy(board.saw.desc())
                 .limit(5)
                 .fetch();
     }
 
     @Override
-    public List<ArticleInCommunityRes> searchArticleInCommunity(String title) {
+    public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
         return jpaQueryFactory
-                .selectFrom(article)
-                .where(isTitleContainsIgnoreCase(title))
-                .fetch()
-                .stream()
-                .map(ArticleInCommunityRes::from)
-                .toList();
+                .select(Projections.fields(
+                        ArticleInCommunityRes.class,
+                        board.id.as("id"),
+                        board.boardType.as("boardType"),
+                        board.title.as("title")))
+                .from(board)
+                .innerJoin(board.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        isTitleContainsIgnoreCase2(title)
+                )
+                .orderBy(board.createdAt.desc())
+                .fetch();
     }
 
     private BooleanExpression categoryNameEq(String categoryName) {
@@ -104,18 +128,22 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     private  BooleanExpression isTitleContainsIgnoreCase(final String title) {
         if (!StringUtils.hasText(title))
             return null;
-        return article.title.likeIgnoreCase(title + "%" )
-                .or(article.title.likeIgnoreCase("%" + title + "%"))
-                .or(article.title.likeIgnoreCase("%" + title))
+        return board.title.likeIgnoreCase(title + "%" )
+                .or(board.title.likeIgnoreCase("%" + title + "%"))
+                .or(board.title.likeIgnoreCase("%" + title))
                 .or(isTitleEqIgnoreCase(title));
     }
 
     private BooleanExpression isTitleEqIgnoreCase(final String title) {
-        return StringUtils.hasText(title) ? article.title.equalsIgnoreCase(title) : null;
+        return StringUtils.hasText(title) ? board.title.equalsIgnoreCase(title) : null;
     }
 
     private  BooleanExpression isTitleContainsIgnoreCase2(final String title) {
-        return StringUtils.hasText(title) ? article.title.containsIgnoreCase(title) : null;
+        return StringUtils.hasText(title) ? board.title.containsIgnoreCase(title) : null;
+    }
+
+    private BooleanExpression apartmentCondition(final String apartId) {
+        return StringUtils.hasText(apartId) ? apartment.code.eq(apartId) : null;
     }
 
 }

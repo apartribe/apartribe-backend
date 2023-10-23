@@ -6,6 +6,7 @@ import lombok.Getter;
 public class Top5ArticleResponse {
 
     private Long id;
+    private String boardType;
     private String title;
 
 }

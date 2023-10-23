@@ -1,16 +1,13 @@
 package kr.apartribebackend.article.dto;
 
 
-import kr.apartribebackend.article.domain.Article;
+import lombok.Getter;
 
-public record ArticleInCommunityRes(
-        Long id,
-        String title
-) {
-    public static ArticleInCommunityRes from(Article article) {
-        return new ArticleInCommunityRes(
-                article.getId(),
-                article.getTitle()
-        );
-    }
+@Getter
+public class ArticleInCommunityRes {
+
+    private Long id;
+    private String boardType;
+    private String title;
+
 }

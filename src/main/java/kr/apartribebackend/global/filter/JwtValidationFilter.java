@@ -71,9 +71,9 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         if (request.getRequestURI().equals(reIssuedTokenPath)) {
             final String reIssueTokenString = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
             final ReIssueTokenReq reIssueTokenReq = objectMapper.readValue(reIssueTokenString, ReIssueTokenReq.class);
-            if (reIssueTokenReq == null)
+            if (reIssueTokenReq == null) {
                 return;
-
+            }
             final Claims extractedAllClaims = jwtService.extractAllClaims(
                     reIssueTokenReq.refreshToken(), JwtService.TokenType.REFRESH);
             final String subjectNickname = extractedAllClaims.getSubject();
@@ -86,17 +86,18 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             final Member member = memberRepository
                     .findMemberWithRefreshTokenAndApartInfoByNicknameAndCreatedAt(subjectNickname, createdAt, reIssueTokenReq.refreshToken())
                     .orElse(null);
-            if (member == null || tokenType == null || !tokenType.equals("refresh"))
+            if (member == null || tokenType == null || !tokenType.equals("refresh")) {
                 throw new NotExistsRefreshTokenException();
-
+            }
             final String dbRefreshToken = member.getRefreshToken().getToken();
-            if (!dbRefreshToken.equals(reIssueTokenReq.refreshToken()))
+            if (!dbRefreshToken.equals(reIssueTokenReq.refreshToken())) {
                 throw new NotExistsRefreshTokenException();
-
+            }
             final ApartmentDto apartmentDto = ApartmentDto.from(member.getApartment());
             final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname, member.getCreatedAt().toString());
             final RefreshToken newRefreshToken = RefreshToken.builder().token(reIssuedRefreshToken).build();
-            refreshTokenRepository.updateToken(newRefreshToken.getToken());
+            final Long refreshTokenId = member.getRefreshToken().getId();
+            refreshTokenRepository.updateToken(newRefreshToken.getToken(), refreshTokenId);
             final String reIssuedAccessToken = jwtService.generateAccessToken(
                     member.getNickname(),
                     Map.of(
