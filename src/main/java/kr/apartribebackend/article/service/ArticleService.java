@@ -108,8 +108,8 @@ public class ArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
-    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
-        return articleRepository.findTop5ArticleViaLiked();
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
+        return articleRepository.findTop5ArticleViaLiked(apartId);
     }
 
     public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {

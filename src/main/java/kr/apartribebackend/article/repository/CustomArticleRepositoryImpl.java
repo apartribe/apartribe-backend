@@ -71,13 +71,17 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
         return jpaQueryFactory
                 .select(Projections.fields(Top5ArticleResponse.class,
-                        article.id.as("id"),
-                        article.title.as("title")))
-                .from(article)
-                .orderBy(article.liked.desc())
+                        board.id.as("id"),
+                        board.boardType.as("boardType"),
+                        board.title.as("title")))
+                .from(board)
+                .innerJoin(board.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(apartmentCondition(apartId))
+                .orderBy(board.liked.desc())
                 .limit(5)
                 .fetch();
     }

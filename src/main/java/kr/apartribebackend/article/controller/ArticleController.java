@@ -109,10 +109,12 @@ public class ArticleController {
 //        boardService.removeArticle(board);
 //    }
 
-    @GetMapping("/api/article/best/liked")
-    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked() {
+    @GetMapping("/api/{apartId}/article/best/liked")
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked(
+            @PathVariable final String apartId
+    ) {
         final List<Top5ArticleResponse> articleResponses = articleService
-                .findTop5ArticleViaLiked();
+                .findTop5ArticleViaLiked(apartId);
         return APIResponse.SUCCESS(articleResponses);
     }
 
