@@ -108,16 +108,16 @@ public class ArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
-    public List<Top5ArticleResponse> findTop5ArticleViaLiked() {
-        return articleRepository.findTop5ArticleViaLiked();
+    public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
+        return articleRepository.findTop5ArticleViaLiked(apartId);
     }
 
-    public List<Top5ArticleResponse> findTop5ArticleViaView() {
-        return articleRepository.findTop5ArticleViaView();
+    public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {
+        return articleRepository.findTop5ArticleViaView(apartId);
     }
 
-    public List<ArticleInCommunityRes> searchArticleInCommunity(String title) {
-        return articleRepository.searchArticleInCommunity(title);
+    public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
+        return articleRepository.searchArticleInCommunity(apartId, title);
     }
 
 }

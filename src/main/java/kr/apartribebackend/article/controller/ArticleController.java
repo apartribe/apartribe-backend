@@ -109,23 +109,32 @@ public class ArticleController {
 //        boardService.removeArticle(board);
 //    }
 
-    @GetMapping("/api/article/best/liked")
-    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked() {
+    @GetMapping("/api/{apartId}/article/best/liked")
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked(
+            @PathVariable final String apartId
+    ) {
         final List<Top5ArticleResponse> articleResponses = articleService
-                .findTop5ArticleViaLiked();
+                .findTop5ArticleViaLiked(apartId);
         return APIResponse.SUCCESS(articleResponses);
     }
 
-    @GetMapping("/api/article/best/view")
-    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaView() {
+    @GetMapping("/api/{apartId}/article/best/view")
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaView(
+            @PathVariable final String apartId
+    ) {
         final List<Top5ArticleResponse> articleResponses = articleService
-                .findTop5ArticleViaView();
+                .findTop5ArticleViaView(apartId);
         return APIResponse.SUCCESS(articleResponses);
     }
 
-    @GetMapping("/api/article/search")
-    public APIResponse<List<ArticleInCommunityRes>> searchArticleInCommunity(@RequestParam final String title) {
-        final List<ArticleInCommunityRes> articleInCommunityRes = articleService.searchArticleInCommunity(title);
+    @GetMapping("/api/{apartId}/article/search")
+    public APIResponse<List<ArticleInCommunityRes>> searchArticleInCommunity(
+            @PathVariable final String apartId,
+            @RequestParam final String title
+    ) {
+        final List<ArticleInCommunityRes> articleInCommunityRes =
+                articleService.searchArticleInCommunity(apartId, title);
+
         final APIResponse<List<ArticleInCommunityRes>> apiResponse = APIResponse.SUCCESS(articleInCommunityRes);
         return apiResponse;
     }

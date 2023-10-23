@@ -13,11 +13,11 @@ public interface CustomArticleRepository {
 
     List<SingleArticleResponse> findJoinedArticleById(Long articleId);
 
-    List<Top5ArticleResponse> findTop5ArticleViaLiked();
+    List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId);
 
-    List<Top5ArticleResponse> findTop5ArticleViaView();
+    List<Top5ArticleResponse> findTop5ArticleViaView(String apartId);
 
-    List<ArticleInCommunityRes> searchArticleInCommunity(String title);
+    List<ArticleInCommunityRes> searchArticleInCommunity(String apartId, String title);
 
 }
 
