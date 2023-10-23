@@ -15,7 +15,7 @@ public interface CustomArticleRepository {
 
     List<Top5ArticleResponse> findTop5ArticleViaLiked();
 
-    List<Top5ArticleResponse> findTop5ArticleViaView();
+    List<Top5ArticleResponse> findTop5ArticleViaView(String apartId);
 
     List<ArticleInCommunityRes> searchArticleInCommunity(String apartId, String title);
 

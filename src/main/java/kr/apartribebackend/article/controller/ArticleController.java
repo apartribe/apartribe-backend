@@ -116,10 +116,12 @@ public class ArticleController {
         return APIResponse.SUCCESS(articleResponses);
     }
 
-    @GetMapping("/api/article/best/view")
-    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaView() {
+    @GetMapping("/api/{apartId}/article/best/view")
+    public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaView(
+            @PathVariable final String apartId
+    ) {
         final List<Top5ArticleResponse> articleResponses = articleService
-                .findTop5ArticleViaView();
+                .findTop5ArticleViaView(apartId);
         return APIResponse.SUCCESS(articleResponses);
     }
 

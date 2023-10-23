@@ -112,8 +112,8 @@ public class ArticleService {
         return articleRepository.findTop5ArticleViaLiked();
     }
 
-    public List<Top5ArticleResponse> findTop5ArticleViaView() {
-        return articleRepository.findTop5ArticleViaView();
+    public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {
+        return articleRepository.findTop5ArticleViaView(apartId);
     }
 
     public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
