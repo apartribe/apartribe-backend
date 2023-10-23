@@ -32,11 +32,15 @@ public class ArticleController {
 
     private final ArticleService articleService;
 
-    @GetMapping({"/api/article/{id}", "/api/article/"})
-    public APIResponse<SingleArticleResponse> findSingleArticle(@PathVariable final Optional<Long> id) {
-        final Long articleId = id.orElse(0L);
-        final SingleArticleResponse singleArticleById = articleService.findSingleArticleById(articleId);
-        final APIResponse<SingleArticleResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
+    @GetMapping("/api/{apartId}/article/{articleId}")
+    public APIResponse<SingleArticleWithLikedResponse> findSingleArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final SingleArticleWithLikedResponse singleArticleWithLikedResponse = articleService
+                .findSingleArticleById(authenticatedMember.toDto(), apartId, articleId);
+        final APIResponse<SingleArticleWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleArticleWithLikedResponse);
         return apiResponse;
     }
 

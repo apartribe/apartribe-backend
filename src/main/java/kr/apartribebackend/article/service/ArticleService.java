@@ -11,10 +11,10 @@ import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
-import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
-import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +36,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final AttachmentService attachmentService;
     private final CategoryRepository categoryRepository;
+    private final LikeService likeService;
 
     @Transactional
     public Article appendArticle(final String category,
@@ -88,24 +89,16 @@ public class ArticleService {
         return articleRepository.findArticlesByCategory(category, pageable);
     }
 
-
-//    public void removeArticle(final Board board) {
-//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
-//        final List<Comment> children = comments.stream()
-//                .filter(comment -> !comment.getChildren().isEmpty())
-//                .flatMap(comment -> comment.getChildren().stream())
-//                .toList();
-//
-//        commentRepository.deleteAllInBatch(children);
-//        commentRepository.deleteAllInBatch(comments);
-//        boardRepository.delete(board);
-//    }
-
     @Transactional
-    public SingleArticleResponse findSingleArticleById(final Long articleId) {
-        return articleRepository.findJoinedArticleById(articleId)
-                .stream().findFirst()
+    public SingleArticleWithLikedResponse findSingleArticleById(final MemberDto memberDto,
+                                                                final String apartId,
+                                                                final Long articleId) {
+        final SingleArticleResponse singleArticleResponse = articleRepository.findArticleForApartId(apartId, articleId)
+                .map(article -> SingleArticleResponse.from(article, article.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), articleId);
+        return SingleArticleWithLikedResponse.from(singleArticleResponse, memberLikedToBoard);
     }
 
     public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
@@ -119,5 +112,17 @@ public class ArticleService {
     public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
         return articleRepository.searchArticleInCommunity(apartId, title);
     }
+
+    //    public void removeArticle(final Board board) {
+//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
+//        final List<Comment> children = comments.stream()
+//                .filter(comment -> !comment.getChildren().isEmpty())
+//                .flatMap(comment -> comment.getChildren().stream())
+//                .toList();
+//
+//        commentRepository.deleteAllInBatch(children);
+//        commentRepository.deleteAllInBatch(comments);
+//        boardRepository.delete(board);
+//    }
 
 }

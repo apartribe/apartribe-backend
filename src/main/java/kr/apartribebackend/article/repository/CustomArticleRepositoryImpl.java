@@ -2,18 +2,12 @@ package kr.apartribebackend.article.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Article;
-import kr.apartribebackend.article.domain.QBoard;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
 import kr.apartribebackend.article.dto.Top5ArticleResponse;
-import kr.apartribebackend.member.domain.QMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +15,12 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QArticle.*;
 import static kr.apartribebackend.article.domain.QBoard.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
-import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 
 
@@ -58,16 +52,18 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<SingleArticleResponse> findJoinedArticleById(final Long articleId) {
-        final List<Article> results = jpaQueryFactory
+    public Optional<Article> findArticleForApartId(final String apartId, final Long articleId) {
+        final Article result = jpaQueryFactory
                 .selectFrom(article)
-                .leftJoin(article.comments, comment).fetchJoin()
-                .where(article.id.eq(articleId))
-                .fetch();
+                .innerJoin(article.member, member).fetchJoin()
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        article.id.eq(articleId)
+                )
+                .fetchOne();
 
-        final List<SingleArticleResponse> collect = results.stream()
-                .map(SingleArticleResponse::from).toList();
-        return collect;
+        return Optional.ofNullable(result);
     }
 
     @Override
