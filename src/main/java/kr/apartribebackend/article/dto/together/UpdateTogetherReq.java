@@ -23,7 +23,7 @@ public record UpdateTogetherReq(
         @NotEmpty(message = "활동 장소는 공백일 수 없습니다.") String location,
         @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus,
         @NotEmpty(message = "모집 상태는 공백일 수 없습니다.") @IsRecruitStatusValid String recruitStatus,
-        String thumbnail
+        @NotEmpty(message = "모집 상태는 공백일 수 없습니다.") String thumbnail
 ) {
     public TogetherDto toDto() {
         return TogetherDto.builder()
