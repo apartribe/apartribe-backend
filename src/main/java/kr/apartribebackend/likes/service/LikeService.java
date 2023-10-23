@@ -1,9 +1,9 @@
 package kr.apartribebackend.likes.service;
 
 import kr.apartribebackend.article.domain.Board;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
-import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,15 +23,26 @@ public class LikeService {
         return boardLikesRepository.findBoardLikedByMember(memberId, boardId);
     }
 
-    public void increaseLikesToBoard(final Member member, final Board board) {
+    public BoardLikedRes increaseLikesToBoard(final Member member, final Board board) {
         final BoardLiked boardLikes = BoardLiked.builder().board(board).member(member).build();
         boardLikesRepository.save(boardLikes);
         board.reflectArticleLike();
+        return new BoardLikedRes(true);
     }
 
-    public void decreaseLikesToBoard(final BoardLiked boardLiked, final Board board) {
+    public BoardLikedRes decreaseLikesToBoard(final BoardLiked boardLiked, final Board board) {
         board.decreaseArticleLike();
         boardLikesRepository.delete(boardLiked);
+        return new BoardLikedRes(false);
+    }
+
+    @Transactional(readOnly = true)
+    public BoardLikedRes isMemberLikedToBoard(final Long memberId, final Long boardId) {
+        final Integer memberLikedToBoard = boardLikesRepository.isMemberLikedToBoard(memberId, boardId);
+        if (memberLikedToBoard != null) {
+            return new BoardLikedRes(true);
+        }
+        return new BoardLikedRes(false);
     }
 
 }

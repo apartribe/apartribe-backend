@@ -8,4 +8,6 @@ public interface CustomBoardLikedRepository {
 
     Optional<BoardLiked> findBoardLikedByMember(Long memberId, Long boardId);
 
+    Integer isMemberLikedToBoard(Long memberId, Long boardId);
+
 }

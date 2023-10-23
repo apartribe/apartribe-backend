@@ -29,4 +29,19 @@ public class CustomBoardLikedRepositoryImpl implements CustomBoardLikedRepositor
                 .fetchOne();
         return Optional.ofNullable(result);
     }
+
+    @Override
+    public Integer isMemberLikedToBoard(Long memberId, Long boardId) {
+        return jpaQueryFactory
+                .selectOne()
+                .from(boardLiked)
+                .innerJoin(boardLiked.member, member)
+                .innerJoin(boardLiked.board, board)
+                .where(
+                        member.id.eq(memberId),
+                        board.id.eq(boardId)
+                )
+                .fetchFirst();
+    }
+
 }

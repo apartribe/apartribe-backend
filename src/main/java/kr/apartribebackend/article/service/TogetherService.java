@@ -1,20 +1,23 @@
 package kr.apartribebackend.article.service;
 
-import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
-import kr.apartribebackend.article.dto.SingleArticleResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
+import kr.apartribebackend.article.dto.together.SingleTogetherWithLikedResponse;
 import kr.apartribebackend.article.dto.together.TogetherDto;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
+import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +38,11 @@ import static kr.apartribebackend.category.domain.CategoryTag.*;
 @Service
 public class TogetherService {
 
+    private final BoardRepository boardRepository;
     private final TogetherRepository togetherRepository;
     private final CategoryRepository categoryRepository;
     private final AttachmentService attachmentService;
+    private final LikeService likeService;
 
     @Transactional
     public Together appendTogether(final String category,
@@ -64,11 +69,12 @@ public class TogetherService {
     }
 
     @Transactional
-    public SingleTogetherResponse updateTogether(final Long togetherId,
-                               final String category,
-                               final TogetherDto togetherDto,
-                               final MemberDto memberDto) {
-        final Together togetherEntity = togetherRepository.findById(togetherId)
+    public SingleTogetherResponse updateTogether(final String apartId,
+                                                 final Long togetherId,
+                                                 final String category,
+                                                 final TogetherDto togetherDto,
+                                                 final MemberDto memberDto) {
+        final Together togetherEntity = togetherRepository.findTogetherForApartId(apartId, togetherId)
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
@@ -79,25 +85,48 @@ public class TogetherService {
                 togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
                 togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail()
         );
-        return SingleTogetherResponse.from(updatedTogether);
+        return SingleTogetherResponse.from(updatedTogether, togetherEntity.getMember());
     }
 
     @Transactional
-    public void updateLikeByTogetherId(final Long togetherId) {
-        togetherRepository.findById(togetherId)
-                .ifPresentOrElse(Board::reflectArticleLike,
-                        () -> { throw new CannotReflectLikeToArticleException(); });
+    public BoardLikedRes updateLikeByTogetherId(final MemberDto memberDto, final String apartId, final Long togetherId) {
+        final Board together = boardRepository.findBoardForApartId(apartId, togetherId)
+                .orElseThrow(CannotReflectLikeToArticleException::new);
+
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), together.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, together);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), together);
     }
 
-    public Page<TogetherResponse> findMultipleTogethersByCategory(final String category, final Pageable pageable) {
-        return togetherRepository.findMultipleTogethersByCategory(category, pageable);
+    public Page<TogetherResponse> findMultipleTogethersByCategory(final String apartId,
+                                                                  final String category,
+                                                                  final Pageable pageable) {
+        return togetherRepository.findMultipleTogethersByCategory(apartId, category, pageable);
     }
 
     @Transactional
-    public SingleTogetherResponse findSingleTogetherById(final Long togetherId) {
-        return togetherRepository.findJoinedTogetherById(togetherId)
-                .stream().findFirst()
+    public SingleTogetherWithLikedResponse findSingleTogetherById(final MemberDto memberDto,
+                                                         final String apartId,
+                                                         final Long togetherId) {
+        final SingleTogetherResponse singleTogetherResponse = togetherRepository
+                .findTogetherForApartId(apartId, togetherId)
+                .map(together -> SingleTogetherResponse.from(together, together.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), togetherId);
+        return SingleTogetherWithLikedResponse.from(singleTogetherResponse, memberLikedToBoard);
     }
 
 }
+
+
+//    @Transactional
+//    public SingleTogetherResponse findSingleTogetherById(final String apartId,
+//                                                         final Long togetherId) {
+//        return togetherRepository.findTogetherForApartId(apartId, togetherId)
+//                .map(together -> SingleTogetherResponse.from(together, together.getMember()))
+//                .orElseThrow(ArticleNotFoundException::new);
+//    }

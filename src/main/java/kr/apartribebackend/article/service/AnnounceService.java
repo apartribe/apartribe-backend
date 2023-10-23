@@ -3,16 +3,15 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.article.dto.announce.AnnounceDto;
-import kr.apartribebackend.article.dto.announce.AnnounceResponse;
-import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
+import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -43,21 +42,27 @@ public class AnnounceService {
         return announceRepository.findAnnouncesByLevel(apartId, level, pageable);
     }
 
-    public void updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
+    public BoardLikedRes updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
         final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
 
-        likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
-                .ifPresentOrElse(
-                        boardLiked -> likeService.decreaseLikesToBoard(boardLiked, announce),
-                        () -> likeService.increaseLikesToBoard(memberDto.toEntity(), announce)
-                );
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, announce);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), announce);
     }
 
-    public SingleAnnounceResponse findSingleAnnounceById(final String apartId, final Long announceId) {
-        return announceRepository.findAnnounceForApartId(apartId, announceId)
+    public SingleAnnounceWithLikedResponse findSingleAnnounceById(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long announceId) {
+        final SingleAnnounceResponse singleAnnounceResponse = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .map(announce -> SingleAnnounceResponse.from(announce, announce.getMember()))
                 .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), announceId);
+        return SingleAnnounceWithLikedResponse.from(singleAnnounceResponse, memberLikedToBoard);
     }
 
     public Announce appendArticle(final AnnounceDto announceDto,
@@ -85,8 +90,13 @@ public class AnnounceService {
         final Announce announceEntity = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
-        final Announce updatedAnnounce = announceEntity
-                .updateAnnounce(announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent());
+        final Announce updatedAnnounce = announceEntity.updateAnnounce(
+                announceDto.getLevel(),
+                announceDto.getTitle(),
+                announceDto.getContent(),
+                announceDto.getFloatFrom(),
+                announceDto.getFloatTo()
+        );
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
     }
 
