@@ -123,9 +123,14 @@ public class ArticleController {
         return APIResponse.SUCCESS(articleResponses);
     }
 
-    @GetMapping("/api/article/search")
-    public APIResponse<List<ArticleInCommunityRes>> searchArticleInCommunity(@RequestParam final String title) {
-        final List<ArticleInCommunityRes> articleInCommunityRes = articleService.searchArticleInCommunity(title);
+    @GetMapping("/api/{apartId}/article/search")
+    public APIResponse<List<ArticleInCommunityRes>> searchArticleInCommunity(
+            @PathVariable final String apartId,
+            @RequestParam final String title
+    ) {
+        final List<ArticleInCommunityRes> articleInCommunityRes =
+                articleService.searchArticleInCommunity(apartId, title);
+
         final APIResponse<List<ArticleInCommunityRes>> apiResponse = APIResponse.SUCCESS(articleInCommunityRes);
         return apiResponse;
     }
