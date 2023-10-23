@@ -45,7 +45,7 @@ public class SchedulingConfig {
 
         private final EmailTokenContextHolder emailTokenContextHolder;
 
-        @Scheduled(cron = "0 0 */1 * * *")
+        @Scheduled(cron = "0 0 */1 * * *", zone = "Asia/Seoul")
         public void clearEmailContext() {
             log.info("Clearing Remaining ExpiredEmailTokens 1 Hour Cycle");
             detectAndKillLeftEmailTokens();
@@ -67,7 +67,7 @@ public class SchedulingConfig {
         private final JobLauncher jobLauncher;
         private final Job updateRecruitStatusJob;
 
-        @Scheduled(cron = "0 0 0 * * *")
+        @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
         public void helloWorldJobRun() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
             JobParameters jobParameters = new JobParameters(
                     Collections.singletonMap(

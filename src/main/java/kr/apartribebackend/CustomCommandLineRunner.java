@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +64,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         jieun2.changeApartment(apart1);
         revi1337.changeApartment(apart2);
 
-        List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "schema://user:password@subdomain.domain.tld");
-        List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "schema://user:password@subdomain.domain.tld");
-        List<Announce> announces3 = createAnnounces(30, jieun2, EMERGENCY, "긴급 공지사항", "비상 콘텐츠 비사사사사사아아앙ㅇ앙아!!!", "schema://user:password@subdomain.domain.tld");
+        List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Announce> announces3 = createAnnounces(30, jieun2, EMERGENCY, "긴급 공지사항", "비상 콘텐츠 비사사사사사아아앙ㅇ앙아!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         announces1.addAll(announces2);
         announces1.addAll(announces3);
         announceRepository.saveAll(announces1);
@@ -74,9 +75,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         ArticleCategory category2 = createArticleCategory("신혼 부부 정보 공유");
         ArticleCategory category3 = createArticleCategory("고양이 집사 모임");
         categoryRepository.saveAll(List.of(category1, category2, category3));
-        List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용", "schema://user:password@subdomain.domain.tld");
-        List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용", "schema://user:password@subdomain.domain.tld");
-        List<Article> articles3 = createArticles(30, bcl, category3, "고양이 집사 모임", "야옹", "schema://user:password@subdomain.domain.tld");
+        List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Article> articles3 = createArticles(30, bcl, category3, "고양이 집사 모임", "야옹", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         articles1.addAll(articles2);
         articles1.addAll(articles3);
         articleRepository.saveAll(articles1);
@@ -85,9 +86,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         TogetherCategory category5 = createTogetherCategory("당구 동호회");
         TogetherCategory category6 = createTogetherCategory("하기싫다 동호회");
         categoryRepository.saveAll(List.of(category4, category5, category6));
-        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아", "schema://user:password@subdomain.domain.tld");
-        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년", "schema://user:password@subdomain.domain.tld");
-        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인", "schema://user:password@subdomain.domain.tld");
+        List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         togethers1.addAll(togethers2);
         togethers1.addAll(togethers3);
         togetherRepository.saveAll(togethers1);
@@ -166,19 +167,44 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .build();
     }
 
-    private static Announce createAnnounce(Member member, Level level, String title, String content, String thumbnail) {
+    private static Announce createAnnounce(Member member,
+                                           Level level,
+                                           String title,
+                                           String content,
+                                           String thumbnail,
+                                           LocalDate floatFrom,
+                                           LocalDate floatTo) {
         return Announce.builder()
                 .member(member)
                 .level(level)
                 .title(title)
                 .content(content)
                 .thumbnail(thumbnail)
+                .floatFrom(floatFrom)
+                .floatTo(floatTo)
                 .build();
     }
 
-    private static List<Announce> createAnnounces(Integer count, Member member, Level level, String title, String content, String thumbnail) {
-        return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createAnnounce(member, level, title + " " + integer, content + integer + " " + integer, thumbnail))
+    private static List<Announce> createAnnounces(Integer count,
+                                                  Member member,
+                                                  Level level,
+                                                  String title,
+                                                  String content,
+                                                  String thumbnail) {
+        LocalDate now = LocalDate.now();
+        LocalDate to = LocalDate.parse(String.format("%s-%s-%s", now.getYear(), now.getMonthValue(), 30));
+        DecimalFormat decimalFormat = new DecimalFormat("00");
+        return IntStream.rangeClosed(1, count)
+                .mapToObj(integer ->
+                        createAnnounce(member,
+                                level,
+                                title + " " + integer,
+                                content + integer + " " + integer,
+                                thumbnail,
+                                LocalDate.parse(String.format("%s-%s-%s", now.getYear(), now.getMonthValue(), decimalFormat.format(integer))),
+                                to
+                        )
+                )
                 .collect(Collectors.toList());
     }
 
