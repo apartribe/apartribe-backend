@@ -66,18 +66,19 @@ public class ArticleService {
     }
 
     @Transactional
-    public SingleArticleResponse updateArticle(final Long articleId,
-                                    final String category,
-                                    final ArticleDto articleDto,
-                                    final MemberDto memberDto) {
-        final Article articleEntity = articleRepository.findById(articleId)
+    public SingleArticleResponse updateArticle(final String apartId,
+                                               final Long articleId,
+                                               final String category,
+                                               final ArticleDto articleDto,
+                                               final MemberDto memberDto) {
+        final Article articleEntity = articleRepository.findArticleForApartId(apartId, articleId)
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndName(ARTICLE, category)
                 .orElseThrow(CategoryNonExistsException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Article updatedArticle = articleEntity
                 .updateArticle(categoryEntity, articleDto.getTitle(), articleDto.getContent());
-        return SingleArticleResponse.from(updatedArticle);
+        return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
     }
 
     @Transactional

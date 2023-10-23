@@ -18,21 +18,6 @@ public record SingleArticleResponse(
         int liked,
         int saw
 ) {
-    public static SingleArticleResponse from(Article article) {
-        article.reflectArticleSaw();
-        return new SingleArticleResponse(
-                article.getId(),
-                article.getCreatedBy(),
-                "",
-                article.getCreatedAt(),
-                article.getCategory().getName(),
-                article.getTitle(),
-                article.getContent(),
-                article.getLiked(),
-                article.getSaw()
-        );
-    }
-
     public static SingleArticleResponse from(Article article, Member member) {
         article.reflectArticleSaw();
         return new SingleArticleResponse(
@@ -47,7 +32,6 @@ public record SingleArticleResponse(
                 article.getSaw()
         );
     }
-
 }
 
 

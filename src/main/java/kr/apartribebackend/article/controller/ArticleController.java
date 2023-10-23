@@ -86,15 +86,15 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping({"/api/article/{id}", "/api/article/"})
+    @PutMapping("/api/{apartId}/article/{articleId}")
     public APIResponse<SingleArticleResponse> updateArticle(
-            @PathVariable final Optional<Long> id,
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final UpdateArticleReq articleInfo
     ) {
-        final Long articleId = id.orElse(0L);
         final SingleArticleResponse singleArticleResponse = articleService
-                .updateArticle(articleId, articleInfo.category(), articleInfo.toDto(), authenticatedMember.toDto());
+                .updateArticle(apartId, articleId, articleInfo.category(), articleInfo.toDto(), authenticatedMember.toDto());
         final APIResponse<SingleArticleResponse> apiResponse = APIResponse.SUCCESS(singleArticleResponse);
         return apiResponse;
     }
