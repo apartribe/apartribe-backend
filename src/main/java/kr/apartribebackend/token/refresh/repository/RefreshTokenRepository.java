@@ -12,7 +12,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update RefreshToken as r set r.token = :token")
-    int updateToken(@Param("token") String token);
+    @Query(value = "update RefreshToken as r set r.token = :token where r.id = :refreshTokenId")
+    int updateToken(
+            @Param("token") final String token,
+            @Param("refreshTokenId") final Long refreshTokenId
+    );
 
 }
