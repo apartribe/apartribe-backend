@@ -6,11 +6,13 @@ import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
+import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
+import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
@@ -36,6 +38,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final AttachmentService attachmentService;
     private final CategoryRepository categoryRepository;
+    private final BoardRepository boardRepository;
     private final LikeService likeService;
 
     @Transactional
@@ -78,10 +81,16 @@ public class ArticleService {
     }
 
     @Transactional
-    public void updateLikeByArticleId(final Long articleId) {
-        articleRepository.findById(articleId)
-                .ifPresentOrElse(Board::reflectArticleLike,
-                        () -> { throw new CannotReflectLikeToArticleException(); });
+    public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
+        final Board article = boardRepository.findBoardForApartId(apartId, articleId)
+                .orElseThrow(CannotReflectLikeToArticleException::new);
+
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), article.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, article);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), article);
     }
 
     public Page<ArticleResponse> findMultipleArticlesByCategory(final String category,

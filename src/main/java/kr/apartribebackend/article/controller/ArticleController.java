@@ -1,11 +1,11 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -98,20 +98,17 @@ public class ArticleController {
         return apiResponse;
     }
 
-    @GetMapping({"/api/article/{id}/like", "/api/article/like"})
-    public void updateLikeByBoardId(@PathVariable final Optional<Long> id) {
-        final Long articleId = id.orElse(0L);
-        articleService.updateLikeByArticleId(articleId);
+    @GetMapping("/api/{apartId}/article/{articleId}/like")
+    public APIResponse<BoardLikedRes> updateLikeByBoardId(
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final BoardLikedRes boardLikedRes = articleService
+                .updateLikeByArticleId(authenticatedMember.toDto(), apartId, articleId);
+        final APIResponse<BoardLikedRes> apiResponse = APIResponse.SUCCESS(boardLikedRes);
+        return apiResponse;
     }
-
-//    @DeleteMapping("/api/article")
-//    public void removeArticle(
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-//            @RequestParam Long articleId
-//    ) {
-//        Article board = Article.builder().id(articleId).build();
-//        boardService.removeArticle(board);
-//    }
 
     @GetMapping("/api/{apartId}/article/best/liked")
     public APIResponse<List<Top5ArticleResponse>> findTop5ArticleViaLiked(
@@ -144,3 +141,12 @@ public class ArticleController {
     }
 
 }
+
+//    @DeleteMapping("/api/article")
+//    public void removeArticle(
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+//            @RequestParam Long articleId
+//    ) {
+//        Article board = Article.builder().id(articleId).build();
+//        boardService.removeArticle(board);
+//    }
