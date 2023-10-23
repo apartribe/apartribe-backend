@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface CustomArticleRepository {
 
-    Page<ArticleResponse> findArticlesByCategory(String categoryName, Pageable pageable);
+    Page<ArticleResponse> findArticlesByCategory(String apartId, String categoryName, Pageable pageable);
 
     List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId);
 

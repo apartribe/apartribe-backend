@@ -11,6 +11,7 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,14 +45,14 @@ public class ArticleController {
         return apiResponse;
     }
 
-    @GetMapping("/api/article")
+    @GetMapping("/api/{apartId}/article")
     public APIResponse<PageResponse<ArticleResponse>> findMultipleArticlesByCategory(
+            @PathVariable final String apartId,
             @RequestParam(required = false, defaultValue = "") final String category,
-            @PageableDefault final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable
     ) {
-        final Page<ArticleResponse> articleResponse = articleService
-                .findMultipleArticlesByCategory(category, pageable);
-
+        final Page<ArticleResponse> articleResponse =
+                articleService.findMultipleArticlesByCategory(apartId, category, pageable);
         final PageResponse<ArticleResponse> pageResponse = PageResponse.from(articleResponse);
         final APIResponse<PageResponse<ArticleResponse>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;

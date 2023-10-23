@@ -93,9 +93,10 @@ public class ArticleService {
         return likeService.increaseLikesToBoard(memberDto.toEntity(), article);
     }
 
-    public Page<ArticleResponse> findMultipleArticlesByCategory(final String category,
+    public Page<ArticleResponse> findMultipleArticlesByCategory(final String apartId,
+                                                                final String category,
                                                                 final Pageable pageable) {
-        return articleRepository.findArticlesByCategory(category, pageable);
+        return articleRepository.findArticlesByCategory(apartId, category, pageable);
     }
 
     @Transactional
