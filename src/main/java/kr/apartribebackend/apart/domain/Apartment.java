@@ -2,16 +2,18 @@ package kr.apartribebackend.apart.domain;
 
 
 import jakarta.persistence.*;
+import kr.apartribebackend.global.domain.BaseEntity;
 import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@SuperBuilder
 @Getter @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
@@ -21,7 +23,7 @@ import java.util.Set;
                 @UniqueConstraint(name = "name", columnNames = "NAME"),
         }
 )
-public class Apartment {
+public class Apartment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "APART_ID")
@@ -35,13 +37,6 @@ public class Apartment {
 
     @OneToMany(mappedBy = "apartment")
     private final Set<Member> members = new HashSet<>();
-
-    @Builder
-    private Apartment(Long id, String code, String name) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-    }
 
     @Override
     public boolean equals(Object o) {

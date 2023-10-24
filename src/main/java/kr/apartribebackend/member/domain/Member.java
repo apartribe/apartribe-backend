@@ -41,6 +41,15 @@ public class Member extends TimeBaseEntity {
     @Column(name = "PROFILE_IMAGE")
     private String profileImageUrl;
 
+    @Column(name = "IS_AUTHENTICATED")
+    private boolean isAuthenticated;
+
+    @Column(name = "APART_CODE")
+    private String apartCode;
+
+    @Column(name = "APART_NAME")
+    private String apartName;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "REFRESH_TOKEN_ID")
     private RefreshToken refreshToken;
@@ -97,6 +106,17 @@ public class Member extends TimeBaseEntity {
         }
         this.apartment = apartment;
         apartment.getMembers().add(this);
+    }
+
+    public void rememberApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+    }
+
+    public void updateApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+        this.isAuthenticated = true;
     }
 
 }
