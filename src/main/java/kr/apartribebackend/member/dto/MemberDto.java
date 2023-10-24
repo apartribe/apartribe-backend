@@ -24,6 +24,9 @@ public class MemberDto {
     private LocalDateTime createdAt;
     private RefreshTokenDto refreshTokenDto;
     private ApartmentDto apartmentDto;
+    private boolean isAuthenticated;
+    private String apartCode;
+    private String apartName;
 
     @Builder
     private MemberDto(Long id,
@@ -34,7 +37,10 @@ public class MemberDto {
                       String profileImageUrl,
                       LocalDateTime createdAt,
                       RefreshTokenDto refreshTokenDto,
-                      ApartmentDto apartmentDto) {
+                      ApartmentDto apartmentDto,
+                      boolean isAuthenticated,
+                      String apartCode,
+                      String apartName) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -44,6 +50,9 @@ public class MemberDto {
         this.createdAt = createdAt;
         this.refreshTokenDto = refreshTokenDto;
         this.apartmentDto = apartmentDto;
+        this.isAuthenticated = isAuthenticated;
+        this.apartCode = apartCode;
+        this.apartName = apartName;
     }
 
     public static MemberDto from(Member member) {
@@ -55,6 +64,9 @@ public class MemberDto {
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
                 .createdAt(member.getCreatedAt())
+                .isAuthenticated(member.isAuthenticated())
+                .apartCode(member.getApartCode())
+                .apartName(member.getApartName())
                 .build();
     }
 
