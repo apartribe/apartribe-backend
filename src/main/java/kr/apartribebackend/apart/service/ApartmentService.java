@@ -3,16 +3,14 @@ package kr.apartribebackend.apart.service;
 
 import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.dto.ApartmentDto;
-import kr.apartribebackend.apart.exception.ApartAlreadyExistsException;
-import kr.apartribebackend.apart.exception.ApartMemberDuplicateException;
-import kr.apartribebackend.apart.exception.ApartNonExistsException;
-import kr.apartribebackend.apart.exception.ApartmentMemberIntegrityException;
+import kr.apartribebackend.apart.exception.*;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Transactional
 @RequiredArgsConstructor
@@ -24,8 +22,14 @@ public class ApartmentService {
     public void authenticateApartment(final MemberDto memberDto,
                                       final ApartmentDto apartmentDto,
                                       final Member member) {
-        checkMemberHaveApartments(memberDto);
         // TODO 원래라면 여기에 아파트를 인증하는 코드를 작성하여야 한다. 하지만 지금은 방법이 없으므로 pass 한다.
+        checkMemberHaveApartments(memberDto);
+        if (
+                StringUtils.hasText(member.getApartCode()) ||
+                StringUtils.hasText(member.getApartName())
+        ) {
+            throw new AlreadyAuthenticateApartException();
+        }
         member.rememberApartInfo(apartmentDto.getCode(), apartmentDto.getName());
     }
 
@@ -60,7 +64,7 @@ public class ApartmentService {
     private void checkMemberHaveApartments(MemberDto memberDto) {
         if (
                 !memberDto.getApartmentDto().getCode().equals("EMPTY") ||
-                        !memberDto.getApartmentDto().getName().equals("EMPTY")
+                !memberDto.getApartmentDto().getName().equals("EMPTY")
         ) {
             throw new ApartMemberDuplicateException();
         }
