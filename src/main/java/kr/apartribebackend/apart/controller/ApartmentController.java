@@ -32,12 +32,12 @@ public class ApartmentController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PostMapping("/api/apartment")
-    public ResponseEntity<Void> appendApartment(
+    @PostMapping("/api/apartment/register")
+    public ResponseEntity<Void> constructCommunity(
             @Valid @RequestBody final AppendApartmentReq appendApartmentReq,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        apartmentService.appendApartment(
+        apartmentService.constructCommunity(
                 authenticatedMember.toDto(),
                 appendApartmentReq.toDto(),
                 authenticatedMember.getOriginalEntity()

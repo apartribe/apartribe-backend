@@ -6,6 +6,7 @@ import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.apart.exception.ApartAlreadyExistsException;
 import kr.apartribebackend.apart.exception.ApartMemberDuplicateException;
 import kr.apartribebackend.apart.exception.ApartNonExistsException;
+import kr.apartribebackend.apart.exception.ApartmentMemberIntegrityException;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -28,15 +29,22 @@ public class ApartmentService {
         member.rememberApartInfo(apartmentDto.getCode(), apartmentDto.getName());
     }
 
-    public void appendApartment(final MemberDto memberDto,
-                                final ApartmentDto apartmentDto,
-                                final Member member) {
+    public void constructCommunity(final MemberDto memberDto,
+                                   final ApartmentDto apartmentDto,
+                                   final Member member) {
         checkMemberHaveApartments(memberDto);
         if (apartmentRepository.existsByCodeAndName(apartmentDto.getCode(), apartmentDto.getName())) {
             throw new ApartAlreadyExistsException();
         }
+        if (
+                !member.getApartCode().equals(apartmentDto.getCode()) ||
+                !member.getApartName().equals(apartmentDto.getName())
+        ) {
+            throw new ApartmentMemberIntegrityException();
+        }
         final Apartment apartment = apartmentRepository.save(apartmentDto.toEntity());
         member.changeApartment(apartment);
+        member.updateApartInfo(apartmentDto.getCode(), apartmentDto.getName());
     }
 
     public boolean existsByCode(String apartCode) {

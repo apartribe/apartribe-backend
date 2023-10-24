@@ -113,4 +113,10 @@ public class Member extends TimeBaseEntity {
         this.apartName = apartName;
     }
 
+    public void updateApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+        this.isAuthenticated = true;
+    }
+
 }
