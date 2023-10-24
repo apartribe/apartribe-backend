@@ -1,10 +1,7 @@
 package kr.apartribebackend.apart.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.apart.dto.ApartNameRes;
-import kr.apartribebackend.apart.dto.ApartmentDto;
-import kr.apartribebackend.apart.dto.AppendApartmentReq;
-import kr.apartribebackend.apart.dto.ExistsApartRes;
+import kr.apartribebackend.apart.dto.*;
 import kr.apartribebackend.apart.service.ApartmentService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
@@ -22,6 +19,19 @@ public class ApartmentController {
 
     private final ApartmentService apartmentService;
 
+    @PostMapping("/api/apartment/auth")
+    public ResponseEntity<Void> authenticateApartment(
+            @Valid @RequestBody final AuthenticateApartmentReq authenticateApartmentReq,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        apartmentService.authenticateApartment(
+                authenticatedMember.toDto(),
+                authenticateApartmentReq.toDto(),
+                authenticatedMember.getOriginalEntity()
+        );
+        return ResponseEntity.status(CREATED).build();
+    }
+
     @PostMapping("/api/apartment")
     public ResponseEntity<Void> appendApartment(
             @Valid @RequestBody final AppendApartmentReq appendApartmentReq,
@@ -35,13 +45,13 @@ public class ApartmentController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @GetMapping({"/api/apartment/{code}/exist", "/api/apartment/exist"})
+    @GetMapping("/api/apartment/{code}/exist")
     public ExistsApartRes apartExistsByCode(@PathVariable final String code) {
         boolean apartExists = apartmentService.existsByCode(code);
         return new ExistsApartRes(apartExists);
     }
 
-    @GetMapping({"/api/apartment/{code}", "/api/apartment"})
+    @GetMapping("/api/apartment/{code}")
     public APIResponse<ApartNameRes> findApartByCode(@PathVariable final String code) {
         final ApartmentDto apartmentDto = apartmentService.findApartByCode(code);
         final ApartNameRes apartNameRes = ApartNameRes.from(apartmentDto);

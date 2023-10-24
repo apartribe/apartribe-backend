@@ -20,15 +20,18 @@ public class ApartmentService {
 
     private final ApartmentRepository apartmentRepository;
 
+    public void authenticateApartment(final MemberDto memberDto,
+                                      final ApartmentDto apartmentDto,
+                                      final Member member) {
+        checkMemberHaveApartments(memberDto);
+        // TODO 원래라면 여기에 아파트를 인증하는 코드를 작성하여야 한다. 하지만 지금은 방법이 없으므로 pass 한다.
+        member.rememberApartInfo(apartmentDto.getCode(), apartmentDto.getName());
+    }
+
     public void appendApartment(final MemberDto memberDto,
                                 final ApartmentDto apartmentDto,
                                 final Member member) {
-        if (
-                !memberDto.getApartmentDto().getCode().equals("EMPTY") ||
-                !memberDto.getApartmentDto().getName().equals("EMPTY")
-        ) {
-            throw new ApartMemberDuplicateException();
-        }
+        checkMemberHaveApartments(memberDto);
         if (apartmentRepository.existsByCodeAndName(apartmentDto.getCode(), apartmentDto.getName())) {
             throw new ApartAlreadyExistsException();
         }
@@ -44,5 +47,14 @@ public class ApartmentService {
         return apartmentRepository.findApartmentByCode(apartCode)
                 .map(ApartmentDto::from)
                 .orElseThrow(ApartNonExistsException::new);
+    }
+
+    private void checkMemberHaveApartments(MemberDto memberDto) {
+        if (
+                !memberDto.getApartmentDto().getCode().equals("EMPTY") ||
+                        !memberDto.getApartmentDto().getName().equals("EMPTY")
+        ) {
+            throw new ApartMemberDuplicateException();
+        }
     }
 }
