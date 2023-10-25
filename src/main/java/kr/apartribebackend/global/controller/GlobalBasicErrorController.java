@@ -1,4 +1,4 @@
-package kr.apartribebackend.global.aop;
+package kr.apartribebackend.global.controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;

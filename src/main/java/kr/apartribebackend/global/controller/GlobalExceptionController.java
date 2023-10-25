@@ -1,4 +1,4 @@
-package kr.apartribebackend.global.aop;
+package kr.apartribebackend.global.controller;
 
 
 import kr.apartribebackend.global.dto.APIResponse;
