@@ -21,6 +21,7 @@ public class AuthenticatedMember implements UserDetails {
     private String password;
     private String name;
     private String nickname;
+    private boolean isAuthenticated;
     private RefreshTokenDto refreshTokenDto;
     private ApartmentDto apartmentDto;
     private LocalDateTime createdAt;
@@ -37,6 +38,7 @@ public class AuthenticatedMember implements UserDetails {
                                String password,
                                String name,
                                String nickname,
+                               boolean isAuthenticated,
                                RefreshTokenDto refreshTokenDto,
                                ApartmentDto apartmentDto,
                                LocalDateTime createdAt,
@@ -46,6 +48,7 @@ public class AuthenticatedMember implements UserDetails {
         this.password = password;
         this.name = name;
         this.nickname = nickname;
+        this.isAuthenticated = isAuthenticated;
         this.authorities = authorities;
         this.refreshTokenDto = refreshTokenDto;
         this.apartmentDto = apartmentDto;
@@ -74,6 +77,7 @@ public class AuthenticatedMember implements UserDetails {
                 .apartmentDto(apartmentDto)
                 .createdAt(memberDto.getCreatedAt())
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+                .isAuthenticated(memberDto.isAuthenticated())
                 .build();
     }
 
@@ -114,6 +118,7 @@ public class AuthenticatedMember implements UserDetails {
                 .nickname(nickname)
                 .password(password)
                 .refreshTokenDto(refreshTokenDto)
+                .isAuthenticated(isAuthenticated)
                 .apartmentDto(apartmentDto)
                 .createdAt(createdAt)
                 .build();
