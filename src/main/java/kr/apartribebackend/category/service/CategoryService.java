@@ -5,6 +5,7 @@ import kr.apartribebackend.apart.exception.ApartNonExistsException;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.dto.ArticleCategoryDto;
+import kr.apartribebackend.category.dto.CategoryListRes;
 import kr.apartribebackend.category.dto.TogetherCategoryDto;
 import kr.apartribebackend.category.exception.CategoryAlreadyExistsException;
 import kr.apartribebackend.category.exception.ModifiedCategoryRequestException;
@@ -57,21 +58,19 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public List<ArticleCategoryDto> listArticleCategory() {
-        return listCategory(ARTICLE);
+    public List<CategoryListRes> listArticleCategory(final String apartId) {
+        return listCategory(apartId, ARTICLE);
     }
 
-    public List<ArticleCategoryDto> listTogetherCategory() {
-        return listCategory(TOGETHER);
+    public List<CategoryListRes> listTogetherCategory(final String apartId) {
+        return listCategory(apartId, TOGETHER);
     }
 
-    public List<ArticleCategoryDto> listCategory(final String categoryTag) {
-        return categoryRepository.findCategoriesByTag(categoryTag).stream()
-                .map(ArticleCategoryDto::from)
-                .toList();
+    public List<CategoryListRes> listCategory(final String apartId, final String categoryTag) {
+        return categoryRepository.findCategoriesByTagWithApart(apartId, categoryTag);
     }
 
-    private void validMemberCanMakeCategory(MemberDto memberDto, String apartId) {
+    private void validMemberCanMakeCategory(final MemberDto memberDto, final String apartId) {
         if (!memberDto.isAuthenticated()) {
             throw new CategoryCantMakeException();
         }

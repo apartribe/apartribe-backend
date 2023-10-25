@@ -1,9 +1,9 @@
 package kr.apartribebackend.category.repository;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.category.domain.Category;
-import kr.apartribebackend.category.domain.QCategory;
+import kr.apartribebackend.category.dto.CategoryListRes;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -32,5 +32,20 @@ public class CustomCategoryRepositoryImpl implements CustomCategoryRepository{
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<CategoryListRes> findCategoriesByTagWithApart(final String apartId, final String tag) {
+        return jpaQueryFactory
+                .select(Projections.fields(CategoryListRes.class,
+                        category.name.as("categoryName")
+                ))
+                .from(category)
+                .innerJoin(category.apartment, apartment)
+                .where(
+                        category.tag.eq(tag),
+                        apartment.code.eq(apartId)
+                )
+                .fetch();
     }
 }
