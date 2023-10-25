@@ -22,6 +22,8 @@ public class AuthenticatedMember implements UserDetails {
     private String name;
     private String nickname;
     private boolean isAuthenticated;
+    private String apartCode;
+    private String apartName;
     private RefreshTokenDto refreshTokenDto;
     private ApartmentDto apartmentDto;
     private LocalDateTime createdAt;
@@ -39,6 +41,8 @@ public class AuthenticatedMember implements UserDetails {
                                String name,
                                String nickname,
                                boolean isAuthenticated,
+                               String apartCode,
+                               String apartName,
                                RefreshTokenDto refreshTokenDto,
                                ApartmentDto apartmentDto,
                                LocalDateTime createdAt,
@@ -49,6 +53,8 @@ public class AuthenticatedMember implements UserDetails {
         this.name = name;
         this.nickname = nickname;
         this.isAuthenticated = isAuthenticated;
+        this.apartCode = apartCode;
+        this.apartName = apartName;
         this.authorities = authorities;
         this.refreshTokenDto = refreshTokenDto;
         this.apartmentDto = apartmentDto;
@@ -78,6 +84,8 @@ public class AuthenticatedMember implements UserDetails {
                 .createdAt(memberDto.getCreatedAt())
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
                 .isAuthenticated(memberDto.isAuthenticated())
+                .apartCode(memberDto.getApartCode())
+                .apartName(memberDto.getApartName())
                 .build();
     }
 
@@ -119,6 +127,8 @@ public class AuthenticatedMember implements UserDetails {
                 .password(password)
                 .refreshTokenDto(refreshTokenDto)
                 .isAuthenticated(isAuthenticated)
+                .apartCode(apartCode)
+                .apartName(apartName)
                 .apartmentDto(apartmentDto)
                 .createdAt(createdAt)
                 .build();
