@@ -1,9 +1,9 @@
 package kr.apartribebackend.category.domain;
 
 import jakarta.persistence.*;
+import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.global.domain.BaseEntity;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -27,6 +27,10 @@ public abstract class Category extends BaseEntity {
     @Column(name = "TAG", insertable = false, updatable = false)
     private String tag;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name =  "APART_ID")
+    private Apartment apartment;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,6 +44,10 @@ public abstract class Category extends BaseEntity {
     }
 
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
+
+    public void registApartment(Apartment apartment) {
+        this.apartment = apartment;
+    }
 
 }
 
