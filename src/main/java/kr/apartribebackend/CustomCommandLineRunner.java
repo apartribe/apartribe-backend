@@ -51,8 +51,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         if (memberRepository.existsByEmail("bcl0206@naver.com"))
             return;
 
-        Apartment apart1 = createApart(1);
-        Apartment apart2 = createApart(2);
+        Apartment apart1 = createApart("dyWaf", "루원시티1차SK리더스뷰");
+        Apartment apart2 = createApart("0x65", "헥스아파트");
         apartmentRepository.save(apart1);
         apartmentRepository.save(apart2);
 
@@ -60,9 +60,17 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         Member jieun2 = createUser("이지은", "scary_girl", "jieun2@apartlive.com", passwordEncoder.encode("qwer1234!"), "");
         Member revi1337 = createUser("이경학", "?_?_*_<", "david122123@gmail.com", passwordEncoder.encode("asdf"), "");
         memberRepository.saveAll(List.of(bcl, jieun2, revi1337));
+        bcl.rememberApartInfo(apart1.getCode(), apart1.getName());
+        jieun2.rememberApartInfo(apart1.getCode(), apart1.getName());
+        revi1337.rememberApartInfo(apart2.getCode(), apart2.getName());
+
         bcl.changeApartment(apart1);
         jieun2.changeApartment(apart1);
         revi1337.changeApartment(apart2);
+
+        bcl.updateApartInfo(apart1.getCode(), apart1.getName());
+        jieun2.updateApartInfo(apart1.getCode(), apart1.getName());
+        revi1337.updateApartInfo(apart2.getCode(), apart2.getName());
 
         List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
@@ -71,9 +79,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         announces1.addAll(announces3);
         announceRepository.saveAll(announces1);
 
-        ArticleCategory category1 = createArticleCategory("인기");
-        ArticleCategory category2 = createArticleCategory("신혼 부부 정보 공유");
-        ArticleCategory category3 = createArticleCategory("고양이 집사 모임");
+        ArticleCategory category1 = createArticleCategory(apart1,"인기");
+        ArticleCategory category2 = createArticleCategory(apart1,"신혼 부부 정보 공유");
+        ArticleCategory category3 = createArticleCategory(apart1,"고양이 집사 모임");
         categoryRepository.saveAll(List.of(category1, category2, category3));
         List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
@@ -82,9 +90,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         articles1.addAll(articles3);
         articleRepository.saveAll(articles1);
 
-        TogetherCategory category4 = createTogetherCategory("축구 동호회");
-        TogetherCategory category5 = createTogetherCategory("당구 동호회");
-        TogetherCategory category6 = createTogetherCategory("하기싫다 동호회");
+        TogetherCategory category4 = createTogetherCategory(apart1, "축구 동호회");
+        TogetherCategory category5 = createTogetherCategory(apart1, "당구 동호회");
+        TogetherCategory category6 = createTogetherCategory(apart1, "하기싫다 동호회");
         categoryRepository.saveAll(List.of(category4, category5, category6));
         List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
@@ -134,10 +142,10 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         commentRepository.saveAll(articleCommentReplies);
     }
 
-    public static Apartment createApart(int memberIndex) {
+    public static Apartment createApart(String apartCode, String apartName) {
         return Apartment.builder()
-                .code(String.format("apart_code_%s", memberIndex))
-                .name(String.format("apart_name_%s", memberIndex))
+                .code(apartCode)
+                .name(apartName)
                 .build();
     }
 
@@ -155,14 +163,16 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .build();
     }
 
-    private static ArticleCategory createArticleCategory(String name) {
+    private static ArticleCategory createArticleCategory(Apartment apartment, String name) {
         return ArticleCategory.builder()
+                .apartment(apartment)
                 .name(name)
                 .build();
     }
 
-    private static TogetherCategory createTogetherCategory(String name) {
+    private static TogetherCategory createTogetherCategory(Apartment apartment, String name) {
         return TogetherCategory.builder()
+                .apartment(apartment)
                 .name(name)
                 .build();
     }
