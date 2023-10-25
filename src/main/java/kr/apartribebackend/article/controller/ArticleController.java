@@ -3,6 +3,7 @@ package kr.apartribebackend.article.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
@@ -58,6 +59,7 @@ public class ArticleController {
         return apiResponse;
     }
 
+    @ApartUser
     @PostMapping("/api/article")
     public ResponseEntity<Void> appendArticle(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -70,6 +72,7 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PostMapping(value = "/api/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -86,6 +89,7 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/article/{articleId}")
     public APIResponse<SingleArticleResponse> updateArticle(
             @PathVariable final String apartId,

@@ -1,6 +1,7 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.service.TogetherService;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -58,6 +58,7 @@ public class TogetherController {
         return apiResponse;
     }
 
+    @ApartUser
     @PostMapping("/api/together")
     public ResponseEntity<Void> appendArticle(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -67,6 +68,7 @@ public class TogetherController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PostMapping(value = "/api/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -94,6 +96,7 @@ public class TogetherController {
         return apiResponse;
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/together/{togetherId}")
     public APIResponse<SingleTogetherResponse> updateTogether(
             @PathVariable final String apartId,

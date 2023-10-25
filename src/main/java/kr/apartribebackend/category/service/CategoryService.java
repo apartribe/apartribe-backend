@@ -71,9 +71,6 @@ public class CategoryService {
     }
 
     private void validMemberCanMakeCategory(final MemberDto memberDto, final String apartId) {
-        if (!memberDto.isAuthenticated()) {
-            throw new CategoryCantMakeException();
-        }
         if (!memberDto.getApartCode().equals(apartId)) {
             throw new ModifiedCategoryRequestException();
         }

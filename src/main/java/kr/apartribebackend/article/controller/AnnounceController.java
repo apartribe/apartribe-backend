@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
@@ -60,6 +61,7 @@ public class AnnounceController {
         return apiResponse;
     }
 
+    @ApartUser
     @PostMapping("/api/announce")
     public ResponseEntity<Void> appendArticle(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -71,6 +73,7 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PostMapping(value = "/api/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -86,6 +89,7 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/announce/{announceId}")
     public APIResponse<SingleAnnounceResponse> updateAnnounce(
             @PathVariable final String apartId,
