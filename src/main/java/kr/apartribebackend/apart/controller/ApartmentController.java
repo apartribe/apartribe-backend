@@ -20,7 +20,7 @@ public class ApartmentController {
     private final ApartmentService apartmentService;
 
     @PostMapping("/api/apartment/auth")
-    public ResponseEntity<Void> authenticateApartment(
+    public void authenticateApartment(
             @Valid @RequestBody final AuthenticateApartmentReq authenticateApartmentReq,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
@@ -29,7 +29,6 @@ public class ApartmentController {
                 authenticateApartmentReq.toDto(),
                 authenticatedMember.getOriginalEntity()
         );
-        return ResponseEntity.status(CREATED).build();
     }
 
     @PostMapping("/api/apartment/register")
