@@ -19,8 +19,7 @@ import java.util.Set;
 @Table(
         name = "APARTMENT",
         uniqueConstraints = {
-                @UniqueConstraint(name = "code", columnNames = "CODE"),
-                @UniqueConstraint(name = "name", columnNames = "NAME"),
+                @UniqueConstraint(name = "code", columnNames = "CODE")
         }
 )
 public class Apartment extends BaseEntity {
