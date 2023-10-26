@@ -85,16 +85,15 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
     }
 
     @Override
-    public List<AnnounceWidgetRes> findWidgetValues(final String apartId,
-                                                    final LocalDate floatFrom,
-                                                    final LocalDate floatTo) {
+    public List<AnnounceWidgetRes> findWidgetValues(final String apartId) {
         final List<Announce> announces = jpaQueryFactory
                 .selectFrom(announce)
                 .innerJoin(announce.member, member)
                 .innerJoin(member.apartment, apartment)
                 .where(
                         apartmentCondition(apartId),
-                        isDateRangeWithin(floatFrom, floatTo)
+                        announce.floatFrom.loe(LocalDate.now()),
+                        announce.floatTo.goe(LocalDate.now())
                 )
                 .fetch();
 
