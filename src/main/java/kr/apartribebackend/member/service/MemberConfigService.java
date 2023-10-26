@@ -39,7 +39,7 @@ public class MemberConfigService {
         if (!passwordEncoder.matches(memberChangePasswordReq.currentPassword(), authenticatedMember.getPassword()))
             throw new UserCantUpdatePasswordException();
         final Member member = authenticatedMember.getOriginalEntity();
-        member.changePassword(memberChangePasswordReq.newPassword());
+        member.changePassword(passwordEncoder.encode(memberChangePasswordReq.newPassword()));
     }
 
     public void deleteSingleUser(final String email) {
