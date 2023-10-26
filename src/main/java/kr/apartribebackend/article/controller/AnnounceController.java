@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
@@ -60,8 +61,10 @@ public class AnnounceController {
         return apiResponse;
     }
 
-    @PostMapping("/api/announce")
+    @ApartUser
+    @PostMapping("/api/{apartId}/announce")
     public ResponseEntity<Void> appendArticle(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendAnnounceReq announceInfo
     ) {
@@ -71,8 +74,10 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PostMapping(value = "/api/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @ApartUser
+    @PostMapping(value = "/api/{apartId}/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendAnnounceReq announceInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException
@@ -86,6 +91,7 @@ public class AnnounceController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/announce/{announceId}")
     public APIResponse<SingleAnnounceResponse> updateAnnounce(
             @PathVariable final String apartId,

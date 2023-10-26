@@ -7,7 +7,6 @@ import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.category.domain.ArticleCategory;
-import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.domain.TogetherCategory;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.comment.domain.Comment;
@@ -68,9 +67,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         jieun2.changeApartment(apart1);
         revi1337.changeApartment(apart2);
 
-        bcl.updateApartInfo(apart1.getCode(), apart1.getName());
-        jieun2.updateApartInfo(apart1.getCode(), apart1.getName());
-        revi1337.updateApartInfo(apart2.getCode(), apart2.getName());
+        bcl.authenticateApartInfo(apart1.getCode(), apart1.getName());
+        jieun2.authenticateApartInfo(apart1.getCode(), apart1.getName());
+        revi1337.authenticateApartInfo(apart2.getCode(), apart2.getName());
 
         List<Announce> announces1 = createAnnounces(30, bcl, CRITICAL, "비상 공지사항", "비상 콘텐츠 비사아아아아아아아앙 ㅇ에에에ㅔ에엥에에에에ㅔ엥!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Announce> announces2 = createAnnounces(30, bcl, GENERAL, "일반 공지사항", "일반 콘텐츠 에에에ㅔ에엥......!!!!!", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");

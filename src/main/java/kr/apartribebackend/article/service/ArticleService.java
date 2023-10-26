@@ -42,10 +42,11 @@ public class ArticleService {
     private final LikeService likeService;
 
     @Transactional
-    public Article appendArticle(final String category,
+    public Article appendArticle(final String apartId,
+                                 final String category,
                                  final ArticleDto articleDto,
                                  final MemberDto memberDto) {
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(ARTICLE, category)
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
                 .orElseThrow(CategoryNonExistsException::new);
         final Member memberEntity = memberDto.toEntity();
         final Article articleEntity = articleDto.toEntity(categoryEntity, memberEntity);
@@ -53,11 +54,12 @@ public class ArticleService {
     }
 
     @Transactional
-    public void appendArticle(final String category,
+    public void appendArticle(final String apartId,
+                              final String category,
                               final ArticleDto articleDto,
                               final MemberDto memberDto,
                               final List<MultipartFile> file) throws IOException {
-        final Article article = appendArticle(category, articleDto, memberDto);
+        final Article article = appendArticle(apartId, category, articleDto, memberDto);
         final List<Attachment> attachments = attachmentService.saveFiles(file);
         for (Attachment attachment : attachments) {
             attachment.registBoard(article);
@@ -73,7 +75,7 @@ public class ArticleService {
                                                final MemberDto memberDto) {
         final Article articleEntity = articleRepository.findArticleForApartId(apartId, articleId)
                 .orElseThrow(ArticleNotFoundException::new);
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(ARTICLE, category)
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
                 .orElseThrow(CategoryNonExistsException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Article updatedArticle = articleEntity

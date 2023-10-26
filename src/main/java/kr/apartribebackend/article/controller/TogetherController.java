@@ -1,6 +1,7 @@
 package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.service.TogetherService;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -58,17 +58,26 @@ public class TogetherController {
         return apiResponse;
     }
 
-    @PostMapping("/api/together")
-    public ResponseEntity<Void> appendArticle(
+    @ApartUser
+    @PostMapping("/api/{apartId}/together")
+    public ResponseEntity<Void> appendTogether(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendTogetherReq appendTogetherReq
     ) {
-        togetherService.appendTogether(appendTogetherReq.category(), authenticatedMember.toDto(), appendTogetherReq.toDto());
+        togetherService.appendTogether(
+                apartId,
+                appendTogetherReq.category(),
+                authenticatedMember.toDto(),
+                appendTogetherReq.toDto()
+        );
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PostMapping(value = "/api/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @ApartUser
+    @PostMapping(value = "/api/{apartId}/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendTogetherReq togetherInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException {
@@ -76,9 +85,9 @@ public class TogetherController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final TogetherDto togetherDto = togetherInfo.toDto();
         if (file != null)
-            togetherService.appendTogether(category, memberDto, togetherDto, file);
+            togetherService.appendTogether(apartId, category, memberDto, togetherDto, file);
         else
-            togetherService.appendTogether(category, memberDto, togetherDto);
+            togetherService.appendTogether(apartId, category, memberDto, togetherDto);
         return ResponseEntity.status(CREATED).build();
     }
 
@@ -94,6 +103,7 @@ public class TogetherController {
         return apiResponse;
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/together/{togetherId}")
     public APIResponse<SingleTogetherResponse> updateTogether(
             @PathVariable final String apartId,

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.dto.*;
 import kr.apartribebackend.category.service.CategoryService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @ApartUser
     @PostMapping("/api/{apartId}/category/article/add")
     public ResponseEntity<APIResponse<CategoryResponse>> addArticleCategory(
             @PathVariable final String apartId,
@@ -37,6 +39,7 @@ public class CategoryController {
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
+    @ApartUser
     @PostMapping("/api/{apartId}/category/together/add")
     public ResponseEntity<APIResponse<CategoryResponse>> addTogetherCategory(
             @PathVariable final String apartId,

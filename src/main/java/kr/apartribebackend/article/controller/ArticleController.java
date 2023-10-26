@@ -3,6 +3,7 @@ package kr.apartribebackend.article.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.service.ArticleService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -58,20 +58,24 @@ public class ArticleController {
         return apiResponse;
     }
 
-    @PostMapping("/api/article")
+    @ApartUser
+    @PostMapping("/api/{apartId}/article")
     public ResponseEntity<Void> appendArticle(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendArticleReq articleInfo
     ) {
         final String category = articleInfo.category();
         final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = articleInfo.toDto();
-        articleService.appendArticle(category, articleDto, memberDto);
+        articleService.appendArticle(apartId, category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PostMapping(value = "/api/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @ApartUser
+    @PostMapping(value = "/api/{apartId}/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendArticleReq articleInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException
@@ -80,12 +84,13 @@ public class ArticleController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = articleInfo.toDto();
         if (file != null)
-            articleService.appendArticle(category, articleDto, memberDto, file);
+            articleService.appendArticle(apartId, category, articleDto, memberDto, file);
         else
-            articleService.appendArticle(category, articleDto, memberDto);
+            articleService.appendArticle(apartId, category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 
+    @ApartUser
     @PutMapping("/api/{apartId}/article/{articleId}")
     public APIResponse<SingleArticleResponse> updateArticle(
             @PathVariable final String apartId,
