@@ -33,6 +33,15 @@ public class MemberConfigController {
         return apiResponse;
     }
 
+    @PutMapping("/update/image")
+    public void updateSingleMemberProfileImage(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestBody final MemberChangeImageReq memberChangeImageReq
+    ) {
+        // TODO 비밀번호와 비밀번호 확인 일치는 Validator 로 빼자.
+        memberConfigService.updateSingleMemberProfileImage(authenticatedMember, memberChangeImageReq);
+    }
+
     @PutMapping("/update/password")
     public void updateSingleMemberPassword(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,

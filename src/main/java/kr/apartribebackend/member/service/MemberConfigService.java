@@ -3,6 +3,7 @@ package kr.apartribebackend.member.service;
 import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.*;
+import kr.apartribebackend.member.exception.MalformedProfileImageLinkException;
 import kr.apartribebackend.member.exception.UserCantDeleteException;
 import kr.apartribebackend.member.exception.UserCantUpdateNicknameException;
 import kr.apartribebackend.member.exception.UserCantUpdatePasswordException;
@@ -15,8 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import org.springframework.util.StringUtils;
 
 @Transactional
 @RequiredArgsConstructor
@@ -40,6 +40,22 @@ public class MemberConfigService {
             throw new UserCantUpdatePasswordException();
         final Member member = authenticatedMember.getOriginalEntity();
         member.changePassword(passwordEncoder.encode(memberChangePasswordReq.newPassword()));
+    }
+
+    // TODO MemberJoinController 에도 똑같은 것이 있으니, profileImageUrl 검증을 분리하도록 하자.
+    public void updateSingleMemberProfileImage(final AuthenticatedMember authenticatedMember,
+                                               final MemberChangeImageReq memberChangeImageReq) {
+        if (memberChangeImageReq.profileImageUrl() != null) {
+            if (
+                    StringUtils.containsWhitespace(memberChangeImageReq.profileImageUrl()) ||
+                            memberChangeImageReq.profileImageUrl().contains("..") ||
+                            memberChangeImageReq.profileImageUrl().contains("\\")
+            ) {
+                throw new MalformedProfileImageLinkException();
+            }
+        }
+        final Member member = authenticatedMember.getOriginalEntity();
+        member.updateProfileImageUrl(memberChangeImageReq.profileImageUrl());
     }
 
     public void deleteSingleUser(final String email) {
