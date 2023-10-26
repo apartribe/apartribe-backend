@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -60,21 +59,23 @@ public class ArticleController {
     }
 
     @ApartUser
-    @PostMapping("/api/article")
+    @PostMapping("/api/{apartId}/article")
     public ResponseEntity<Void> appendArticle(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendArticleReq articleInfo
     ) {
         final String category = articleInfo.category();
         final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = articleInfo.toDto();
-        articleService.appendArticle(category, articleDto, memberDto);
+        articleService.appendArticle(apartId, category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 
     @ApartUser
-    @PostMapping(value = "/api/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/api/{apartId}/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendArticleReq articleInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException
@@ -83,9 +84,9 @@ public class ArticleController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = articleInfo.toDto();
         if (file != null)
-            articleService.appendArticle(category, articleDto, memberDto, file);
+            articleService.appendArticle(apartId, category, articleDto, memberDto, file);
         else
-            articleService.appendArticle(category, articleDto, memberDto);
+            articleService.appendArticle(apartId, category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 

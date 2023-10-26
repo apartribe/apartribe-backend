@@ -59,18 +59,25 @@ public class TogetherController {
     }
 
     @ApartUser
-    @PostMapping("/api/together")
-    public ResponseEntity<Void> appendArticle(
+    @PostMapping("/api/{apartId}/together")
+    public ResponseEntity<Void> appendTogether(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendTogetherReq appendTogetherReq
     ) {
-        togetherService.appendTogether(appendTogetherReq.category(), authenticatedMember.toDto(), appendTogetherReq.toDto());
+        togetherService.appendTogether(
+                apartId,
+                appendTogetherReq.category(),
+                authenticatedMember.toDto(),
+                appendTogetherReq.toDto()
+        );
         return ResponseEntity.status(CREATED).build();
     }
 
     @ApartUser
-    @PostMapping(value = "/api/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/api/{apartId}/together/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendTogetherReq togetherInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException {
@@ -78,9 +85,9 @@ public class TogetherController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final TogetherDto togetherDto = togetherInfo.toDto();
         if (file != null)
-            togetherService.appendTogether(category, memberDto, togetherDto, file);
+            togetherService.appendTogether(apartId, category, memberDto, togetherDto, file);
         else
-            togetherService.appendTogether(category, memberDto, togetherDto);
+            togetherService.appendTogether(apartId, category, memberDto, togetherDto);
         return ResponseEntity.status(CREATED).build();
     }
 

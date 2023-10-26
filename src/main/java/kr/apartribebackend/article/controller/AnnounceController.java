@@ -62,8 +62,9 @@ public class AnnounceController {
     }
 
     @ApartUser
-    @PostMapping("/api/announce")
+    @PostMapping("/api/{apartId}/announce")
     public ResponseEntity<Void> appendArticle(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final AppendAnnounceReq announceInfo
     ) {
@@ -74,8 +75,9 @@ public class AnnounceController {
     }
 
     @ApartUser
-    @PostMapping(value = "/api/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/api/{apartId}/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> attachmentToAWS(
+            @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestPart final AppendAnnounceReq announceInfo,
             @RequestPart(required = false) final List<MultipartFile> file) throws IOException
