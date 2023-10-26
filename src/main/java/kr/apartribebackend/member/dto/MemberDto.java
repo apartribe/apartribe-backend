@@ -2,6 +2,7 @@ package kr.apartribebackend.member.dto;
 
 import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.dto.ApartmentDto;
+import kr.apartribebackend.member.domain.AuthStatus;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import kr.apartribebackend.token.refresh.dto.RefreshTokenDto;
@@ -24,7 +25,8 @@ public class MemberDto {
     private LocalDateTime createdAt;
     private RefreshTokenDto refreshTokenDto;
     private ApartmentDto apartmentDto;
-    private boolean isAuthenticated;
+//    private boolean isAuthenticated;
+    private AuthStatus authStatus;
     private String apartCode;
     private String apartName;
 
@@ -38,7 +40,8 @@ public class MemberDto {
                       LocalDateTime createdAt,
                       RefreshTokenDto refreshTokenDto,
                       ApartmentDto apartmentDto,
-                      boolean isAuthenticated,
+//                      boolean isAuthenticated,
+                      AuthStatus authStatus,
                       String apartCode,
                       String apartName) {
         this.id = id;
@@ -50,7 +53,8 @@ public class MemberDto {
         this.createdAt = createdAt;
         this.refreshTokenDto = refreshTokenDto;
         this.apartmentDto = apartmentDto;
-        this.isAuthenticated = isAuthenticated;
+//        this.isAuthenticated = isAuthenticated;
+        this.authStatus = authStatus;
         this.apartCode = apartCode;
         this.apartName = apartName;
     }
@@ -64,7 +68,8 @@ public class MemberDto {
                 .nickname(member.getNickname())
                 .profileImageUrl(member.getProfileImageUrl())
                 .createdAt(member.getCreatedAt())
-                .isAuthenticated(member.isAuthenticated())
+//                .isAuthenticated(member.isAuthenticated())
+                .authStatus(member.getAuthStatus())
                 .apartCode(member.getApartCode())
                 .apartName(member.getApartName())
                 .build();
@@ -105,6 +110,7 @@ public class MemberDto {
                 .name(name)
                 .nickname(nickname)
                 .profileImageUrl(profileImageUrl)
+                .authStatus(authStatus != null ? authStatus : AuthStatus.INCOMPLETE)
                 .build();
     }
 
