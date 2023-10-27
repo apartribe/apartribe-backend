@@ -11,6 +11,9 @@ import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.QBoard;
+import kr.apartribebackend.category.domain.Category;
+import kr.apartribebackend.category.domain.QCategory;
+import kr.apartribebackend.category.dto.CategoryListRes;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.QMember;
@@ -28,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static kr.apartribebackend.apart.domain.QApartment.apartment;
 import static kr.apartribebackend.article.domain.QBoard.board;
+import static kr.apartribebackend.category.domain.QCategory.*;
 import static kr.apartribebackend.comment.domain.QComment.comment;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -77,13 +82,19 @@ public class MemberConfigRepository {
         return PageableExecutionUtils.getPage(memberCommentRes, pageable, countQuery::fetchOne);
     }
 
-    // 내가 쓴 글 --> 사실 email 이 uniq 해서 아파트정보와 join 은 필요없지만. 한번 해본 것이다.
     public Page<MemberBoardResponse> findArticlesForMember(final Member member,
                                                            final Apartment apartment,
                                                            final Pageable pageable) {
         final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
-        List<Board> contents = jpaQueryFactory
+        // Board 에는 Category 연관이 없기때문에, together 로 형변환 후, getCaetgory.name() 을 하면 n + 1 이 터진다. 따라서 N + 1 이 터지기전에 미리 아파트에 맞는 카테고리를 fetchJoin 해놓는 것이 효율적이다.
+        final List<Category> categories = jpaQueryFactory
+                .selectFrom(category)
+                .innerJoin(category.apartment, QApartment.apartment).fetchJoin()
+                .where(QApartment.apartment.code.eq(apartment.getCode()))
+                .fetch();
+
+        final List<Board> contents = jpaQueryFactory
                 .select(board)
                 .from(board)
                 .innerJoin(board.member, QMember.member).fetchJoin()
@@ -93,13 +104,14 @@ public class MemberConfigRepository {
                         QApartment.apartment.name.eq(apartment.getName()),
                         QMember.member.email.eq(member.getEmail())
                 )
-                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        List<MemberBoardResponse> results = contents.stream().map(MemberBoardResponse::from).collect(Collectors.toList());
 
-        JPAQuery<Long> countQuery = jpaQueryFactory
+        final List<MemberBoardResponse> results = contents.stream().map(MemberBoardResponse::from).collect(Collectors.toList());
+
+        final JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(Wildcard.count)
                 .from(board)
                 .innerJoin(board.member, QMember.member)
