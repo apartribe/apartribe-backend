@@ -26,10 +26,9 @@ public class MemberConfigController {
     private final MemberConfigService memberConfigService;
 
     @GetMapping("/{email}")
-    public APIResponse<MemberResponse> findSingleMember(@PathVariable final String email) {
-        final MemberDto singleMember = memberService.findSingleMember(email);
-        final MemberResponse memberResponse = MemberResponse.from(singleMember);
-        final APIResponse<MemberResponse> apiResponse = APIResponse.SUCCESS(memberResponse);
+    public APIResponse<SingleMemberResponse> findSingleMember(@PathVariable final String email) {
+        final SingleMemberResponse singleMemberResponse = memberService.findMemberWithApartInfoByEmail(email);
+        final APIResponse<SingleMemberResponse> apiResponse = APIResponse.SUCCESS(singleMemberResponse);
         return apiResponse;
     }
 
