@@ -16,7 +16,7 @@ import java.util.Objects;
 @Entity @Table(name = "ADVERTISE")
 public class Advertise extends TimeBaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ADVERTISE_ID")
     private Long id;
 

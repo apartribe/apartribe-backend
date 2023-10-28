@@ -17,7 +17,7 @@ import java.util.Objects;
 @Entity @Table(name = "AGREEMENTS")
 public class Agreements {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AGREEMENTS_ID")
     private Long id;
 
