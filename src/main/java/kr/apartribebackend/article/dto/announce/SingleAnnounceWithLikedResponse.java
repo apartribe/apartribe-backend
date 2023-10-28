@@ -2,6 +2,7 @@ package kr.apartribebackend.article.dto.announce;
 
 import kr.apartribebackend.likes.dto.BoardLikedRes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record SingleAnnounceWithLikedResponse(
@@ -12,6 +13,8 @@ public record SingleAnnounceWithLikedResponse(
         String level,
         String title,
         String content,
+        LocalDate floatFrom,
+        LocalDate floatTo,
         int liked,
         boolean memberLiked,
         int saw
@@ -25,6 +28,8 @@ public record SingleAnnounceWithLikedResponse(
                 singleAnnounceResponse.level(),
                 singleAnnounceResponse.title(),
                 singleAnnounceResponse.content(),
+                singleAnnounceResponse.floatFrom(),
+                singleAnnounceResponse.floatTo(),
                 singleAnnounceResponse.liked(),
                 boardLikedRes.liked(),
                 singleAnnounceResponse.saw()

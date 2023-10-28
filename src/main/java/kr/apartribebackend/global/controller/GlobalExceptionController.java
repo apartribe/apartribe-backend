@@ -1,4 +1,4 @@
-package kr.apartribebackend.global.aop;
+package kr.apartribebackend.global.controller;
 
 
 import kr.apartribebackend.global.dto.APIResponse;
@@ -13,6 +13,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -31,6 +32,8 @@ public class GlobalExceptionController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<APIResponse<ErrorResponse>> bindingResultException(final MethodArgumentNotValidException exception) {
         final Map<String, String> fieldValidation = new HashMap<>();
+        exception.getBindingResult().getGlobalErrors()
+                .forEach(objectError -> fieldValidation.put(objectError.getCode(), objectError.getDefaultMessage()));
         if (exception.hasFieldErrors()) {
             final List<FieldError> fieldErrors = exception.getFieldErrors();
             for (FieldError fieldError : fieldErrors) {

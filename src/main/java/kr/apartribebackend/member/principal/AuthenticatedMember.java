@@ -1,6 +1,7 @@
 package kr.apartribebackend.member.principal;
 
 import kr.apartribebackend.apart.dto.ApartmentDto;
+import kr.apartribebackend.member.domain.AuthStatus;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.token.refresh.dto.RefreshTokenDto;
@@ -21,6 +22,10 @@ public class AuthenticatedMember implements UserDetails {
     private String password;
     private String name;
     private String nickname;
+//    private boolean isAuthenticated;
+    private AuthStatus authStatus;
+    private String apartCode;
+    private String apartName;
     private RefreshTokenDto refreshTokenDto;
     private ApartmentDto apartmentDto;
     private LocalDateTime createdAt;
@@ -37,6 +42,10 @@ public class AuthenticatedMember implements UserDetails {
                                String password,
                                String name,
                                String nickname,
+//                               boolean isAuthenticated,
+                               AuthStatus authStatus,
+                               String apartCode,
+                               String apartName,
                                RefreshTokenDto refreshTokenDto,
                                ApartmentDto apartmentDto,
                                LocalDateTime createdAt,
@@ -46,6 +55,10 @@ public class AuthenticatedMember implements UserDetails {
         this.password = password;
         this.name = name;
         this.nickname = nickname;
+//        this.isAuthenticated = isAuthenticated;
+        this.authStatus = authStatus;
+        this.apartCode = apartCode;
+        this.apartName = apartName;
         this.authorities = authorities;
         this.refreshTokenDto = refreshTokenDto;
         this.apartmentDto = apartmentDto;
@@ -74,6 +87,10 @@ public class AuthenticatedMember implements UserDetails {
                 .apartmentDto(apartmentDto)
                 .createdAt(memberDto.getCreatedAt())
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+//                .isAuthenticated(memberDto.isAuthenticated())
+                .authStatus(memberDto.getAuthStatus())
+                .apartCode(memberDto.getApartCode())
+                .apartName(memberDto.getApartName())
                 .build();
     }
 
@@ -114,6 +131,10 @@ public class AuthenticatedMember implements UserDetails {
                 .nickname(nickname)
                 .password(password)
                 .refreshTokenDto(refreshTokenDto)
+//                .isAuthenticated(isAuthenticated)
+                .authStatus(authStatus)
+                .apartCode(apartCode)
+                .apartName(apartName)
                 .apartmentDto(apartmentDto)
                 .createdAt(createdAt)
                 .build();

@@ -2,7 +2,6 @@ package kr.apartribebackend.member.domain;
 
 import jakarta.persistence.*;
 import kr.apartribebackend.apart.domain.Apartment;
-import kr.apartribebackend.global.domain.BaseEntity;
 import kr.apartribebackend.global.domain.TimeBaseEntity;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.*;
@@ -40,6 +39,16 @@ public class Member extends TimeBaseEntity {
 
     @Column(name = "PROFILE_IMAGE")
     private String profileImageUrl;
+
+    @Column(name = "AUTH_STATUS")
+    @Enumerated(EnumType.STRING)
+    private AuthStatus authStatus;
+
+    @Column(name = "APART_CODE")
+    private String apartCode;
+
+    @Column(name = "APART_NAME")
+    private String apartName;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "REFRESH_TOKEN_ID")
@@ -91,12 +100,33 @@ public class Member extends TimeBaseEntity {
         this.nickname = nickname;
     }
 
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     public void changeApartment(Apartment apartment) {
         if (this.apartment != null) {
             this.apartment.getMembers().remove(this);
         }
         this.apartment = apartment;
         apartment.getMembers().add(this);
+    }
+
+    public void rememberApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+    }
+
+    public void authenticateApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+        this.authStatus = AuthStatus.COMPLETED;
+    }
+
+    public void pendingApartInfo(String apartCode, String apartName) {
+        this.apartCode = apartCode;
+        this.apartName = apartName;
+        this.authStatus = AuthStatus.PENDING;
     }
 
 }

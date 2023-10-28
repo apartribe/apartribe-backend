@@ -5,7 +5,7 @@ import kr.apartribebackend.global.exception.RootException;
 public class ApartAlreadyExistsException extends RootException {
 
     public ApartAlreadyExistsException() {
-        super("아파트가 이미 존재합니다.");
+        super("해당 아파트에 대한 커뮤니티가 이미 존재하여 커뮤니티를 생성할 수 없습니다.");
     }
 
     @Override

@@ -45,10 +45,11 @@ public class TogetherService {
     private final LikeService likeService;
 
     @Transactional
-    public Together appendTogether(final String category,
+    public Together appendTogether(final String apartId,
+                                   final String category,
                                    final MemberDto memberDto,
                                    final TogetherDto togetherDto) {
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
         final Member member = memberDto.toEntity();
         final Together together = togetherDto.toEntity(categoryEntity, member);
@@ -56,11 +57,12 @@ public class TogetherService {
     }
 
     @Transactional
-    public void appendTogether(final String category,
+    public void appendTogether(final String apartId,
+                               final String category,
                                final MemberDto memberDto,
                                final TogetherDto togetherDto,
                                final List<MultipartFile> file) throws IOException {
-        final Together together = appendTogether(category, memberDto, togetherDto);
+        final Together together = appendTogether(apartId, category, memberDto, togetherDto);
         final List<Attachment> attachments = attachmentService.saveFiles(file);
         for (Attachment attachment : attachments) {
             attachment.registBoard(together);
@@ -76,7 +78,7 @@ public class TogetherService {
                                                  final MemberDto memberDto) {
         final Together togetherEntity = togetherRepository.findTogetherForApartId(apartId, togetherId)
                 .orElseThrow(ArticleNotFoundException::new);
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndName(TOGETHER, category)
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Together updatedTogether = togetherEntity.updateTogether(
