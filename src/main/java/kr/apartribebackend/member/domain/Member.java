@@ -100,6 +100,10 @@ public class Member extends TimeBaseEntity {
         this.nickname = nickname;
     }
 
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     public void changeApartment(Apartment apartment) {
         if (this.apartment != null) {
             this.apartment.getMembers().remove(this);

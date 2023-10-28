@@ -78,26 +78,29 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         announces1.addAll(announces3);
         announceRepository.saveAll(announces1);
 
-        ArticleCategory category1 = createArticleCategory(apart1,"인기");
+        ArticleCategory category1 = createArticleCategory(apart1,"자유 게시판");
         ArticleCategory category2 = createArticleCategory(apart1,"신혼 부부 정보 공유");
         ArticleCategory category3 = createArticleCategory(apart1,"고양이 집사 모임");
         categoryRepository.saveAll(List.of(category1, category2, category3));
-        List<Article> articles1 = createArticles(30, jieun2, category1, "인기 제목", "인기 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Article> articles1 = createArticles(30, jieun2, category1, "자유 게시 제목", "자유 게시 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Article> articles2 = createArticles(30, jieun2, category2, "신혼 부부 정보 공유 제목", "신혼 부부 정보 공유 내용", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Article> articles3 = createArticles(30, bcl, category3, "고양이 집사 모임", "야옹", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         articles1.addAll(articles2);
         articles1.addAll(articles3);
         articleRepository.saveAll(articles1);
 
-        TogetherCategory category4 = createTogetherCategory(apart1, "축구 동호회");
-        TogetherCategory category5 = createTogetherCategory(apart1, "당구 동호회");
-        TogetherCategory category6 = createTogetherCategory(apart1, "하기싫다 동호회");
-        categoryRepository.saveAll(List.of(category4, category5, category6));
+        TogetherCategory category4 = createTogetherCategory(apart1, "동호회");
+        TogetherCategory category5 = createTogetherCategory(apart1, "친목회");
+        TogetherCategory category6 = createTogetherCategory(apart1, "카풀");
+        TogetherCategory category7 = createTogetherCategory(apart1, "공동구매");
+        categoryRepository.saveAll(List.of(category4, category5, category6, category7));
         List<Together> togethers1 = createTogethers(30, jieun2, "함께해요 타이틀", "함께해요 제목", category4, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(3), RecruitStatus.END,"만나는 시간", "우리 집", true, "유아", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Together> togethers2 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category5, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(4), RecruitStatus.STILL,"만나는 시간", "니 집", false, "청소년", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         List<Together> togethers3 = createTogethers(30, bcl, "함께해요 타이틀", "함께해요 제목", category6, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
+        List<Together> togethers4 = createTogethers(15, jieun2, "함께해요 타이틀", "함께해요 제목", category7, "설명 주저리주저리", LocalDate.now(), LocalDate.now().plusDays(5), RecruitStatus.STILL, "만나는 시간", "모두의 집", true, "성인", "https://miro.medium.com/v2/resize:fit:1200/0*8IQEdpp7lezZZ6To.png");
         togethers1.addAll(togethers2);
         togethers1.addAll(togethers3);
+        togethers1.addAll(togethers4);
         togetherRepository.saveAll(togethers1);
 
         // announce

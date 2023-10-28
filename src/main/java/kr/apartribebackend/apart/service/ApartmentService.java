@@ -74,6 +74,9 @@ public class ApartmentService {
         if (apartmentRepository.existsByCodeAndName(apartmentDto.getCode(), apartmentDto.getName())) {
             throw new ApartAlreadyExistsException();
         }
+        if (member.getApartCode() == null || member.getApartName() == null) {
+            throw new ApartmentNotAuthenticateException();
+        }
         if (
                 !member.getApartCode().equals(apartmentDto.getCode()) ||
                 !member.getApartName().equals(apartmentDto.getName())

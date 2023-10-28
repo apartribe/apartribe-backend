@@ -118,10 +118,9 @@ public class AnnounceController {
 
     @GetMapping("/api/{apartId}/announce/widget")
     public APIResponse<List<AnnounceWidgetRes>> announceWidgets(
-            @PathVariable final String apartId,
-            @Valid final AnnounceWidgetDuration announceWidgetDuration
+            @PathVariable final String apartId
     ) {
-        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId, announceWidgetDuration.toDto());
+        final List<AnnounceWidgetRes> widgetValues = announceService.findWidgetValues(apartId);
         final APIResponse<List<AnnounceWidgetRes>> apiResponse = APIResponse.SUCCESS(widgetValues);
         return apiResponse;
     }

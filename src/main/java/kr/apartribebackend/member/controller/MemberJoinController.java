@@ -3,14 +3,16 @@ package kr.apartribebackend.member.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.agreements.Agreements;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.dto.MemberJoinReq;
 import kr.apartribebackend.member.dto.NicknameIsValidResponse;
+import kr.apartribebackend.member.dto.agreements.AgreementsDto;
 import kr.apartribebackend.member.exception.EmailDuplicateException;
 import kr.apartribebackend.member.exception.MalformedProfileImageLinkException;
 import kr.apartribebackend.member.exception.NicknameDuplicateException;
 import kr.apartribebackend.member.repository.MemberRepository;
-import kr.apartribebackend.member.service.MemberService;
+import kr.apartribebackend.member.repository.agreements.AgreementsRepository;
 import kr.apartribebackend.token.email.config.EmailTokenContextHolder;
 import kr.apartribebackend.token.email.domain.EmailToken;
 import kr.apartribebackend.token.email.dto.EmailTokenIsValidResponse;
@@ -38,6 +40,7 @@ public class MemberJoinController {
 
     private final EmailTokenRepository emailTokenRepository;
     private final MemberRepository memberRepository;
+    private final AgreementsRepository agreementsRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailTokenContextHolder emailTokenContextHolder;
     private final EmailService emailService;
@@ -46,12 +49,17 @@ public class MemberJoinController {
     @PostMapping("/join")
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
         final EmailToken emailToken = validateMemberRequest(memberJoinReq);
-        final MemberDto memberDto = memberJoinReq.toDto();
+        final MemberDto memberDto = memberJoinReq.toMemberDto();
+        final AgreementsDto agreementsDto = memberJoinReq.toAgreementsDto();
+
         final Member member = memberDto.toEntity();
+        final Agreements agreements = agreementsDto.toEntity(member);
+
         member.changePassword(passwordEncoder.encode(memberJoinReq.password()));
         emailToken.changeMember(member);
         memberRepository.save(member);
         emailTokenRepository.save(emailToken);
+        agreementsRepository.save(agreements);
 
         emailTokenContextHolder.removeEmailTokenByEmail(member.getEmail());
 

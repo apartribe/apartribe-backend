@@ -10,7 +10,6 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.service.MemberConfigService;
 import kr.apartribebackend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/member")
@@ -28,11 +26,19 @@ public class MemberConfigController {
     private final MemberConfigService memberConfigService;
 
     @GetMapping("/{email}")
-    public APIResponse<MemberResponse> findSingleMember(@PathVariable final String email) {
-        final MemberDto singleMember = memberService.findSingleMember(email);
-        final MemberResponse memberResponse = MemberResponse.from(singleMember);
-        final APIResponse<MemberResponse> apiResponse = APIResponse.SUCCESS(memberResponse);
+    public APIResponse<SingleMemberResponse> findSingleMember(@PathVariable final String email) {
+        final SingleMemberResponse singleMemberResponse = memberService.findMemberWithApartInfoByEmail(email);
+        final APIResponse<SingleMemberResponse> apiResponse = APIResponse.SUCCESS(singleMemberResponse);
         return apiResponse;
+    }
+
+    @PutMapping("/update/image")
+    public void updateSingleMemberProfileImage(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
+            @Valid @RequestBody final MemberChangeImageReq memberChangeImageReq
+    ) {
+        // TODO 비밀번호와 비밀번호 확인 일치는 Validator 로 빼자.
+        memberConfigService.updateSingleMemberProfileImage(authenticatedMember, memberChangeImageReq);
     }
 
     @PutMapping("/update/password")
@@ -40,9 +46,10 @@ public class MemberConfigController {
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @Valid @RequestBody final MemberChangePasswordReq memberChangePasswordReq
     ) {
-        if (!memberChangePasswordReq.newPassword().equals(memberChangePasswordReq.passwordConfirm()))
+        // TODO 비밀번호와 비밀번호 확인 일치는 Validator 로 빼자.
+        if (!memberChangePasswordReq.newPassword().equals(memberChangePasswordReq.passwordConfirm())) {
             throw new PasswordNotEqualException();
-
+        }
         memberConfigService.updateSingleMemberPassword(authenticatedMember, memberChangePasswordReq);
     }
 
@@ -80,7 +87,6 @@ public class MemberConfigController {
         return apiResponse;
     }
 
-    // TODO 개발 전
     @DeleteMapping("/delete")
     public void deleteSingleUser(
             @RequestHeader(value = "EMAIL", required = false) final String email,

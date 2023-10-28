@@ -101,9 +101,11 @@ public class AnnounceService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnnounceWidgetRes> findWidgetValues(final String apartId, final AnnounceDto announceDto) {
-        return announceRepository.findWidgetValues(apartId, announceDto.getFloatFrom(), announceDto.getFloatTo());
+    public List<AnnounceWidgetRes> findWidgetValues(final String apartId) {
+        return announceRepository.findWidgetValues(apartId);
     }
+
+}
 
 //    public void removeArticle(final Board board) {
 //        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
@@ -116,5 +118,3 @@ public class AnnounceService {
 //        commentRepository.deleteAllInBatch(comments);
 //        boardRepository.delete(board);
 //    }
-
-}
