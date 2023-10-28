@@ -16,7 +16,7 @@ public class EntityFactory {
     public static TogetherCategory.TogetherCategoryBuilder<?, ?> createTogetherCategory(Apartment apartment, String categoryName) {
         return TogetherCategory.builder()
                 .apartment(apartment)
-                .name("categoryName");
+                .name(categoryName);
     }
 
 }
