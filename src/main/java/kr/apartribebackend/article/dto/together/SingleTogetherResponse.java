@@ -58,6 +58,7 @@ public record SingleTogetherResponse(
                 together.getId(),
                 together.getCategory().getName(),
                 together.getTitle(),
+                together.getDescription(),
                 together.getThumbnail(),
                 together.getSaw(),
                 together.getLiked(),
