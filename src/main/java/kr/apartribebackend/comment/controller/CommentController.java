@@ -78,15 +78,17 @@ public class CommentController {
         return apiResponse;
     }
 
-    @PutMapping("/api/{apartCode}/board/{boardId}/comment")
-    public APIResponse<SingleCommentResponse> updateArticle(
+    @ApartUser
+    @PutMapping("/api/{apartId}/{boardId}/comment")
+    public APIResponse<SingleCommentResponse> updateComment(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PathVariable final String apartCode,
+            @PathVariable final String apartId,
             @PathVariable final Long boardId,
             @Valid @RequestBody final UpdateCommentReq updateCommentReq
     ) {
+        final MemberDto memberDto = authenticatedMember.toDto();
         final CommentDto commentDto = updateCommentReq.toDto();
-        final CommentDto updatedCommentDto = commentService.updateCommentForBoard(apartCode, boardId, commentDto);
+        final CommentDto updatedCommentDto = commentService.updateCommentForBoard(memberDto, boardId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(updatedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return apiResponse;

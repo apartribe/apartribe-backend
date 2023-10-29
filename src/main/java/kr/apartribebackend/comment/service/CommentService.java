@@ -6,10 +6,7 @@ import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.dto.CommentRes;
-import kr.apartribebackend.comment.eception.CannotApplyCommentException;
-import kr.apartribebackend.comment.eception.CannotReflectLikeToCommentException;
-import kr.apartribebackend.comment.eception.CommentDepthException;
-import kr.apartribebackend.comment.eception.CannotFoundParentCommentInBoardException;
+import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
@@ -77,17 +74,19 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto updateCommentForBoard(final String apartCode,
+    public CommentDto updateCommentForBoard(final MemberDto memberDto,
                                             final Long boardId,
                                             final CommentDto commentDto) {
-        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
-                .orElseThrow(CannotApplyCommentException::new);
-        final Comment comment = commentRepository.findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
-                .orElseThrow(CannotFoundParentCommentInBoardException::new);
-        final Member member = board.getMember();
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        final Comment comment = commentRepository
+                .findCommentWithMemberByBoardIdAndCommentId(boardId, commentDto.getId())
+                .orElseThrow(CantUpdateCauseCantFindCommentException::new);
+        final Long requestMemberId = memberDto.getId();
+        final Member commentMember = comment.getMember();
+        if (!requestMemberId.equals(commentMember.getId())) {
+            throw new CantUpdateCommentCauseInvalidMemberException();
+        }
         final Comment updatedComment = comment.updateComment(commentDto.getContent());
-        return CommentDto.from(updatedComment, member);
+        return CommentDto.from(updatedComment, commentMember);
     }
 
     @Transactional
@@ -105,6 +104,25 @@ public class CommentService {
         }
         return likeService.increaseLikesToComment(memberDto.toEntity(), comment);
     }
+}
+
+//    @Transactional
+//    public CommentDto updateCommentForBoard(final String apartCode,
+//                                            final MemberDto memberDto,
+//                                            final Long boardId,
+//                                            final CommentDto commentDto) {
+//        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+//                .orElseThrow(ArticleNotFoundException::new);
+//        final Comment comment = commentRepository.findCommentByBoardIdAndCommentId(boardId, commentDto.getId())
+//                .orElseThrow(CannotFoundParentCommentInBoardException::new);
+//        final Long requestMemberId = memberDto.getId();
+//        final Member commentMember = comment.getMember();
+//        if (!requestMemberId.equals(commentMember.getId())) {
+//            throw new CantUpdateCommentCauseInvalidMember();
+//        }
+//        final Comment updatedComment = comment.updateComment(commentDto.getContent());
+//        return CommentDto.from(updatedComment, commentMember);
+//    }
 
 //    public List<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto) {
 //        final Member memberEntity = memberDto.toEntity();
@@ -112,4 +130,3 @@ public class CommentService {
 //                .findCommentsForMember(memberEntity);
 //        return commentsForMember;
 //    }
-}
