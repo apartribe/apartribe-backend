@@ -1,15 +1,11 @@
 package kr.apartribebackend.comment.controller;
 
 import jakarta.validation.Valid;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceWithLikedResponse;
-import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
-import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;

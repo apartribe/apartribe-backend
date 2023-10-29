@@ -37,11 +37,10 @@ public class CommentService {
                                            final CommentDto commentDto) {
         final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
-        final Member member = board.getMember();
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
-        return CommentDto.from(savedComment, member);
+        return CommentDto.from(savedComment, memberDto.toEntity());
     }
 
     @Transactional
