@@ -29,10 +29,12 @@ public class Announce extends Board {
                                    String title,
                                    String content,
                                    LocalDate floatFrom,
-                                   LocalDate floatTo) {
+                                   LocalDate floatTo,
+                                   String thumbnail) {
         this.level = level;
         setTitle(title);
         setContent(content);
+        setThumbnail(thumbnail);
         this.floatFrom = floatFrom;
         this.floatTo = floatTo;
         return this;
