@@ -61,7 +61,7 @@ public class CommentController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final CommentDto commentDto = appendCommentReplyReq.toDto();
         final CommentDto savedCommentDto = commentService
-                .appendCommentReplyToBoard(apartId, memberDto, boardId, parentId, commentDto);
+                .appendCommentReplyToBoard(memberDto, boardId, parentId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return ResponseEntity.status(CREATED).body(apiResponse);

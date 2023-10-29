@@ -45,24 +45,22 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto appendCommentReplyToBoard(final String apartCode,
-                                                final MemberDto memberDto,
+    public CommentDto appendCommentReplyToBoard(final MemberDto memberDto,
                                                 final Long boardId,
                                                 final Long parentId,
                                                 final CommentDto commentDto) {
-        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
-                .orElseThrow(CannotApplyCommentException::new);
-        final Comment boardComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
-                .orElseThrow(CannotFoundParentCommentInBoardException::new);
+        final Comment boardComment = commentRepository
+                .findCommentWithBoardByBoardIdAndCommentId(boardId, parentId)
+                .orElseThrow(CannotApplyReplyCommentException::new);
         if (boardComment.getParent() != null) {
             throw new CommentDepthException();
         }
-        final Member member = board.getMember();
+        final Board board = boardComment.getBoard();
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registParent(boardComment);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
-        return CommentDto.from(savedComment, member);
+        return CommentDto.from(savedComment, memberDto.toEntity());
     }
 
     public List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode) {
@@ -129,4 +127,25 @@ public class CommentService {
 //        final List<MemberCommentRes> commentsForMember = commentRepository
 //                .findCommentsForMember(memberEntity);
 //        return commentsForMember;
+//    }
+
+//    @Transactional
+//    public CommentDto appendCommentReplyToBoard(final String apartCode,
+//                                                final MemberDto memberDto,
+//                                                final Long boardId,
+//                                                final Long parentId,
+//                                                final CommentDto commentDto) {
+//        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+//                .orElseThrow(CannotApplyCommentException::new);
+//        final Comment boardComment = commentRepository.findCommentByBoardIdAndCommentId(boardId, parentId)
+//                .orElseThrow(CannotFoundParentCommentInBoardException::new);
+//        if (boardComment.getParent() != null) {
+//            throw new CommentDepthException();
+//        }
+//        final Member member = board.getMember();
+//        final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
+//        comment.registParent(boardComment);
+//        comment.registBoard(board);
+//        final Comment savedComment = commentRepository.save(comment);
+//        return CommentDto.from(savedComment, member);
 //    }
