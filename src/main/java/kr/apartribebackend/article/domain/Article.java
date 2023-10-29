@@ -19,11 +19,13 @@ public class Article extends Board {
     private Category category;
 
     public Article updateArticle(Category category,
-                              String title,
-                              String content) {
+                                 String title,
+                                 String content,
+                                 String thumbnail) {
         this.category = category;
         setTitle(title);
         setContent(content);
+        setThumbnail(thumbnail);
         return this;
     }
 
