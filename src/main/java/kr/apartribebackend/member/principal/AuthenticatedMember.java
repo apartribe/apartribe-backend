@@ -22,7 +22,7 @@ public class AuthenticatedMember implements UserDetails {
     private String password;
     private String name;
     private String nickname;
-//    private boolean isAuthenticated;
+    private String profileImage;
     private AuthStatus authStatus;
     private String apartCode;
     private String apartName;
@@ -42,7 +42,7 @@ public class AuthenticatedMember implements UserDetails {
                                String password,
                                String name,
                                String nickname,
-//                               boolean isAuthenticated,
+                               String profileImage,
                                AuthStatus authStatus,
                                String apartCode,
                                String apartName,
@@ -55,7 +55,7 @@ public class AuthenticatedMember implements UserDetails {
         this.password = password;
         this.name = name;
         this.nickname = nickname;
-//        this.isAuthenticated = isAuthenticated;
+        this.profileImage = profileImage;
         this.authStatus = authStatus;
         this.apartCode = apartCode;
         this.apartName = apartName;
@@ -65,18 +65,6 @@ public class AuthenticatedMember implements UserDetails {
         this.createdAt = createdAt;
     }
 
-    public static AuthenticatedMember from(MemberDto memberDto) {
-        return AuthenticatedMember.builder()
-                .id(memberDto.getId())
-                .email(memberDto.getEmail())
-                .password(memberDto.getPassword())
-                .name(memberDto.getName())
-                .nickname(memberDto.getNickname())
-                .createdAt(memberDto.getCreatedAt())
-                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
-                .build();
-    }
-
     public static AuthenticatedMember from(MemberDto memberDto, ApartmentDto apartmentDto) {
         return AuthenticatedMember.builder()
                 .id(memberDto.getId())
@@ -84,27 +72,13 @@ public class AuthenticatedMember implements UserDetails {
                 .password(memberDto.getPassword())
                 .name(memberDto.getName())
                 .nickname(memberDto.getNickname())
+                .profileImage(memberDto.getProfileImageUrl())
                 .apartmentDto(apartmentDto)
                 .createdAt(memberDto.getCreatedAt())
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
-//                .isAuthenticated(memberDto.isAuthenticated())
                 .authStatus(memberDto.getAuthStatus())
                 .apartCode(memberDto.getApartCode())
                 .apartName(memberDto.getApartName())
-                .build();
-    }
-
-    public static AuthenticatedMember from(MemberDto memberDto, RefreshTokenDto refreshTokenDto, ApartmentDto apartmentDto) {
-        return AuthenticatedMember.builder()
-                .id(memberDto.getId())
-                .email(memberDto.getEmail())
-                .password(memberDto.getPassword())
-                .name(memberDto.getName())
-                .nickname(memberDto.getNickname())
-                .refreshTokenDto(refreshTokenDto)
-                .apartmentDto(apartmentDto)
-                .createdAt(memberDto.getCreatedAt())
-                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
                 .build();
     }
 
@@ -131,16 +105,42 @@ public class AuthenticatedMember implements UserDetails {
                 .nickname(nickname)
                 .password(password)
                 .refreshTokenDto(refreshTokenDto)
-//                .isAuthenticated(isAuthenticated)
                 .authStatus(authStatus)
                 .apartCode(apartCode)
                 .apartName(apartName)
                 .apartmentDto(apartmentDto)
                 .createdAt(createdAt)
+                .profileImageUrl(profileImage)
                 .build();
     }
 
 }
+
+//    public static AuthenticatedMember from(MemberDto memberDto, RefreshTokenDto refreshTokenDto, ApartmentDto apartmentDto) {
+//        return AuthenticatedMember.builder()
+//                .id(memberDto.getId())
+//                .email(memberDto.getEmail())
+//                .password(memberDto.getPassword())
+//                .name(memberDto.getName())
+//                .nickname(memberDto.getNickname())
+//                .refreshTokenDto(refreshTokenDto)
+//                .apartmentDto(apartmentDto)
+//                .createdAt(memberDto.getCreatedAt())
+//                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+//                .build();
+//    }
+
+//    public static AuthenticatedMember from(MemberDto memberDto) {
+//        return AuthenticatedMember.builder()
+//                .id(memberDto.getId())
+//                .email(memberDto.getEmail())
+//                .password(memberDto.getPassword())
+//                .name(memberDto.getName())
+//                .nickname(memberDto.getNickname())
+//                .createdAt(memberDto.getCreatedAt())
+//                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
+//                .build();
+//    }
 
 
 //package kr.apartribebackend.member.principal;
