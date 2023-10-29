@@ -100,9 +100,9 @@ public class CommentController {
         return apiResponse;
     }
 
-    @GetMapping("/api/{apartCode}/board/comment/best")
-    public APIResponse<List<BestCommentResponse>> bestCommentUntilLastWeek(@PathVariable final String apartCode) {
-        final List<BestCommentResponse> bestCommentResponses = commentService.bestCommentRankViaLastWeek(apartCode);
+    @GetMapping("/api/{apartId}/comment/best")
+    public APIResponse<List<BestCommentResponse>> bestCommentUntilLastWeek(@PathVariable final String apartId) {
+        final List<BestCommentResponse> bestCommentResponses = commentService.bestCommentRankViaLastWeek(apartId);
         final APIResponse<List<BestCommentResponse>> apiResponse = APIResponse.SUCCESS(bestCommentResponses);
         return apiResponse;
     }
