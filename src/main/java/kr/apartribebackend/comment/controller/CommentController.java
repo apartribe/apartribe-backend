@@ -49,17 +49,19 @@ public class CommentController {
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
-    @PostMapping("/api/{apartCode}/board/{boardId}/comment/reply")
+    @ApartUser
+    @PostMapping("/api/{apartId}/{boardId}/comment/reply")
     public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentReplyToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PathVariable final String apartCode,
+            @PathVariable final String apartId,
             @PathVariable final Long boardId,
             @Valid @RequestBody final AppendCommentReplyReq appendCommentReplyReq
     ) {
         final Long parentId = appendCommentReplyReq.parentId();
+        final MemberDto memberDto = authenticatedMember.toDto();
         final CommentDto commentDto = appendCommentReplyReq.toDto();
         final CommentDto savedCommentDto = commentService
-                .appendCommentReplyToBoard(apartCode, boardId, parentId, commentDto);
+                .appendCommentReplyToBoard(apartId, memberDto, boardId, parentId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return ResponseEntity.status(CREATED).body(apiResponse);

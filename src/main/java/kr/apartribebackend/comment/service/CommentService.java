@@ -49,6 +49,7 @@ public class CommentService {
 
     @Transactional
     public CommentDto appendCommentReplyToBoard(final String apartCode,
+                                                final MemberDto memberDto,
                                                 final Long boardId,
                                                 final Long parentId,
                                                 final CommentDto commentDto) {
@@ -60,7 +61,7 @@ public class CommentService {
             throw new CommentDepthException();
         }
         final Member member = board.getMember();
-        final Comment comment = commentDto.toEntity(member, board);
+        final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registParent(boardComment);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
