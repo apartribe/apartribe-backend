@@ -95,7 +95,8 @@ public class AnnounceService {
                 announceDto.getTitle(),
                 announceDto.getContent(),
                 announceDto.getFloatFrom(),
-                announceDto.getFloatTo()
+                announceDto.getFloatTo(),
+                announceDto.getThumbnail()
         );
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
     }
