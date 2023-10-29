@@ -1,9 +1,12 @@
 package kr.apartribebackend.comment.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.apart.domain.QApartment;
+import kr.apartribebackend.article.domain.Board;
+import kr.apartribebackend.article.domain.QBoard;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentRes;
@@ -11,11 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
+import static kr.apartribebackend.article.domain.QBoard.*;
+import static kr.apartribebackend.article.domain.QBoard.board;
 import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 
@@ -66,6 +73,29 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                 )
                 .groupBy(member.nickname).orderBy(comment.count().desc())
                 .fetch();
+    }
+
+    @Override
+    public Optional<Comment> findCommentForApartId(final String apartId,
+                                                   final Long boardId,
+                                                   final Long commentId) {
+        final Comment result = jpaQueryFactory
+                .selectFrom(comment)
+                .innerJoin(comment.member, member)
+                .innerJoin(comment.board, board)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        board.id.eq(boardId),
+                        comment.id.eq(commentId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    private BooleanExpression apartmentCondition(final String apartId) {
+        return StringUtils.hasText(apartId) ? apartment.code.eq(apartId) : null;
     }
 
 }
