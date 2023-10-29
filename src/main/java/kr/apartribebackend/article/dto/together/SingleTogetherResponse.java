@@ -12,7 +12,7 @@ public record SingleTogetherResponse(
         Long id,
         String category,
         String title,
-        String desc,
+        String description,
         String thumbnail,
         int saw,
         int liked,
