@@ -1,10 +1,15 @@
 package kr.apartribebackend.comment.controller;
 
 import jakarta.validation.Valid;
+import kr.apartribebackend.article.dto.announce.SingleAnnounceResponse;
+import kr.apartribebackend.article.dto.announce.SingleAnnounceWithLikedResponse;
+import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
+import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +85,18 @@ public class CommentController {
         final CommentDto updatedCommentDto = commentService.updateCommentForBoard(apartCode, boardId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(updatedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
+        return apiResponse;
+    }
+
+    @GetMapping("/api/{apartId}/{boardId}/{commentId}/comment/like")
+    public APIResponse<CommentLikedRes> updateLikeByCommentId(
+            @PathVariable final String apartId,
+            @PathVariable final Long boardId,
+            @PathVariable final Long commentId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
+        final CommentLikedRes commentLikedRes = commentService
+                .updateLikeByCommentId(authenticatedMember.toDto(), apartId, boardId, commentId);
+        final APIResponse<CommentLikedRes> apiResponse = APIResponse.SUCCESS(commentLikedRes);
         return apiResponse;
     }
 

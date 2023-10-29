@@ -7,9 +7,13 @@ import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.dto.CommentRes;
 import kr.apartribebackend.comment.eception.CannotApplyCommentException;
+import kr.apartribebackend.comment.eception.CannotReflectLikeToCommentException;
 import kr.apartribebackend.comment.eception.CommentDepthException;
 import kr.apartribebackend.comment.eception.CannotFoundParentCommentInBoardException;
 import kr.apartribebackend.comment.repository.CommentRepository;
+import kr.apartribebackend.likes.domain.CommentLiked;
+import kr.apartribebackend.likes.dto.CommentLikedRes;
+import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
+    private final LikeService likeService;
 
     @Transactional
     public CommentDto appendCommentToBoard(final String apartCode,
@@ -82,6 +87,22 @@ public class CommentService {
         // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
         final Comment updatedComment = comment.updateComment(commentDto.getContent());
         return CommentDto.from(updatedComment, member);
+    }
+
+    @Transactional
+    public CommentLikedRes updateLikeByCommentId(final MemberDto memberDto,
+                                                 final String apartId,
+                                                 final Long boardId,
+                                                 final Long commentId) {
+        final Comment comment = commentRepository.findCommentForApartId(apartId, boardId, commentId)
+                .orElseThrow(CannotReflectLikeToCommentException::new);
+
+        final CommentLiked commentLiked = likeService.findCommentLikedByMember(memberDto.getId(), comment.getId())
+                .orElse(null);
+        if (commentLiked != null) {
+            return likeService.decreaseLikesToComment(commentLiked, comment);
+        }
+        return likeService.increaseLikesToComment(memberDto.toEntity(), comment);
     }
 
 //    public List<MemberCommentRes> fetchCommentsForMember(final MemberDto memberDto) {
