@@ -6,6 +6,7 @@ import kr.apartribebackend.article.dto.announce.SingleAnnounceWithLikedResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
+import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
@@ -31,17 +32,18 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/api/{apartCode}/board/{boardId}/comment")
+    @ApartUser
+    @PostMapping("/api/{apartId}/{boardId}/comment")
     public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @PathVariable final String apartCode,
+            @PathVariable final String apartId,
             @PathVariable final Long boardId,
             @Valid @RequestBody final AppendCommentReq appendCommentReq
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
         final CommentDto commentDto = appendCommentReq.toDto();
         final CommentDto savedCommentDto = commentService
-                .appendCommentToBoard(apartCode, memberDto, boardId, commentDto);
+                .appendCommentToBoard(apartId, memberDto, boardId, commentDto);
         final SingleCommentResponse singleCommentResponse = SingleCommentResponse.from(savedCommentDto);
         final APIResponse<SingleCommentResponse> apiResponse = APIResponse.SUCCESS(singleCommentResponse);
         return ResponseEntity.status(CREATED).body(apiResponse);
