@@ -15,6 +15,14 @@ public interface CommentRepository extends
             @Param(value = "boardId") final Long boardId,
             @Param(value = "commentId") final Long commentId);
 
+    @Query(value = "select c from Comment as c" +
+            " inner join fetch c.member as m" +
+            " inner join c.board as b" +
+            " where b.id = :boardId and c.id = :commentId")
+    Optional<Comment> findCommentWithMemberByBoardIdAndCommentId(
+            @Param(value = "boardId") final Long boardId,
+            @Param(value = "commentId") final Long commentId);
+
     @Query(value = "select c from Comment as c inner join c.board as b where b.id = :boardId and c.id = :commentId and c.createdBy = :createdBy")
     Optional<Comment> findCommentByBoardIdAndCommentIdWithCreatedBy(
             @Param(value = "boardId") final Long boardId,
