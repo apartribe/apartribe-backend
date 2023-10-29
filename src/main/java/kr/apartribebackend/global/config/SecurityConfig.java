@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -40,7 +39,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -79,14 +77,14 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService()))
                         .successHandler(OAuth2SuccessHandler()))
-//                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
-//                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
-//                .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
-//                .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
-                .addFilterAfter(jwtExceptionTranslationFilter(), LogoutFilter.class)
+                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
+                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
                 .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
                 .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
                 .build();
+//                .addFilterAfter(jwtExceptionTranslationFilter(), LogoutFilter.class)
+//                .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
+//                .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
     }
 
     @Bean
@@ -169,7 +167,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2UserService oAuth2UserService() { return new OAuth2UserService(); }
+    public OAuth2UserService oAuth2UserService() { return new OAuth2UserService(memberRepository, passwordEncoder()); }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

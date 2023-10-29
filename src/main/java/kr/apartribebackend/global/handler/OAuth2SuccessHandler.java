@@ -23,14 +23,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        log.info("OAuth2 Success");
         final OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        final String redirectUrl = clientRedirectUrlHolder.getRedirectUrl();
-        final String redirectUri = UriComponentsBuilder.fromUriString(redirectUrl)
+        final String redirectUriComponentString = retrieveUriComponent(clientRedirectUrlHolder);
+        response.sendRedirect(redirectUriComponentString);
+    }
+
+    private String retrieveUriComponent(ClientRedirectUrlHolder clientRedirectUrlHolder) {
+        return UriComponentsBuilder.fromUriString(clientRedirectUrlHolder.getRedirectUrl())
                 .queryParam("accessToken", UUID.randomUUID().toString())
                 .queryParam("refreshToken", UUID.randomUUID().toString())
                 .toUriString();
-        response.sendRedirect(redirectUri);
     }
 
 }

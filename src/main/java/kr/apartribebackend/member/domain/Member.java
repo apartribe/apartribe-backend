@@ -44,6 +44,10 @@ public class Member extends TimeBaseEntity {
     @Enumerated(EnumType.STRING)
     private AuthStatus authStatus;
 
+    @Column(name = "MEMBER_TYPE")
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
+
     @Column(name = "APART_CODE")
     private String apartCode;
 
