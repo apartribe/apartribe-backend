@@ -30,11 +30,13 @@ public class ApartUserAspect {
         } else if (authenticatedMember.getAuthStatus() == AuthStatus.PENDING) {
             throw new NeedToMakeCommunityException();
         }
-        final String apartPathVariable = retrieveApartPathVariable(joinPoint);
-        if (apartPathVariable != null) {
-            final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
-            if (!apartPathVariable.equals(apartmentDto.getCode())) {
-                throw new ApartRequestNotMatchWithMemberApartException();
+        if (apartUser.checkApartment()) {
+            final String apartPathVariable = retrieveApartPathVariable(joinPoint);
+            if (apartPathVariable != null) {
+                final ApartmentDto apartmentDto = authenticatedMember.getApartmentDto();
+                if (!apartPathVariable.equals(apartmentDto.getCode())) {
+                    throw new ApartRequestNotMatchWithMemberApartException();
+                }
             }
         }
     }
