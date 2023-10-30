@@ -10,6 +10,7 @@ import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -63,12 +64,15 @@ public class CommentController {
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
-    @GetMapping({"/api/board/{id}/comment", "/api/board/comment"})
+    @ApartUser(checkApartment = false)
+    @GetMapping("/api/{apartId}/{boardId}/comment")
     public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
-            @PathVariable final Optional<Long> id,
-            @PageableDefault final Pageable pageable) {
-        final Long boardId = id.orElse(0L);
-        final Page<CommentRes> commentsByBoardId = commentService.findCommentsByBoardId(boardId, pageable);
+            @PathVariable final String apartId,
+            @PathVariable final Long boardId,
+            @PageableDefault final Pageable pageable,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
+        final Page<CommentRes> commentsByBoardId = commentService
+                .findCommentsByBoardId(authenticatedMember.toDto(), boardId, pageable);
         final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
         final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
         return apiResponse;

@@ -14,7 +14,7 @@ public interface CustomCommentRepository {
 
     List<BestCommentResponse> bestCommentRankViaLastWeek(final String apartCode);
 
-    Page<CommentRes> findCommentsByBoardId(final Long boardId, final Pageable pageable);
+    Page<CommentRes> findCommentsByBoardId(final Long memberId, final Long boardId, final Pageable pageable);
 
     Optional<Comment> findCommentForApartId(final String apartId, final Long boardId, final Long commentId);
 

@@ -66,8 +66,8 @@ public class CommentService {
         return commentRepository.bestCommentRankViaLastWeek(apartCode);
     }
 
-    public Page<CommentRes> findCommentsByBoardId(final Long boardId, final Pageable pageable) {
-        return commentRepository.findCommentsByBoardId(boardId, pageable);
+    public Page<CommentRes> findCommentsByBoardId(final MemberDto memberDto, final Long boardId, final Pageable pageable) {
+        return commentRepository.findCommentsByBoardId(memberDto.getId(), boardId, pageable);
     }
 
     @Transactional
