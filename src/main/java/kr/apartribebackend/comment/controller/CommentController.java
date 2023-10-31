@@ -5,14 +5,10 @@ import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.service.CommentService;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
-import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -64,15 +60,13 @@ public class CommentController {
 
     @ApartUser(checkApartment = false)
     @GetMapping("/api/{apartId}/{boardId}/comment")
-    public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
+    public APIResponse<List<CommentResProjection>> findCommentsByBoardId(
             @PathVariable final String apartId,
             @PathVariable final Long boardId,
-            @PageableDefault final Pageable pageable,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
-        final Page<CommentRes> commentsByBoardId = commentService
-                .findCommentsByBoardId(authenticatedMember.toDto(), boardId, pageable);
-        final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
-        final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        final List<CommentResProjection> commentResProjections = commentService
+                .findCommentsByBoardId(authenticatedMember.toDto(), boardId);
+        final APIResponse<List<CommentResProjection>> apiResponse = APIResponse.SUCCESS(commentResProjections);
         return apiResponse;
     }
 
@@ -125,3 +119,17 @@ public class CommentController {
     }
 
 }
+
+//    @ApartUser(checkApartment = false)
+//    @GetMapping("/api/{apartId}/{boardId}/comment")
+//    public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
+//            @PathVariable final String apartId,
+//            @PathVariable final Long boardId,
+//            @PageableDefault final Pageable pageable,
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
+//        final Page<CommentRes> commentsByBoardId = commentService
+//                .findCommentsByBoardId(authenticatedMember.toDto(), boardId, pageable);
+//        final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
+//        final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+//        return apiResponse;
+//    }

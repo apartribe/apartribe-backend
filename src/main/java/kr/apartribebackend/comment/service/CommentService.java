@@ -3,12 +3,10 @@ package kr.apartribebackend.comment.service;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.comment.domain.Comment;
-import kr.apartribebackend.comment.dto.BestCommentResponse;
-import kr.apartribebackend.comment.dto.CommentCountRes;
-import kr.apartribebackend.comment.dto.CommentDto;
-import kr.apartribebackend.comment.dto.CommentRes;
+import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
+import kr.apartribebackend.global.dto.PageCondition;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.likes.service.LikeService;
@@ -67,8 +65,8 @@ public class CommentService {
         return commentRepository.bestCommentRankViaLastWeek(apartCode);
     }
 
-    public Page<CommentRes> findCommentsByBoardId(final MemberDto memberDto, final Long boardId, final Pageable pageable) {
-        return commentRepository.findCommentsByBoardId(memberDto.getId(), boardId, pageable);
+    public List<CommentResProjection> findCommentsByBoardId(final MemberDto memberDto, final Long boardId) {
+        return commentRepository.findCommentsByBoardId(memberDto.getId(), boardId);
     }
 
     public CommentCountRes totalCountsForBoardComments(final MemberDto memberDto, final Long boardId) {

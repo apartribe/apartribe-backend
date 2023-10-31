@@ -2,18 +2,15 @@ package kr.apartribebackend.comment.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.Wildcard;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
 import kr.apartribebackend.comment.dto.CommentCountRes;
-import kr.apartribebackend.comment.dto.CommentRes;
-import kr.apartribebackend.likes.dto.CommentLikedWithCommentAndMember;
+import kr.apartribebackend.comment.dto.CommentResProjection;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -41,52 +38,59 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
     }
 
     @Override
-    public Page<CommentRes> findCommentsByBoardId(final Long memberId,
-                                                  final Long boardId,
-                                                  final Pageable pageable) {
-        final List<Comment> commentLists = jpaQueryFactory
-                .selectFrom(comment)
-                .leftJoin(comment.parent).fetchJoin()
-                .where(comment.board.id.eq(boardId))
-                .orderBy(comment.parent.id.asc().nullsFirst(),
-                        comment.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+    public List<CommentResProjection> findCommentsByBoardId(final Long memberId, final Long boardId) {
+        final List<CommentResProjection> commentResProjections =
+                jpaQueryFactory
+                        .select(Projections.fields(CommentResProjection.class,
+                                comment.parent.id.as("parentId"),
+                                comment.id.as("commentId"),
+                                comment.content.as("content"),
+                                comment.liked.as("liked"),
+                                member.profileImageUrl.as("profileImage"),
+                                Expressions.as(
+                                        JPAExpressions
+                                                .select(commentLiked)
+                                                .from(commentLiked)
+                                                .where(
+                                                        commentLiked.member.id.eq(memberId),
+                                                        commentLiked.comment.id.eq(comment.id)
+                                                )
+                                                .exists(),
+                                        "memberLiked"
+                                ),
+                                Expressions.as(
+                                        JPAExpressions
+                                                .select(comment)
+                                                .from(comment)
+                                                .where(member.id.eq(memberId))
+                                                .exists(),
+                                        "memberCreated"
+                                ),
+                                comment.children.size().as("childCounts"),
+                                comment.createdAt.as("createdAt"),
+                                comment.createdBy.as("createdBy")))
+                        .from(comment)
+                        .innerJoin(comment.member, member)
+                        .leftJoin(comment.parent)
+                        .where(comment.board.id.eq(boardId))
+                        .orderBy(
+                                comment.parent.id.asc().nullsFirst(),
+                                comment.createdAt.desc()
+                        )
+                        .fetch();
 
-        List<Long> commentIds = commentLists.stream().map(Comment::getId).toList();
-        List<CommentLikedWithCommentAndMember> commentLikedWithCommentAndMembers = jpaQueryFactory
-                .select(Projections.fields(CommentLikedWithCommentAndMember.class,
-                        comment.id.as("commentId"),
-                        member.id.as("memberId")))
-                .from(commentLiked)
-                .innerJoin(commentLiked.comment, comment)
-                .innerJoin(commentLiked.member, member)
-                .where(
-                        comment.id.in(commentIds),
-                        member.id.eq(memberId)
-                )
-                .fetch();
-
-        List<CommentRes> commentResList = new ArrayList<>();
-        Map<Long, CommentRes> map = new HashMap<>();
-        commentLists.forEach(c -> {
-            CommentRes commentRes = CommentRes.from(c, commentLikedWithCommentAndMembers);
-            map.put(commentRes.getId(), commentRes);
-            if (c.getParent() != null) {
-                map.get(c.getParent().getId()).getChildren().add(commentRes);
+        final List<CommentResProjection> commentResProjectionList = new ArrayList<>();
+        final Map<Long, CommentResProjection> map = new HashMap<>();
+        commentResProjections.forEach(c -> {
+            map.put(c.getCommentId(), c);
+            if (c.getParentId() != null) {
+                map.get(c.getParentId()).getChildren().add(c);
             } else {
-                commentResList.add(commentRes);
+                commentResProjectionList.add(c);
             }
         });
 
-        final JPAQuery<Long> countQuery = jpaQueryFactory
-                .select(Wildcard.count)
-                .from(comment)
-                .leftJoin(comment.parent)
-                .where(comment.board.id.eq(boardId));
-
-        return PageableExecutionUtils.getPage(commentResList, pageable, countQuery::fetchOne);
+        return commentResProjectionList;
     }
 
     @Override
@@ -134,7 +138,8 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 }
 
 //    @Override
-//    public Page<CommentRes> findCommentsByBoardId(final Long boardId,
+//    public Page<CommentRes> findCommentsByBoardId(final Long memberId,
+//                                                  final Long boardId,
 //                                                  final Pageable pageable) {
 //        final List<Comment> commentLists = jpaQueryFactory
 //                .selectFrom(comment)
@@ -146,10 +151,24 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 //                .limit(pageable.getPageSize())
 //                .fetch();
 //
+//        List<Long> commentIds = commentLists.stream().map(Comment::getId).toList();
+//        List<CommentLikedWithCommentAndMember> commentLikedWithCommentAndMembers = jpaQueryFactory
+//                .select(Projections.fields(CommentLikedWithCommentAndMember.class,
+//                        comment.id.as("commentId"),
+//                        member.id.as("memberId")))
+//                .from(commentLiked)
+//                .innerJoin(commentLiked.comment, comment)
+//                .innerJoin(commentLiked.member, member)
+//                .where(
+//                        comment.id.in(commentIds),
+//                        member.id.eq(memberId)
+//                )
+//                .fetch();
+//
 //        List<CommentRes> commentResList = new ArrayList<>();
 //        Map<Long, CommentRes> map = new HashMap<>();
 //        commentLists.forEach(c -> {
-//            CommentRes commentRes = CommentRes.from(c);
+//            CommentRes commentRes = CommentRes.from(c, commentLikedWithCommentAndMembers);
 //            map.put(commentRes.getId(), commentRes);
 //            if (c.getParent() != null) {
 //                map.get(c.getParent().getId()).getChildren().add(commentRes);
@@ -166,13 +185,3 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 //
 //        return PageableExecutionUtils.getPage(commentResList, pageable, countQuery::fetchOne);
 //    }
-
-//        List<CommentLiked> memberCommentLikedList = jpaQueryFactory
-//                .selectFrom(commentLiked)
-//                .innerJoin(commentLiked.comment, comment)
-//                .innerJoin(commentLiked.member, member)
-//                .where(
-//                        comment.id.in(commentIds),
-//                        member.id.eq(memberId)
-//                )
-//                .fetch();
