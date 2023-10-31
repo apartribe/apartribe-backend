@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
+import kr.apartribebackend.comment.dto.CommentCountRes;
 import kr.apartribebackend.comment.dto.CommentDto;
 import kr.apartribebackend.comment.dto.CommentRes;
 import kr.apartribebackend.comment.eception.*;
@@ -68,6 +69,10 @@ public class CommentService {
 
     public Page<CommentRes> findCommentsByBoardId(final MemberDto memberDto, final Long boardId, final Pageable pageable) {
         return commentRepository.findCommentsByBoardId(memberDto.getId(), boardId, pageable);
+    }
+
+    public CommentCountRes totalCountsForBoardComments(final MemberDto memberDto, final Long boardId) {
+        return commentRepository.totalCountsForBoardComments(memberDto.getId(), boardId);
     }
 
     @Transactional

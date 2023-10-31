@@ -10,7 +10,6 @@ import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -75,6 +73,19 @@ public class CommentController {
                 .findCommentsByBoardId(authenticatedMember.toDto(), boardId, pageable);
         final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
         final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
+        return apiResponse;
+    }
+
+    @ApartUser(checkApartment = false)
+    @GetMapping("/api/{apartId}/{boardId}/comment/total")
+    public APIResponse<CommentCountRes> totalCountsForBoardComments(
+            @PathVariable final String apartId,
+            @PathVariable final Long boardId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final CommentCountRes commentCountRes = commentService
+                .totalCountsForBoardComments(authenticatedMember.toDto(), boardId);
+        final APIResponse<CommentCountRes> apiResponse = APIResponse.SUCCESS(commentCountRes);
         return apiResponse;
     }
 

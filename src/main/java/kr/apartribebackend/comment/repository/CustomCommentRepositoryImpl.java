@@ -1,7 +1,5 @@
 package kr.apartribebackend.comment.repository;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
@@ -9,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.BestCommentResponse;
+import kr.apartribebackend.comment.dto.CommentCountRes;
 import kr.apartribebackend.comment.dto.CommentRes;
 import kr.apartribebackend.likes.dto.CommentLikedWithCommentAndMember;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,16 @@ import static kr.apartribebackend.member.domain.QMember.*;
 public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public CommentCountRes totalCountsForBoardComments(final Long memberId, final Long boardId) {
+        return jpaQueryFactory
+                .select(Projections.fields(CommentCountRes.class,
+                        Wildcard.count.as("commentCount")))
+                .from(comment)
+                .where(comment.board.id.eq(boardId))
+                .fetchOne();
+    }
 
     @Override
     public Page<CommentRes> findCommentsByBoardId(final Long memberId,
