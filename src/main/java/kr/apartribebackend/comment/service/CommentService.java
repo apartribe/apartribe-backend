@@ -6,15 +6,12 @@ import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.dto.*;
 import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
-import kr.apartribebackend.global.dto.PageCondition;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
