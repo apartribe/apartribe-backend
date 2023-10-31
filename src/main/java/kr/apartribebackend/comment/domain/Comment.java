@@ -84,5 +84,11 @@ public class Comment extends BaseEntity {
         return this;
     }
 
+    public void reflectCommentLike() {
+        this.liked += 1;
+    }
 
+    public void decreaseCommentLike() {
+        this.liked -= 1;
+    }
 }
