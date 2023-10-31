@@ -21,7 +21,8 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
     public Optional<Board> findBoardForApartId(final String apartId, Long boardId) {
         final Board result = jpaQueryFactory
                 .selectFrom(board)
-                .innerJoin(board.member, member).fetchJoin()
+//                .innerJoin(board.member, member).fetchJoin()
+                .innerJoin(board.member, member)
                 .innerJoin(member.apartment, apartment)
                 .where(
                         apartmentCondition(apartId),
