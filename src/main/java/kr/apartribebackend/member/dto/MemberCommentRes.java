@@ -25,6 +25,7 @@ public class MemberCommentRes {
     private String content;
     private String createdBy;
     private LocalDateTime createdAt;
+    private String boardTitle;
     private String boardType;
     private String category;
     private String level;
@@ -38,6 +39,7 @@ public class MemberCommentRes {
                 .content(comment.getContent())
                 .createdBy(comment.getCreatedBy())
                 .createdAt(comment.getCreatedAt())
+                .boardTitle(board.getTitle())
                 .boardType(board.getBoardType())
                 .boardId(board.getId());
 
