@@ -107,6 +107,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     public Optional<SingleArticleResponseProjection> findArticleForApartId(final Long memberId,
                                                                            final String apartId,
                                                                            final Long articleId) {
+        jpaQueryFactory.update(article)
+                .set(article.saw, article.saw.add(1))
+                .where(article.id.eq(articleId))
+                .execute();
+
         final SingleArticleResponseProjection singleArticleResponseProjection = jpaQueryFactory
                 .select(Projections.fields(SingleArticleResponseProjection.class,
                         article.id.as("id"),
