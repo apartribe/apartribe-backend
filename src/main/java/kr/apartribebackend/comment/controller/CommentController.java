@@ -97,6 +97,18 @@ public class CommentController {
         return apiResponse;
     }
 
+    @ApartUser
+    @DeleteMapping("/api/{apartId}/{boardId}/{commentId}/comment")
+    public void deleteComment(
+            @PathVariable final String apartId,
+            @PathVariable final Long boardId,
+            @PathVariable final Long commentId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final MemberDto memberDto = authenticatedMember.toDto();
+        commentService.deleteCommentForBoard(memberDto, boardId, commentId);
+    }
+
     @GetMapping("/api/{apartId}/{boardId}/{commentId}/comment/like")
     public APIResponse<CommentLikedRes> updateLikeByCommentId(
             @PathVariable final String apartId,
