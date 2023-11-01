@@ -58,7 +58,6 @@ public class CommentController {
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
-    @ApartUser(checkApartment = false)
     @GetMapping("/api/{apartId}/{boardId}/comment")
     public APIResponse<List<CommentResProjection>> findCommentsByBoardId(
             @PathVariable final String apartId,
@@ -70,7 +69,6 @@ public class CommentController {
         return apiResponse;
     }
 
-    @ApartUser(checkApartment = false)
     @GetMapping("/api/{apartId}/{boardId}/comment/total")
     public APIResponse<CommentCountRes> totalCountsForBoardComments(
             @PathVariable final String apartId,
