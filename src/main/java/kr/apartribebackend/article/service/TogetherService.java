@@ -2,11 +2,8 @@ package kr.apartribebackend.article.service;
 
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
-import kr.apartribebackend.article.dto.together.SingleTogetherResponse;
-import kr.apartribebackend.article.dto.together.SingleTogetherWithLikedResponse;
-import kr.apartribebackend.article.dto.together.TogetherDto;
-import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.BoardRepository;
@@ -111,8 +108,8 @@ public class TogetherService {
 
     @Transactional
     public SingleTogetherWithLikedResponse findSingleTogetherById(final MemberDto memberDto,
-                                                         final String apartId,
-                                                         final Long togetherId) {
+                                                                  final String apartId,
+                                                                  final Long togetherId) {
         final SingleTogetherResponse singleTogetherResponse = togetherRepository
                 .findTogetherForApartId(apartId, togetherId)
                 .map(together -> SingleTogetherResponse.from(together, together.getMember()))
@@ -120,6 +117,14 @@ public class TogetherService {
 
         final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), togetherId);
         return SingleTogetherWithLikedResponse.from(singleTogetherResponse, memberLikedToBoard);
+    }
+
+    @Transactional
+    public SingleTogetherResponseProjection findSingleTogetherById2(final MemberDto memberDto,
+                                                                    final String apartId,
+                                                                    final Long togetherId) {
+        return togetherRepository.findTogetherForApartId(memberDto.getId(), apartId, togetherId)
+                .orElseThrow(ArticleNotFoundException::new);
     }
 
 }
