@@ -7,6 +7,8 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
@@ -37,6 +39,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @PersistenceContext EntityManager entityManager;
 
     @Override
     public Page<ArticleResponse> findArticlesByCategory(final String apartId,
@@ -111,6 +115,8 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 .set(article.saw, article.saw.add(1))
                 .where(article.id.eq(articleId))
                 .execute();
+
+        entityManager.clear();
 
         final SingleArticleResponseProjection singleArticleResponseProjection = jpaQueryFactory
                 .select(Projections.fields(SingleArticleResponseProjection.class,
