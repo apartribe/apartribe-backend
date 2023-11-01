@@ -3,6 +3,7 @@ package kr.apartribebackend.comment.domain;
 import jakarta.persistence.*;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.global.domain.BaseEntity;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,9 +38,12 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "PARENT_ID")
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt desc")
     private final Set<Comment> children = new HashSet<>();
+
+    @OneToMany(mappedBy = "comment")
+    private final Set<CommentLiked> commentLikedList = new HashSet<>();
 
     @Builder
     private Comment(Long id,
