@@ -42,67 +42,6 @@ public class ArticleService {
     private final BoardRepository boardRepository;
     private final LikeService likeService;
 
-    @Transactional
-    public Article appendArticle(final String apartId,
-                                 final String category,
-                                 final ArticleDto articleDto,
-                                 final MemberDto memberDto) {
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
-                .orElseThrow(CategoryNonExistsException::new);
-        final Member memberEntity = memberDto.toEntity();
-        final Article articleEntity = articleDto.toEntity(categoryEntity, memberEntity);
-        return articleRepository.save(articleEntity);
-    }
-
-    @Transactional
-    public void appendArticle(final String apartId,
-                              final String category,
-                              final ArticleDto articleDto,
-                              final MemberDto memberDto,
-                              final List<MultipartFile> file) throws IOException {
-        final Article article = appendArticle(apartId, category, articleDto, memberDto);
-        final List<Attachment> attachments = attachmentService.saveFiles(file);
-        for (Attachment attachment : attachments) {
-            attachment.registBoard(article);
-        }
-        attachmentService.saveAttachments(attachments);
-    }
-
-    @Transactional
-    public SingleArticleResponse updateArticle(final String apartId,
-                                               final Long articleId,
-                                               final String category,
-                                               final ArticleDto articleDto,
-                                               final MemberDto memberDto) {
-        final Article articleEntity = articleRepository.findArticleForApartId(apartId, articleId)
-                .orElseThrow(ArticleNotFoundException::new);
-        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
-                .orElseThrow(CategoryNonExistsException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
-        final Article updatedArticle = articleEntity
-                .updateArticle(categoryEntity, articleDto.getTitle(), articleDto.getContent(), articleDto.getThumbnail());
-        return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
-    }
-
-    @Transactional
-    public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
-        final Board article = boardRepository.findBoardForApartId(apartId, articleId)
-                .orElseThrow(CannotReflectLikeToArticleException::new);
-
-        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), article.getId())
-                .orElse(null);
-        if (boardLiked != null) {
-            return likeService.decreaseLikesToBoard(boardLiked, article);
-        }
-        return likeService.increaseLikesToBoard(memberDto.toEntity(), article);
-    }
-
-    public Page<ArticleResponse> findMultipleArticlesByCategory(final String apartId,
-                                                                final String category,
-                                                                final Pageable pageable) {
-        return articleRepository.findArticlesByCategory(apartId, category, pageable);
-    }
-
     /**
      * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
      * @param memberDto
@@ -137,19 +76,138 @@ public class ArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
+    /**
+     * 커뮤니티 게시글 전체 조회 + 페이징
+     * @param apartId
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ArticleResponse> findMultipleArticlesByCategory(final String apartId,
+                                                                final String category,
+                                                                final Pageable pageable) {
+        return articleRepository.findArticlesByCategory(apartId, category, pageable);
+    }
+
+    /**
+     * 커뮤니티 게시글 생성
+     * @param apartId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @return
+     */
+    @Transactional
+    public Article appendArticle(final String apartId,
+                                 final String category,
+                                 final ArticleDto articleDto,
+                                 final MemberDto memberDto) {
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
+                .orElseThrow(CategoryNonExistsException::new);
+        final Member memberEntity = memberDto.toEntity();
+        final Article articleEntity = articleDto.toEntity(categoryEntity, memberEntity);
+        return articleRepository.save(articleEntity);
+    }
+
+    /**
+     * 커뮤니티 게시글 생성 + AWS 업로드
+     * @param apartId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @param file
+     * @throws IOException
+     */
+    @Transactional
+    public void appendArticle(final String apartId,
+                              final String category,
+                              final ArticleDto articleDto,
+                              final MemberDto memberDto,
+                              final List<MultipartFile> file) throws IOException {
+        final Article article = appendArticle(apartId, category, articleDto, memberDto);
+        final List<Attachment> attachments = attachmentService.saveFiles(file);
+        for (Attachment attachment : attachments) {
+            attachment.registBoard(article);
+        }
+        attachmentService.saveAttachments(attachments);
+    }
+
+    /**
+     * 커뮤니티 게시글 수정
+     * @param apartId
+     * @param articleId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @return
+     */
+    @Transactional
+    public SingleArticleResponse updateArticle(final String apartId,
+                                               final Long articleId,
+                                               final String category,
+                                               final ArticleDto articleDto,
+                                               final MemberDto memberDto) {
+        final Article articleEntity = articleRepository.findArticleForApartId(apartId, articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+        final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
+                .orElseThrow(CategoryNonExistsException::new);
+        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        final Article updatedArticle = articleEntity
+                .updateArticle(categoryEntity, articleDto.getTitle(), articleDto.getContent(), articleDto.getThumbnail());
+        return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
+    }
+
+    /**
+     * 커뮤니티 게시글 좋아요
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Transactional
+    public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
+        final Board article = boardRepository.findBoardForApartId(apartId, articleId)
+                .orElseThrow(CannotReflectLikeToArticleException::new);
+
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), article.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, article);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), article);
+    }
+
+    /**
+     * 베스트 게시물 (좋아요 순) Widget
+     * @param apartId
+     * @return
+     */
     public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
         return articleRepository.findTop5ArticleViaLiked(apartId);
     }
 
+    /**
+     * 베스트 게시물 (조회수 순) Widget
+     * @param apartId
+     * @return
+     */
     public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {
         return articleRepository.findTop5ArticleViaView(apartId);
     }
 
+    /**
+     * 커뮤니티 내 게시글 검색 Widget
+     * @param apartId
+     * @param title
+     * @return
+     */
     public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
         return articleRepository.searchArticleInCommunity(apartId, title);
     }
 
-    //    public void removeArticle(final Board board) {
+}
+
+//    public void removeArticle(final Board board) {
 //        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
 //        final List<Comment> children = comments.stream()
 //                .filter(comment -> !comment.getChildren().isEmpty())
@@ -160,5 +218,3 @@ public class ArticleService {
 //        commentRepository.deleteAllInBatch(comments);
 //        boardRepository.delete(board);
 //    }
-
-}
