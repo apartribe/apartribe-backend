@@ -6,5 +6,6 @@ import lombok.Getter;
 public class BestCommentResponse {
     private Long id;
     private String nickname;
+    private String profileImage;
     private long commentCount;
 }
