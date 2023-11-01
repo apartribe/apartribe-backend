@@ -2,6 +2,7 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.*;
+import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
@@ -34,14 +35,14 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping("/api/{apartId}/article/{articleId}")
-    public APIResponse<SingleArticleWithLikedResponse> findSingleArticle(
+    public APIResponse<SingleArticleResponseProjection> findSingleArticle(
             @PathVariable final String apartId,
             @PathVariable final Long articleId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleArticleWithLikedResponse singleArticleWithLikedResponse = articleService
-                .findSingleArticleById(authenticatedMember.toDto(), apartId, articleId);
-        final APIResponse<SingleArticleWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleArticleWithLikedResponse);
+        final SingleArticleResponseProjection singleArticleResponseProjection = articleService
+                .findSingleArticleById2(authenticatedMember.toDto(), apartId, articleId);
+        final APIResponse<SingleArticleResponseProjection> apiResponse = APIResponse.SUCCESS(singleArticleResponseProjection);
         return apiResponse;
     }
 
@@ -155,4 +156,16 @@ public class ArticleController {
 //    ) {
 //        Article board = Article.builder().id(articleId).build();
 //        boardService.removeArticle(board);
+//    }
+
+//    @GetMapping("/api/{apartId}/article/{articleId}")
+//    public APIResponse<SingleArticleWithLikedResponse> findSingleArticle(
+//            @PathVariable final String apartId,
+//            @PathVariable final Long articleId,
+//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+//    ) {
+//        final SingleArticleWithLikedResponse singleArticleWithLikedResponse = articleService
+//                .findSingleArticleById(authenticatedMember.toDto(), apartId, articleId);
+//        final APIResponse<SingleArticleWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleArticleWithLikedResponse);
+//        return apiResponse;
 //    }

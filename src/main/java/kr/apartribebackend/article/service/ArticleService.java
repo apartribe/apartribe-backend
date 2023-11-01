@@ -3,6 +3,7 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
+import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;
@@ -102,6 +103,13 @@ public class ArticleService {
         return articleRepository.findArticlesByCategory(apartId, category, pageable);
     }
 
+    /**
+     * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
     @Transactional
     public SingleArticleWithLikedResponse findSingleArticleById(final MemberDto memberDto,
                                                                 final String apartId,
@@ -112,6 +120,21 @@ public class ArticleService {
 
         final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), articleId);
         return SingleArticleWithLikedResponse.from(singleArticleResponse, memberLikedToBoard);
+    }
+
+    /**
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Transactional
+    public SingleArticleResponseProjection findSingleArticleById2(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long articleId) {
+        return articleRepository.findArticleForApartId(memberDto.getId(), apartId, articleId)
+                .orElseThrow(ArticleNotFoundException::new);
     }
 
     public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
