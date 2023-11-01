@@ -75,6 +75,12 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
         return PageableExecutionUtils.getPage(togetherResponses, pageable, countQuery::fetchOne);
     }
 
+    /**
+     * 함께해요 게시글 단일 조회 (1) - 쿼리를 나눠서 실행
+     * @param apartId
+     * @param togetherId
+     * @return
+     */
     @Override
     public Optional<Together> findTogetherForApartId(final String apartId, final Long togetherId) {
         final Together result = jpaQueryFactory
@@ -89,6 +95,13 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
         return Optional.ofNullable(result);
     }
 
+    /**
+     * 함께해요 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * @param memberId
+     * @param apartId
+     * @param togetherId
+     * @return
+     */
     @Override
     public Optional<SingleTogetherResponseProjection> findTogetherForApartId(final Long memberId,
                                                                              final String apartId,
