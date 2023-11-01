@@ -3,7 +3,7 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
-import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.repository.ArticleRepository;

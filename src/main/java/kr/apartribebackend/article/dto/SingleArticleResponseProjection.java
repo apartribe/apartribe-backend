@@ -1,4 +1,4 @@
-package kr.apartribebackend.article.dto.together;
+package kr.apartribebackend.article.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

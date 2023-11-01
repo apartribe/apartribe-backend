@@ -11,7 +11,7 @@ import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
 import kr.apartribebackend.article.dto.Top5ArticleResponse;
-import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -2,7 +2,7 @@ package kr.apartribebackend.article.repository;
 
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.*;
-import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

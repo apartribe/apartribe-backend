@@ -2,7 +2,7 @@ package kr.apartribebackend.article.controller;
 
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.dto.*;
-import kr.apartribebackend.article.dto.together.SingleArticleResponseProjection;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.article.service.ArticleService;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
