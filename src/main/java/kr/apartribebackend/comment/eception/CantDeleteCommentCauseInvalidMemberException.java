@@ -11,6 +11,6 @@ public class CantDeleteCommentCauseInvalidMemberException extends RootException 
 
     @Override
     public int getStatusCode() {
-        return 401;
+        return 403;
     }
 }
