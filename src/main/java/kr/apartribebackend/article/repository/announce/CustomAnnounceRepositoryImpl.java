@@ -3,13 +3,19 @@ package kr.apartribebackend.article.repository.announce;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
+import kr.apartribebackend.article.dto.announce.QSingleAnnounceResponseProjection;
+import kr.apartribebackend.article.dto.announce.SingleAnnounceResponseProjection;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QAnnounce.*;
+import static kr.apartribebackend.likes.domain.QBoardLiked.boardLiked;
 import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -33,6 +40,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @PersistenceContext EntityManager entityManager;
 
     @Override
     public Page<AnnounceResponse> findAnnouncesByLevel(final String apartId,
@@ -82,6 +91,63 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public Optional<SingleAnnounceResponseProjection> findAnnounceForApartId(final Long memberId,
+                                                                             final String apartId,
+                                                                             final Long announceId) {
+        jpaQueryFactory.update(announce)
+                .set(announce.saw, announce.saw.add(1))
+                .where(announce.id.eq(announceId))
+                .execute();
+
+        entityManager.clear();
+
+        final SingleAnnounceResponseProjection singleAnnounceResponseProjection = jpaQueryFactory
+                .select(new QSingleAnnounceResponseProjection(
+                        announce.id.as("id"),
+                        announce.createdBy.as("createdBy"),
+                        member.profileImageUrl.as("profileImage"),
+                        announce.thumbnail.as("thumbnail"),
+                        announce.createdAt.as("createdAt"),
+                        announce.level.as("level"),
+                        announce.title.as("title"),
+                        announce.content.as("content"),
+                        announce.floatFrom.as("floatFrom"),
+                        announce.floatTo.as("floatTo"),
+                        announce.liked.as("liked"),
+                        Expressions.as(
+                                JPAExpressions.select(boardLiked)
+                                        .from(boardLiked)
+                                        .where(
+                                                boardLiked.member.id.eq(memberId),
+                                                boardLiked.board.id.eq(announceId)
+                                        )
+                                        .exists(),
+                                "memberLiked"
+                        ),
+                        Expressions.as(
+                                JPAExpressions.select(announce)
+                                        .from(announce)
+                                        .where(
+                                                announce.id.eq(announceId),
+                                                announce.member.id.eq(memberId)
+                                        )
+                                        .exists(),
+                                "memberCreated"
+                        ),
+                        announce.saw.as("saw")))
+                .from(announce)
+                .innerJoin(announce.member, member)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        announce.id.eq(announceId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(singleAnnounceResponseProjection);
     }
 
     @Override

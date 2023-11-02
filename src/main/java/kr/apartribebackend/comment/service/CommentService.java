@@ -8,6 +8,7 @@ import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
+import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -25,6 +27,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final LikeService likeService;
+    private final CommentLikedRepository commentLikedRepository;
 
     @Transactional
     public CommentDto appendCommentToBoard(final String apartCode,
@@ -101,7 +104,58 @@ public class CommentService {
         }
         return likeService.increaseLikesToComment(memberDto.toEntity(), comment);
     }
+
+    @Transactional
+    public void deleteCommentForBoard(final MemberDto memberDto, final Long boardId, final Long commentId) {
+        final Comment boardComment = commentRepository.findCommentWithBoardByBoardIdAndCommentId(boardId, commentId)
+                .orElseThrow(CannotDeleteCommentException::new);
+        if (!memberDto.getId().equals(boardComment.getMember().getId())) {
+            throw new CantDeleteCommentCauseInvalidMemberException();
+        }
+
+        ArrayList<CommentLiked> futureDeletedCommentLikedList = new ArrayList<>();
+        ArrayList<Comment> futureDeletedCommentList = new ArrayList<>();
+        if (boardComment.getParent() == null) { // 부모댓글일때
+            if (!boardComment.getCommentLikedList().isEmpty()) {                                    // 부모댓글에 좋아요가 있으면
+                futureDeletedCommentLikedList.addAll(boardComment.getCommentLikedList());           // 좋아요 삭제리스트에 부모댓글의 좋아요들을 넣고
+            }
+            if (!boardComment.getChildren().isEmpty()) {                                            // 부모대댓글이 존재하면
+                List<Long> list = boardComment.getChildren().stream().map(Comment::getId).toList(); // 부모대댓글들의 id 들을 뽑아서
+                List<CommentLiked> commentLikedsInBoardIds = commentLikedRepository.findCommentLikedsInCommentIds(list);// 대댓글들이 가진 좋아요들을 싹다 db 에서 fetch 하여
+                futureDeletedCommentLikedList.addAll(commentLikedsInBoardIds);                      // 좋아요 삭제리스트에 부모대댓글들의 좋아요들을 넣고
+                futureDeletedCommentList.addAll(boardComment.getChildren());                        // 댓글 삭제리스트에 부모대댓글을 싹다 넣고
+            }
+            commentLikedRepository.deleteAllInBatch(futureDeletedCommentLikedList);                 // 쌓여진 좋아요들을 모두 삭제
+            commentRepository.deleteAllInBatch(futureDeletedCommentList);                           // 쌓여진 댓글을 모두 삭제
+            commentRepository.delete(boardComment);                                                 // 부모 댓글 삭제
+        } else {                                // 대댓글일때
+            if (!boardComment.getCommentLikedList().isEmpty()) {                                    // 대댓글에 좋아요가 있으면
+                futureDeletedCommentLikedList.addAll(boardComment.getCommentLikedList());           // 좋아요 삭제리스트에 대댓글의 좋아요들을 넣고
+            }
+            commentLikedRepository.deleteAllInBatch(futureDeletedCommentLikedList);                 // 쌓여진 좋아요들을 모두 삭제
+            commentRepository.delete(boardComment);                                                 // 대댓글 삭제
+        }
+    }
 }
+
+// 댓글 삭제 로직
+//        if (boardComment.getParent() == null) { // 부모댓글일때
+//            if (!boardComment.getCommentLikedList().isEmpty()) {                                    // 부모댓글에 좋아요가 있으면
+//                commentLikedRepository.deleteAllInBatch(boardComment.getCommentLikedList());        // 부모댓글의 좋아요 삭제
+//            }
+//            if (!boardComment.getChildren().isEmpty()) {                                            // 부모대댓글이 존재하면
+//                List<Long> list = boardComment.getChildren().stream().map(Comment::getId).toList(); // 부모대댓글들의 id 들을 뽑아서
+//                List<CommentLiked> commentLikedsInBoardIds = commentLikedRepository.findCommentLikedsInBoardIds(list);// 대댓글들이 가진 좋아요들을 싹다 db 에서 fetch 하고
+//                commentLikedRepository.deleteAllInBatch(commentLikedsInBoardIds);                   // 대댓글들이 가진 좋아요를 모두 삭제
+//                commentRepository.deleteAllInBatch(boardComment.getChildren());                     // 대댓글들 모두 삭제
+//            }
+//            commentRepository.delete(boardComment);                                                 // 그리고 마지막으로 부모댓글 삭제
+//        } else {                                // 대댓글일때
+//            if (!boardComment.getCommentLikedList().isEmpty()) {                                    // 대댓글에 좋아요가 있으면
+//                commentLikedRepository.deleteAllInBatch(boardComment.getCommentLikedList());        // 대댓글의 좋아요 삭제
+//            }
+//            commentRepository.delete(boardComment);                                                 // 그리고 대댓글 삭제
+//        }
 
 //    @Transactional
 //    public CommentDto updateCommentForBoard(final String apartCode,

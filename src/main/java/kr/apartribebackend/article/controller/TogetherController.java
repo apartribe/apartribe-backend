@@ -34,14 +34,14 @@ public class TogetherController {
     private final TogetherService togetherService;
 
     @GetMapping("/api/{apartId}/together/{togetherId}")
-    public APIResponse<SingleTogetherWithLikedResponse> findSingleTogether(
+    public APIResponse<SingleTogetherResponseProjection> findSingleTogether(
             @PathVariable final String apartId,
             @PathVariable final Long togetherId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleTogetherWithLikedResponse singleTogetherWithLikedResponse = togetherService
-                .findSingleTogetherById(authenticatedMember.toDto(), apartId, togetherId);
-        final APIResponse<SingleTogetherWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleTogetherWithLikedResponse);
+        final SingleTogetherResponseProjection singleTogetherWithLikedResponse = togetherService
+                .findSingleTogetherById2(authenticatedMember.toDto(), apartId, togetherId);
+        final APIResponse<SingleTogetherResponseProjection> apiResponse = APIResponse.SUCCESS(singleTogetherWithLikedResponse);
         return apiResponse;
     }
 
@@ -122,15 +122,14 @@ public class TogetherController {
         return apiResponse;
     }
 
+    @ApartUser
+    @DeleteMapping("/api/{apartId}/together/{togetherId}")
+    public void removeArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long togetherId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        togetherService.removeTogether(authenticatedMember.toDto(), apartId, togetherId);
+    }
+
 }
-
-
-//    @GetMapping("/api/{apartId}/together/{togetherId}")
-//    public APIResponse<SingleTogetherResponse> findSingleTogether(
-//            @PathVariable final String apartId,
-//            @PathVariable final Long togetherId,
-//    ) {
-//        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(apartId, togetherId);
-//        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
-//        return apiResponse;
-//    }
