@@ -65,6 +65,13 @@ public class AnnounceService {
         return SingleAnnounceWithLikedResponse.from(singleAnnounceResponse, memberLikedToBoard);
     }
 
+    public SingleAnnounceResponseProjection findSingleAnnounceById2(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long announceId) {
+        return announceRepository.findAnnounceForApartId(memberDto.getId(), apartId, announceId)
+                .orElseThrow(ArticleNotFoundException::new);
+    }
+
     public Announce appendArticle(final AnnounceDto announceDto,
                                   final MemberDto memberDto) {
         final Member member = memberDto.toEntity();

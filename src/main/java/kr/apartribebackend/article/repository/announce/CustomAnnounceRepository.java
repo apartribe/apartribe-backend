@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.AnnounceResponse;
 import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
+import kr.apartribebackend.article.dto.announce.SingleAnnounceResponseProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,6 +16,8 @@ public interface CustomAnnounceRepository {
     Page<AnnounceResponse> findAnnouncesByLevel(String apartId, Level level, Pageable pageable);
 
     Optional<Announce> findAnnounceForApartId(String apartId, Long announceId);
+
+    Optional<SingleAnnounceResponseProjection> findAnnounceForApartId(Long memberId, String apartId, Long announceId);
 
     List<AnnounceWidgetRes> findWidgetValues(String apartId);
 

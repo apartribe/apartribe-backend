@@ -36,14 +36,15 @@ public class AnnounceController {
     private final AnnounceService announceService;
 
     @GetMapping("/api/{apartId}/announce/{announceId}")
-    public APIResponse<SingleAnnounceWithLikedResponse> findSingleArticle(
+    public APIResponse<SingleAnnounceResponseProjection> findSingleArticle(
             @PathVariable final String apartId,
             @PathVariable final Long announceId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleAnnounceWithLikedResponse singleAnnounceWithLikedResponse = announceService
-                .findSingleAnnounceById(authenticatedMember.toDto(), apartId, announceId);
-        final APIResponse<SingleAnnounceWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceWithLikedResponse);
+        final SingleAnnounceResponseProjection singleAnnounceResponseProjection = announceService
+                .findSingleAnnounceById2(authenticatedMember.toDto(), apartId, announceId);
+        final APIResponse<SingleAnnounceResponseProjection> apiResponse =
+                APIResponse.SUCCESS(singleAnnounceResponseProjection);
         return apiResponse;
     }
 
