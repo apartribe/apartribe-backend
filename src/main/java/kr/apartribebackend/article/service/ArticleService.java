@@ -6,6 +6,7 @@ import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
@@ -13,8 +14,13 @@ import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
+import kr.apartribebackend.comment.domain.Comment;
+import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.repository.BoardLikedRepository;
+import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -41,6 +47,9 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final BoardRepository boardRepository;
     private final LikeService likeService;
+    private final BoardLikedRepository boardLikedRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikedRepository commentLikedRepository;
 
     /**
      * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
@@ -155,6 +164,32 @@ public class ArticleService {
         final Article updatedArticle = articleEntity
                 .updateArticle(categoryEntity, articleDto.getTitle(), articleDto.getContent(), articleDto.getThumbnail());
         return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
+    }
+
+    /**
+     * 커뮤니티 게시글 삭제
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     */
+    public void removeArticle(final MemberDto memberDto, final String apartId, final Long articleId) {
+        final Article findedArticle = articleRepository.findArticleForApartId(apartId, articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+        if (!findedArticle.getMember().getId().equals(memberDto.getId())) {
+            throw new CantDeleteBoardCauseInvalidMemberException();
+        }
+        boardLikedRepository.deleteAllInBatch(findedArticle.getBoardLikedList());
+        if (!findedArticle.getComments().isEmpty()) {
+            final List<Comment> commentsForBoard = commentRepository.findCommentsByBoardId(findedArticle.getId());
+            final List<Long> commentIdsForBoard = commentsForBoard.stream().map(Comment::getId).toList();
+            final List<CommentLiked> commentLikedsForBoardComments = likeService.findCommentLikedsInCommentIds(commentIdsForBoard);
+            commentLikedRepository.deleteAllInBatch(commentLikedsForBoardComments);
+            final List<Comment> parentCommentsForBoard = commentsForBoard.stream().filter(comment -> comment.getParent() == null).toList();
+            final List<Comment> parentCommentRepliesForBoard = commentsForBoard.stream().filter(comment -> !parentCommentsForBoard.contains(comment)).toList();
+            commentRepository.deleteAllInBatch(parentCommentRepliesForBoard);
+            commentRepository.deleteAllInBatch(commentsForBoard);
+        }
+        boardRepository.delete(findedArticle);
     }
 
     /**

@@ -147,25 +147,14 @@ public class ArticleController {
         return apiResponse;
     }
 
+    @ApartUser
+    @DeleteMapping("/api/{apartId}/article/{articleId}")
+    public void removeArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long articleId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        articleService.removeArticle(authenticatedMember.toDto(), apartId, articleId);
+    }
+
 }
-
-//    @DeleteMapping("/api/article")
-//    public void removeArticle(
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-//            @RequestParam Long articleId
-//    ) {
-//        Article board = Article.builder().id(articleId).build();
-//        boardService.removeArticle(board);
-//    }
-
-//    @GetMapping("/api/{apartId}/article/{articleId}")
-//    public APIResponse<SingleArticleWithLikedResponse> findSingleArticle(
-//            @PathVariable final String apartId,
-//            @PathVariable final Long articleId,
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
-//    ) {
-//        final SingleArticleWithLikedResponse singleArticleWithLikedResponse = articleService
-//                .findSingleArticleById(authenticatedMember.toDto(), apartId, articleId);
-//        final APIResponse<SingleArticleWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleArticleWithLikedResponse);
-//        return apiResponse;
-//    }
