@@ -36,14 +36,15 @@ public class AnnounceController {
     private final AnnounceService announceService;
 
     @GetMapping("/api/{apartId}/announce/{announceId}")
-    public APIResponse<SingleAnnounceWithLikedResponse> findSingleArticle(
+    public APIResponse<SingleAnnounceResponseProjection> findSingleArticle(
             @PathVariable final String apartId,
             @PathVariable final Long announceId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleAnnounceWithLikedResponse singleAnnounceWithLikedResponse = announceService
-                .findSingleAnnounceById(authenticatedMember.toDto(), apartId, announceId);
-        final APIResponse<SingleAnnounceWithLikedResponse> apiResponse = APIResponse.SUCCESS(singleAnnounceWithLikedResponse);
+        final SingleAnnounceResponseProjection singleAnnounceResponseProjection = announceService
+                .findSingleAnnounceById2(authenticatedMember.toDto(), apartId, announceId);
+        final APIResponse<SingleAnnounceResponseProjection> apiResponse =
+                APIResponse.SUCCESS(singleAnnounceResponseProjection);
         return apiResponse;
     }
 
@@ -105,6 +106,16 @@ public class AnnounceController {
         return apiResponse;
     }
 
+    @ApartUser
+    @DeleteMapping("/api/{apartId}/announce/{announceId}")
+    public void removeAnnounce(
+            @PathVariable final String apartId,
+            @PathVariable final Long announceId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        announceService.removeAnnounce(authenticatedMember.toDto(), apartId, announceId);
+    }
+
     @GetMapping("/api/{apartId}/announce/{announceId}/like")
     public APIResponse<BoardLikedRes> updateLikeByBoardId(
             @PathVariable final String apartId,
@@ -127,11 +138,3 @@ public class AnnounceController {
 
 }
 
-//    @DeleteMapping("/api/announce")
-//    public void removeArticle(
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-//            @RequestParam Long announceId
-//    ) {
-//        Announce board = Announce.builder().id(announceId).build();
-//        boardService.removeArticle(board);
-//    }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -75,6 +76,11 @@ public class LikeService {
             return new CommentLikedRes(true);
         }
         return new CommentLikedRes(false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentLiked> findCommentLikedsInCommentIds(List<Long> commentIds) {
+        return commentLikedRepository.findCommentLikedsInCommentIds(commentIds);
     }
 
 }

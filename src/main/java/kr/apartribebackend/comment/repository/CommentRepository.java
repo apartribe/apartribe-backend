@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends
@@ -19,22 +20,25 @@ public interface CommentRepository extends
             " inner join fetch c.board as b" +
             " where b.id = :boardId and c.id = :commentId")
     Optional<Comment> findCommentWithBoardByBoardIdAndCommentId(
-            @Param(value = "boardId") final Long boardId,
-            @Param(value = "commentId") final Long commentId);
+            @Param("boardId") final Long boardId,
+            @Param("commentId") final Long commentId);
 
     @Query(value = "select c from Comment as c" +
             " inner join fetch c.member as m" +
             " inner join c.board as b" +
             " where b.id = :boardId and c.id = :commentId")
     Optional<Comment> findCommentWithMemberByBoardIdAndCommentId(
-            @Param(value = "boardId") final Long boardId,
-            @Param(value = "commentId") final Long commentId);
+            @Param("boardId") final Long boardId,
+            @Param("commentId") final Long commentId);
 
     @Query(value = "select c from Comment as c inner join c.board as b where b.id = :boardId and c.id = :commentId and c.createdBy = :createdBy")
     Optional<Comment> findCommentByBoardIdAndCommentIdWithCreatedBy(
-            @Param(value = "boardId") final Long boardId,
-            @Param(value = "commentId") final Long commentId,
-            @Param(value = "createdBy") final String createdBy
+            @Param("boardId") final Long boardId,
+            @Param("commentId") final Long commentId,
+            @Param("createdBy") final String createdBy
     );
+
+    @Query(value = "select c from Comment as c where c.board.id = :boardId")
+    List<Comment> findCommentsByBoardId(@Param("boardId") Long boardId);
 
 }

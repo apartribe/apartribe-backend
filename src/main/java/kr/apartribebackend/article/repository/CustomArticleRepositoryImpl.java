@@ -3,17 +3,17 @@ package kr.apartribebackend.article.repository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.Article;
-import kr.apartribebackend.article.domain.RecruitStatus;
 import kr.apartribebackend.article.dto.ArticleInCommunityRes;
 import kr.apartribebackend.article.dto.ArticleResponse;
 import kr.apartribebackend.article.dto.Top5ArticleResponse;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +30,7 @@ import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QArticle.*;
 import static kr.apartribebackend.article.domain.QBoard.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
+import static kr.apartribebackend.likes.domain.QBoardLiked.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -38,6 +39,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @PersistenceContext EntityManager entityManager;
 
     @Override
     public Page<ArticleResponse> findArticlesByCategory(final String apartId,
@@ -76,6 +79,12 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         return PageableExecutionUtils.getPage(articleResponses, pageable, countQuery::fetchOne);
     }
 
+    /**
+     * 커뮤니티 게시글 단일 조회. (1) - 쿼리를 나눠서 실행
+     * @param apartId
+     * @param articleId
+     * @return
+     */
     @Override
     public Optional<Article> findArticleForApartId(final String apartId, final Long articleId) {
         final Article result = jpaQueryFactory
@@ -89,6 +98,69 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    /**
+     * 커뮤니티 게시글 단일 조회. (2) - SubQuery 를 포함한 한방 쿼리
+     * @param memberId
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Override
+    public Optional<SingleArticleResponseProjection> findArticleForApartId(final Long memberId,
+                                                                           final String apartId,
+                                                                           final Long articleId) {
+        jpaQueryFactory.update(article)
+                .set(article.saw, article.saw.add(1))
+                .where(article.id.eq(articleId))
+                .execute();
+
+        entityManager.clear();
+
+        final SingleArticleResponseProjection singleArticleResponseProjection = jpaQueryFactory
+                .select(Projections.fields(SingleArticleResponseProjection.class,
+                        article.id.as("id"),
+                        article.createdBy.as("createdBy"),
+                        Expressions.as(
+                                JPAExpressions.select(article)
+                                        .from(article)
+                                        .where(
+                                                article.id.eq(articleId),
+                                                article.member.id.eq(memberId)
+                                        )
+                                        .exists(),
+                                "memberCreated"
+                        ),
+                        Expressions.as(
+                                JPAExpressions.select(boardLiked)
+                                        .from(boardLiked)
+                                        .where(
+                                                boardLiked.member.id.eq(memberId),
+                                                boardLiked.board.id.eq(articleId)
+                                        )
+                                        .exists(),
+                                "memberLiked"
+                        ),
+                        member.profileImageUrl.as("profileImage"),
+                        article.thumbnail.as("thumbnail"),
+                        article.createdAt.as("createdAt"),
+                        category.name.as("category"),
+                        article.title.as("title"),
+                        article.content.as("content"),
+                        article.liked.as("liked"),
+                        article.saw.as("saw")))
+                .from(article)
+                .innerJoin(article.member, member)
+                .innerJoin(article.category, category)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        article.id.eq(articleId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(singleArticleResponseProjection);
     }
 
     @Override

@@ -3,8 +3,10 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
+import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
@@ -12,8 +14,13 @@ import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
+import kr.apartribebackend.comment.domain.Comment;
+import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.repository.BoardLikedRepository;
+import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -40,7 +47,65 @@ public class ArticleService {
     private final CategoryRepository categoryRepository;
     private final BoardRepository boardRepository;
     private final LikeService likeService;
+    private final BoardLikedRepository boardLikedRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikedRepository commentLikedRepository;
 
+    /**
+     * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Transactional
+    public SingleArticleWithLikedResponse findSingleArticleById(final MemberDto memberDto,
+                                                                final String apartId,
+                                                                final Long articleId) {
+        final SingleArticleResponse singleArticleResponse = articleRepository.findArticleForApartId(apartId, articleId)
+                .map(article -> SingleArticleResponse.from(article, article.getMember()))
+                .orElseThrow(ArticleNotFoundException::new);
+
+        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), articleId);
+        return SingleArticleWithLikedResponse.from(singleArticleResponse, memberLikedToBoard);
+    }
+
+    /**
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Transactional
+    public SingleArticleResponseProjection findSingleArticleById2(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long articleId) {
+        return articleRepository.findArticleForApartId(memberDto.getId(), apartId, articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+    }
+
+    /**
+     * 커뮤니티 게시글 전체 조회 + 페이징
+     * @param apartId
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ArticleResponse> findMultipleArticlesByCategory(final String apartId,
+                                                                final String category,
+                                                                final Pageable pageable) {
+        return articleRepository.findArticlesByCategory(apartId, category, pageable);
+    }
+
+    /**
+     * 커뮤니티 게시글 생성
+     * @param apartId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @return
+     */
     @Transactional
     public Article appendArticle(final String apartId,
                                  final String category,
@@ -53,6 +118,15 @@ public class ArticleService {
         return articleRepository.save(articleEntity);
     }
 
+    /**
+     * 커뮤니티 게시글 생성 + AWS 업로드
+     * @param apartId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @param file
+     * @throws IOException
+     */
     @Transactional
     public void appendArticle(final String apartId,
                               final String category,
@@ -67,6 +141,15 @@ public class ArticleService {
         attachmentService.saveAttachments(attachments);
     }
 
+    /**
+     * 커뮤니티 게시글 수정
+     * @param apartId
+     * @param articleId
+     * @param category
+     * @param articleDto
+     * @param memberDto
+     * @return
+     */
     @Transactional
     public SingleArticleResponse updateArticle(final String apartId,
                                                final Long articleId,
@@ -83,6 +166,40 @@ public class ArticleService {
         return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
     }
 
+    /**
+     * 커뮤니티 게시글 삭제
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     */
+    @Transactional
+    public void removeArticle(final MemberDto memberDto, final String apartId, final Long articleId) {
+        final Article findedArticle = articleRepository.findArticleForApartId(apartId, articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+        if (!findedArticle.getMember().getId().equals(memberDto.getId())) {
+            throw new CantDeleteBoardCauseInvalidMemberException();
+        }
+        boardLikedRepository.deleteAllInBatch(findedArticle.getBoardLikedList());
+        if (!findedArticle.getComments().isEmpty()) {
+            final List<Comment> commentsForBoard = commentRepository.findCommentsByBoardId(findedArticle.getId());
+            final List<Long> commentIdsForBoard = commentsForBoard.stream().map(Comment::getId).toList();
+            final List<CommentLiked> commentLikedsForBoardComments = likeService.findCommentLikedsInCommentIds(commentIdsForBoard);
+            commentLikedRepository.deleteAllInBatch(commentLikedsForBoardComments);
+            final List<Comment> parentCommentsForBoard = commentsForBoard.stream().filter(comment -> comment.getParent() == null).toList();
+            final List<Comment> parentCommentRepliesForBoard = commentsForBoard.stream().filter(comment -> !parentCommentsForBoard.contains(comment)).toList();
+            commentRepository.deleteAllInBatch(parentCommentRepliesForBoard);
+            commentRepository.deleteAllInBatch(commentsForBoard);
+        }
+        boardRepository.delete(findedArticle);
+    }
+
+    /**
+     * 커뮤니티 게시글 좋아요
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
     @Transactional
     public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
         final Board article = boardRepository.findBoardForApartId(apartId, articleId)
@@ -96,37 +213,37 @@ public class ArticleService {
         return likeService.increaseLikesToBoard(memberDto.toEntity(), article);
     }
 
-    public Page<ArticleResponse> findMultipleArticlesByCategory(final String apartId,
-                                                                final String category,
-                                                                final Pageable pageable) {
-        return articleRepository.findArticlesByCategory(apartId, category, pageable);
-    }
-
-    @Transactional
-    public SingleArticleWithLikedResponse findSingleArticleById(final MemberDto memberDto,
-                                                                final String apartId,
-                                                                final Long articleId) {
-        final SingleArticleResponse singleArticleResponse = articleRepository.findArticleForApartId(apartId, articleId)
-                .map(article -> SingleArticleResponse.from(article, article.getMember()))
-                .orElseThrow(ArticleNotFoundException::new);
-
-        final BoardLikedRes memberLikedToBoard = likeService.isMemberLikedToBoard(memberDto.getId(), articleId);
-        return SingleArticleWithLikedResponse.from(singleArticleResponse, memberLikedToBoard);
-    }
-
+    /**
+     * 베스트 게시물 (좋아요 순) Widget
+     * @param apartId
+     * @return
+     */
     public List<Top5ArticleResponse> findTop5ArticleViaLiked(final String apartId) {
         return articleRepository.findTop5ArticleViaLiked(apartId);
     }
 
+    /**
+     * 베스트 게시물 (조회수 순) Widget
+     * @param apartId
+     * @return
+     */
     public List<Top5ArticleResponse> findTop5ArticleViaView(final String apartId) {
         return articleRepository.findTop5ArticleViaView(apartId);
     }
 
+    /**
+     * 커뮤니티 내 게시글 검색 Widget
+     * @param apartId
+     * @param title
+     * @return
+     */
     public List<ArticleInCommunityRes> searchArticleInCommunity(final String apartId, final String title) {
         return articleRepository.searchArticleInCommunity(apartId, title);
     }
 
-    //    public void removeArticle(final Board board) {
+}
+
+//    public void removeArticle(final Board board) {
 //        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
 //        final List<Comment> children = comments.stream()
 //                .filter(comment -> !comment.getChildren().isEmpty())
@@ -137,5 +254,3 @@ public class ArticleService {
 //        commentRepository.deleteAllInBatch(comments);
 //        boardRepository.delete(board);
 //    }
-
-}

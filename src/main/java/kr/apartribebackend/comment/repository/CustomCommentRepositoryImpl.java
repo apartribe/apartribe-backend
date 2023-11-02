@@ -100,6 +100,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                         BestCommentResponse.class,
                         member.id.as("id"),
                         member.nickname.as("nickname"),
+                        member.profileImageUrl.as("profileImage"),
                         comment.count().as("commentCount")))
                 .from(comment)
                 .innerJoin(comment.member, member)
