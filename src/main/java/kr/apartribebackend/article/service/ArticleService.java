@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.service;
 
+import com.querydsl.core.Tuple;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
@@ -53,6 +54,9 @@ public class ArticleService {
 
     /**
      * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
+     * 1. 게시글의 조회수 를 1 증가시키는 쿼리
+     * 2. SingleArticleResponse 가 조회되는 쿼리
+     * 3. 게시글에 좋아요가 달려있는지 확인하는 쿼리
      * @param memberDto
      * @param apartId
      * @param articleId
@@ -71,7 +75,8 @@ public class ArticleService {
     }
 
     /**
-     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 와 BulkQuery 를 포함한 한방 쿼리
+     * 1. Bulk Query 로 조회를 1 증가시키고, SubQuery 로 게시글 좋아요 여부. 그리고 게시글을 조회하는 쿼리를 한방에 해결
      * @param memberDto
      * @param apartId
      * @param articleId
@@ -81,8 +86,24 @@ public class ArticleService {
     public SingleArticleResponseProjection findSingleArticleById2(final MemberDto memberDto,
                                                                   final String apartId,
                                                                   final Long articleId) {
-        return articleRepository.findArticleForApartId(memberDto.getId(), apartId, articleId)
+        return articleRepository.findArticleForApartIdUsingOneShotQuery(memberDto.getId(), apartId, articleId)
                 .orElseThrow(ArticleNotFoundException::new);
+    }
+
+    /**
+     * 커뮤니티 게시글 단일 조회 (3) - 커뮤니티 게시글 단일 조회 (2) + apartCode 를 같이 조회
+     * @param memberDto
+     * @param apartId
+     * @param articleId
+     * @return
+     */
+    @Transactional
+    public SingleArticleResponseProjection findSingleArticleById3(final MemberDto memberDto,
+                                                                  final String apartId,
+                                                                  final Long articleId) {
+        final SingleArticleResponseProjection singleArticleResponseProjection = articleRepository
+                .findArticleWithApartCodeForApartId(memberDto, apartId, articleId);
+        return singleArticleResponseProjection;
     }
 
     /**
