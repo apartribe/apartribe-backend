@@ -6,12 +6,18 @@ import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
+import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
+import kr.apartribebackend.comment.domain.Comment;
+import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.repository.BoardLikedRepository;
+import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -34,6 +40,9 @@ public class AnnounceService {
     private final AnnounceRepository announceRepository;
     private final AttachmentService attachmentService;
     private final LikeService likeService;
+    private final CommentRepository commentRepository;
+    private final BoardLikedRepository boardLikedRepository;
+    private final CommentLikedRepository commentLikedRepository;
 
     /**
      * 공지사항 게시글 단일 조회 (1) - 쿼리 여러방 나눠서 실행
@@ -139,6 +148,32 @@ public class AnnounceService {
     }
 
     /**
+     * 공지사항 게시글 삭제
+     * @param memberDto
+     * @param apartId
+     * @param announceId
+     */
+    public void removeAnnounce(final MemberDto memberDto, final String apartId, final Long announceId) {
+        final Announce findedAnnounce = announceRepository.findAnnounceForApartId(apartId, announceId)
+                .orElseThrow(ArticleNotFoundException::new);
+        if (!findedAnnounce.getMember().getId().equals(memberDto.getId())) {
+            throw new CantDeleteBoardCauseInvalidMemberException();
+        }
+        boardLikedRepository.deleteAllInBatch(findedAnnounce.getBoardLikedList());
+        if (!findedAnnounce.getComments().isEmpty()) {
+            final List<Comment> commentsForBoard = commentRepository.findCommentsByBoardId(findedAnnounce.getId());
+            final List<Long> commentIdsForBoard = commentsForBoard.stream().map(Comment::getId).toList();
+            final List<CommentLiked> commentLikedsForBoardComments = likeService.findCommentLikedsInCommentIds(commentIdsForBoard);
+            commentLikedRepository.deleteAllInBatch(commentLikedsForBoardComments);
+            final List<Comment> parentCommentsForBoard = commentsForBoard.stream().filter(comment -> comment.getParent() == null).toList();
+            final List<Comment> parentCommentRepliesForBoard = commentsForBoard.stream().filter(comment -> !parentCommentsForBoard.contains(comment)).toList();
+            commentRepository.deleteAllInBatch(parentCommentRepliesForBoard);
+            commentRepository.deleteAllInBatch(commentsForBoard);
+        }
+        boardRepository.delete(findedAnnounce);
+    }
+
+    /**
      * 공지사항 게시글 좋아요
      * @param memberDto
      * @param apartId
@@ -168,15 +203,3 @@ public class AnnounceService {
     }
 
 }
-
-//    public void removeArticle(final Board board) {
-//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
-//        final List<Comment> children = comments.stream()
-//                .filter(comment -> !comment.getChildren().isEmpty())
-//                .flatMap(comment -> comment.getChildren().stream())
-//                .toList();
-//
-//        commentRepository.deleteAllInBatch(children);
-//        commentRepository.deleteAllInBatch(comments);
-//        boardRepository.delete(board);
-//    }
