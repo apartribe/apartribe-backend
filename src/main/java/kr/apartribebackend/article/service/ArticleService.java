@@ -172,6 +172,7 @@ public class ArticleService {
      * @param apartId
      * @param articleId
      */
+    @Transactional
     public void removeArticle(final MemberDto memberDto, final String apartId, final Long articleId) {
         final Article findedArticle = articleRepository.findArticleForApartId(apartId, articleId)
                 .orElseThrow(ArticleNotFoundException::new);

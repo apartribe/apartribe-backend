@@ -196,6 +196,7 @@ public class TogetherService {
      * @param apartId
      * @param togetherId
      */
+    @Transactional
     public void removeTogether(final MemberDto memberDto, final String apartId, final Long togetherId) {
         final Together findedTogether = togetherRepository.findTogetherForApartId(apartId, togetherId)
                 .orElseThrow(ArticleNotFoundException::new);
