@@ -10,10 +10,12 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
+import static kr.apartribebackend.article.domain.BoardType.TOGETHER;
+
 @Getter @SuperBuilder
 @Entity @Table(name = "TOGETHER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "TOGETHER")
+@DiscriminatorValue(value = TOGETHER)
 public class Together extends Board {
 
     @ManyToOne(fetch = FetchType.LAZY)

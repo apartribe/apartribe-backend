@@ -2,17 +2,22 @@ package kr.apartribebackend.article.domain;
 
 
 import jakarta.persistence.*;
+import kr.apartribebackend.likes.domain.BoardLiked;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import static kr.apartribebackend.article.domain.BoardType.ANNOUNCE;
 
 @Getter @SuperBuilder
 @Entity @Table(name = "ANNOUNCE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "ANNOUNCE")
+@DiscriminatorValue(value = ANNOUNCE)
 public class Announce extends Board {
 
     @Column(name = "LEVEL")

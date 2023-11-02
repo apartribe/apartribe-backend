@@ -7,11 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import static kr.apartribebackend.article.domain.BoardType.ARTICLE;
+
 
 @Getter @SuperBuilder
 @Entity @Table(name = "ARTICLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "ARTICLE")
+@DiscriminatorValue(value = ARTICLE)
 public class Article extends Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
