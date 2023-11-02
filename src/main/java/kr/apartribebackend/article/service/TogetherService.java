@@ -3,6 +3,10 @@ package kr.apartribebackend.article.service;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.together.*;
+import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
+import kr.apartribebackend.comment.domain.Comment;
+import kr.apartribebackend.comment.repository.CommentRepository;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
@@ -14,6 +18,8 @@ import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.repository.BoardLikedRepository;
+import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -40,6 +46,9 @@ public class TogetherService {
     private final CategoryRepository categoryRepository;
     private final AttachmentService attachmentService;
     private final LikeService likeService;
+    private final CommentLikedRepository commentLikedRepository;
+    private final BoardLikedRepository boardLikedRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 함께해요 단일 게시물 조회 (1) - 쿼리 여러번 나눠서 실행
@@ -181,6 +190,31 @@ public class TogetherService {
         return SingleTogetherResponse.from(updatedTogether, togetherEntity.getMember());
     }
 
+    /**
+     * 함께해요 게시글 삭제
+     * @param memberDto
+     * @param apartId
+     * @param togetherId
+     */
+    public void removeTogether(final MemberDto memberDto, final String apartId, final Long togetherId) {
+        final Together findedTogether = togetherRepository.findTogetherForApartId(apartId, togetherId)
+                .orElseThrow(ArticleNotFoundException::new);
+        if (!findedTogether.getMember().getId().equals(memberDto.getId())) {
+            throw new CantDeleteBoardCauseInvalidMemberException();
+        }
+        boardLikedRepository.deleteAllInBatch(findedTogether.getBoardLikedList());
+        if (!findedTogether.getComments().isEmpty()) {
+            final List<Comment> commentsForBoard = commentRepository.findCommentsByBoardId(findedTogether.getId());
+            final List<Long> commentIdsForBoard = commentsForBoard.stream().map(Comment::getId).toList();
+            final List<CommentLiked> commentLikedsForBoardComments = likeService.findCommentLikedsInCommentIds(commentIdsForBoard);
+            commentLikedRepository.deleteAllInBatch(commentLikedsForBoardComments);
+            final List<Comment> parentCommentsForBoard = commentsForBoard.stream().filter(comment -> comment.getParent() == null).toList();
+            final List<Comment> parentCommentRepliesForBoard = commentsForBoard.stream().filter(comment -> !parentCommentsForBoard.contains(comment)).toList();
+            commentRepository.deleteAllInBatch(parentCommentRepliesForBoard);
+            commentRepository.deleteAllInBatch(commentsForBoard);
+        }
+        boardRepository.delete(findedTogether);
+    }
 }
 
 

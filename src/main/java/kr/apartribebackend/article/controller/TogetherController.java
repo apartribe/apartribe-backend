@@ -122,15 +122,14 @@ public class TogetherController {
         return apiResponse;
     }
 
+    @ApartUser
+    @DeleteMapping("/api/{apartId}/together/{togetherId}")
+    public void removeArticle(
+            @PathVariable final String apartId,
+            @PathVariable final Long togetherId,
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        togetherService.removeTogether(authenticatedMember.toDto(), apartId, togetherId);
+    }
+
 }
-
-
-//    @GetMapping("/api/{apartId}/together/{togetherId}")
-//    public APIResponse<SingleTogetherResponse> findSingleTogether(
-//            @PathVariable final String apartId,
-//            @PathVariable final Long togetherId,
-//    ) {
-//        final SingleTogetherResponse singleArticleById = togetherService.findSingleTogetherById(apartId, togetherId);
-//        final APIResponse<SingleTogetherResponse> apiResponse = APIResponse.SUCCESS(singleArticleById);
-//        return apiResponse;
-//    }
