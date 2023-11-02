@@ -21,6 +21,7 @@ public class ArticleDto {
     private LocalDateTime createdAt;
     private String createdBy;
     private String thumbnail;
+    private boolean onlyApartUser;
 
     @Builder
     private ArticleDto(Long id,
@@ -32,7 +33,8 @@ public class ArticleDto {
                        Member member,
                        LocalDateTime createdAt,
                        String createdBy,
-                       String thumbnail) {
+                       String thumbnail,
+                       boolean onlyApartUser) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -43,6 +45,7 @@ public class ArticleDto {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.thumbnail = thumbnail;
+        this.onlyApartUser = onlyApartUser;
     }
 
     public static ArticleDto from(Article article) {
@@ -57,6 +60,7 @@ public class ArticleDto {
                 .createdAt(article.getCreatedAt())
                 .createdBy(article.getCreatedBy())
                 .thumbnail(article.getThumbnail())
+                .onlyApartUser(article.isOnlyApartUser())
                 .build();
     }
 
@@ -72,6 +76,7 @@ public class ArticleDto {
                 .createdAt(createdAt)
                 .createdBy(createdBy)
                 .thumbnail(thumbnail)
+                .onlyApartUser(onlyApartUser)
                 .build();
     }
 
