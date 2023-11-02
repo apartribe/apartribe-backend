@@ -11,6 +11,6 @@ public interface CommentLikedRepository
         extends JpaRepository<CommentLiked, Long>, CustomCommentLikedRepository {
 
     @Query(value = "select cl from CommentLiked as cl where cl.comment.id in :commentIds")
-    List<CommentLiked> findCommentLikedsInBoardIds(@Param("commentIds") List<Long> boardIds);
+    List<CommentLiked> findCommentLikedsInCommentIds(@Param("commentIds") List<Long> commentIds);
 
 }
