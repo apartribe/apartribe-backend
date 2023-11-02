@@ -121,7 +121,7 @@ public class CommentService {
             }
             if (!boardComment.getChildren().isEmpty()) {                                            // 부모대댓글이 존재하면
                 List<Long> list = boardComment.getChildren().stream().map(Comment::getId).toList(); // 부모대댓글들의 id 들을 뽑아서
-                List<CommentLiked> commentLikedsInBoardIds = commentLikedRepository.findCommentLikedsInBoardIds(list);// 대댓글들이 가진 좋아요들을 싹다 db 에서 fetch 하여
+                List<CommentLiked> commentLikedsInBoardIds = commentLikedRepository.findCommentLikedsInCommentIds(list);// 대댓글들이 가진 좋아요들을 싹다 db 에서 fetch 하여
                 futureDeletedCommentLikedList.addAll(commentLikedsInBoardIds);                      // 좋아요 삭제리스트에 부모대댓글들의 좋아요들을 넣고
                 futureDeletedCommentList.addAll(boardComment.getChildren());                        // 댓글 삭제리스트에 부모대댓글을 싹다 넣고
             }
