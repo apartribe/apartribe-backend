@@ -35,25 +35,13 @@ public class AnnounceService {
     private final AttachmentService attachmentService;
     private final LikeService likeService;
 
-    @Transactional(readOnly = true)
-    public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final String apartId,
-                                                               final Level level,
-                                                               final Pageable pageable) {
-        return announceRepository.findAnnouncesByLevel(apartId, level, pageable);
-    }
-
-    public BoardLikedRes updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
-        final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
-                .orElseThrow(CannotReflectLikeToArticleException::new);
-
-        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
-                .orElse(null);
-        if (boardLiked != null) {
-            return likeService.decreaseLikesToBoard(boardLiked, announce);
-        }
-        return likeService.increaseLikesToBoard(memberDto.toEntity(), announce);
-    }
-
+    /**
+     * 공지사항 게시글 단일 조회 (1) - 쿼리 여러방 나눠서 실행
+     * @param memberDto
+     * @param apartId
+     * @param announceId
+     * @return
+     */
     public SingleAnnounceWithLikedResponse findSingleAnnounceById(final MemberDto memberDto,
                                                                   final String apartId,
                                                                   final Long announceId) {
@@ -65,13 +53,40 @@ public class AnnounceService {
         return SingleAnnounceWithLikedResponse.from(singleAnnounceResponse, memberLikedToBoard);
     }
 
+    /**
+     * 공지사항 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행
+     * @param memberDto
+     * @param apartId
+     * @param announceId
+     * @return
+     */
     public SingleAnnounceResponseProjection findSingleAnnounceById2(final MemberDto memberDto,
-                                                                  final String apartId,
-                                                                  final Long announceId) {
+                                                                    final String apartId,
+                                                                    final Long announceId) {
         return announceRepository.findAnnounceForApartId(memberDto.getId(), apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
     }
 
+    /**
+     * 공지사항 게시글 전체 조회 + 페이징
+     * @param apartId
+     * @param level
+     * @param pageable
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<AnnounceResponse> findMultipleAnnouncesByLevel(final String apartId,
+                                                               final Level level,
+                                                               final Pageable pageable) {
+        return announceRepository.findAnnouncesByLevel(apartId, level, pageable);
+    }
+
+    /**
+     * 공지사항 게시글 등록
+     * @param announceDto
+     * @param memberDto
+     * @return
+     */
     public Announce appendArticle(final AnnounceDto announceDto,
                                   final MemberDto memberDto) {
         final Member member = memberDto.toEntity();
@@ -79,6 +94,13 @@ public class AnnounceService {
         return announceRepository.save(article);
     }
 
+    /**
+     * 공지사항 게시글 등록 + AWS 업로드
+     * @param announceDto
+     * @param memberDto
+     * @param file
+     * @throws IOException
+     */
     public void appendArticle(final AnnounceDto announceDto,
                               final MemberDto memberDto,
                               final List<MultipartFile> file) throws IOException {
@@ -90,6 +112,14 @@ public class AnnounceService {
         attachmentService.saveAttachments(attachments);
     }
 
+    /**
+     * 공지사항 게시글 업데이트
+     * @param apartId
+     * @param announceId
+     * @param announceDto
+     * @param memberDto
+     * @return
+     */
     public SingleAnnounceResponse updateAnnounce(final String apartId,
                                                  final Long announceId,
                                                  final AnnounceDto announceDto,
@@ -108,6 +138,30 @@ public class AnnounceService {
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
     }
 
+    /**
+     * 공지사항 게시글 좋아요
+     * @param memberDto
+     * @param apartId
+     * @param announceId
+     * @return
+     */
+    public BoardLikedRes updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
+        final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
+                .orElseThrow(CannotReflectLikeToArticleException::new);
+
+        final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
+                .orElse(null);
+        if (boardLiked != null) {
+            return likeService.decreaseLikesToBoard(boardLiked, announce);
+        }
+        return likeService.increaseLikesToBoard(memberDto.toEntity(), announce);
+    }
+
+    /**
+     * 공지사항 위젯
+     * @param apartId
+     * @return
+     */
     @Transactional(readOnly = true)
     public List<AnnounceWidgetRes> findWidgetValues(final String apartId) {
         return announceRepository.findWidgetValues(apartId);

@@ -14,7 +14,7 @@ import java.util.Arrays;
 public record UpdateTogetherReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다.") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다.") String title,
-        @NotEmpty(message = "설명은 공백일 수 없습니다.") @Size(min = 1, max = 20, message = "설명은 20 자 이하여야 합니다.") String description,
+        @NotEmpty(message = "설명은 공백일 수 없습니다.") @Size(min = 1, max = 60, message = "설명은 20 자 이하여야 합니다.") String description,
         @NotEmpty(message = "내용은 공백일 수 없습니다.") String content,
         @NotEmpty(message = "모집 시작일은 공백일 수 없습니다.") @LocalDateIsValid String recruitFrom,
         @NotEmpty(message = "모집 종료일은 공백일 수 없습니다.") @LocalDateIsValid String recruitTo,
