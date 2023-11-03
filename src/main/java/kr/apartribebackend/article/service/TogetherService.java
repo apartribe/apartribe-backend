@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
+import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
@@ -179,12 +180,15 @@ public class TogetherService {
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        if (!togetherEntity.getMember().getId().equals(memberDto.getId())) {
+            throw new CantUpdateBoardCauseInvalidMemberException();
+        }
         final Together updatedTogether = togetherEntity.updateTogether(
                 categoryEntity, togetherDto.getTitle(), togetherDto.getDescription(),
                 togetherDto.getContent(), togetherDto.getRecruitFrom(), togetherDto.getRecruitTo(),
                 togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
-                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail()
+                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail(),
+                togetherDto.isOnlyApartUser()
         );
         return SingleTogetherResponse.from(updatedTogether, togetherEntity.getMember());
     }
