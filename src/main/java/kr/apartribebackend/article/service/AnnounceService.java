@@ -63,7 +63,7 @@ public class AnnounceService {
     }
 
     /**
-     * 공지사항 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행
+     * 공지사항 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행 + apartCode 정보
      * @param memberDto
      * @param apartId
      * @param announceId
@@ -72,8 +72,7 @@ public class AnnounceService {
     public SingleAnnounceResponseProjection findSingleAnnounceById2(final MemberDto memberDto,
                                                                     final String apartId,
                                                                     final Long announceId) {
-        return announceRepository.findAnnounceForApartId(memberDto.getId(), apartId, announceId)
-                .orElseThrow(ArticleNotFoundException::new);
+        return announceRepository.findAnnounceWithApartCodeForApartId(memberDto, apartId, announceId);
     }
 
     /**
