@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,5 @@ public class SingleArticleResponseProjection {
     private String content;
     private int liked;
     private int saw;
+    @JsonIgnore private String apartCode;
 }

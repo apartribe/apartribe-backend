@@ -41,7 +41,7 @@ public class ArticleController {
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
         final SingleArticleResponseProjection singleArticleResponseProjection = articleService
-                .findSingleArticleById3(authenticatedMember.toDto(), apartId, articleId);
+                .findSingleArticleById2(authenticatedMember.toDto(), apartId, articleId);
         final APIResponse<SingleArticleResponseProjection> apiResponse = APIResponse.SUCCESS(singleArticleResponseProjection);
         return apiResponse;
     }

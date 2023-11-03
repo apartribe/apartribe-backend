@@ -105,17 +105,16 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     /**
-     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 와 BulkQuery 를 포함한 한방 쿼리
-     * 1. Bulk Query 로 조회를 1 증가시키고, SubQuery 로 게시글 좋아요 여부. 그리고 게시글을 조회하는 쿼리를 한방에 해결
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery(좋아요 여부, 게시글 작성자 일치여부) + BulkQuery(조회수 증가) 를 이용한 한방쿼리 + apartCode 정보
      * @param memberId
      * @param apartId
      * @param articleId
      * @return
      */
     @Override
-    public Optional<SingleArticleResponseProjection> findArticleForApartIdUsingOneShotQuery(final Long memberId,
-                                                                                            final String apartId,
-                                                                                            final Long articleId) {
+    public Optional<SingleArticleResponseProjection> findAnnounceForApartId(final Long memberId,
+                                                                            final String apartId,
+                                                                            final Long articleId) {
         jpaQueryFactory.update(article)
                 .set(article.saw, article.saw.add(1))
                 .where(article.id.eq(articleId))
@@ -147,6 +146,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                         .exists(),
                                 "memberLiked"
                         ),
+                        article.onlyApartUser.as("onlyApartUser"),
                         member.profileImageUrl.as("profileImage"),
                         article.thumbnail.as("thumbnail"),
                         article.createdAt.as("createdAt"),
@@ -154,7 +154,8 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                         article.title.as("title"),
                         article.content.as("content"),
                         article.liked.as("liked"),
-                        article.saw.as("saw")))
+                        article.saw.as("saw"),
+                        apartment.code.as("apartCode")))
                 .from(article)
                 .innerJoin(article.member, member)
                 .innerJoin(article.category, category)
@@ -166,71 +167,6 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 .fetchOne();
 
         return Optional.ofNullable(singleArticleResponseProjection);
-    }
-
-
-    /**
-     * 커뮤니티 게시글 단일 조회 (3) - 커뮤니티 게시글 단일 조회 (2) + apartCode 를 같이 조회
-     * @param memberId
-     * @param apartId
-     * @param articleId
-     * @return
-     */
-    @Override
-    public Optional<Tuple> findArticleWithApartCodeForApartIdUsingTuple(final Long memberId,
-                                                                        final String apartId,
-                                                                        final Long articleId) {
-        jpaQueryFactory.update(article)
-                .set(article.saw, article.saw.add(1))
-                .where(article.id.eq(articleId))
-                .execute();
-
-        entityManager.clear();
-
-        final Tuple tuple = jpaQueryFactory
-                .select(Projections.fields(SingleArticleResponseProjection.class,
-                        article.id.as("id"),
-                        article.createdBy.as("createdBy"),
-                        Expressions.as(
-                                JPAExpressions.select(article)
-                                        .from(article)
-                                        .where(
-                                                article.id.eq(articleId),
-                                                article.member.id.eq(memberId)
-                                        )
-                                        .exists(),
-                                "memberCreated"
-                        ),
-                        Expressions.as(
-                                JPAExpressions.select(boardLiked)
-                                        .from(boardLiked)
-                                        .where(
-                                                boardLiked.member.id.eq(memberId),
-                                                boardLiked.board.id.eq(articleId)
-                                        )
-                                        .exists(),
-                                "memberLiked"
-                        ),
-                        article.onlyApartUser.as("onlyApartUser"),
-                        member.profileImageUrl.as("profileImage"),
-                        article.thumbnail.as("thumbnail"),
-                        article.createdAt.as("createdAt"),
-                        category.name.as("category"),
-                        article.title.as("title"),
-                        article.content.as("content"),
-                        article.liked.as("liked"),
-                        article.saw.as("saw")), apartment.code)
-                .from(article)
-                .innerJoin(article.member, member)
-                .innerJoin(article.category, category)
-                .innerJoin(member.apartment, apartment)
-                .where(
-                        apartmentCondition(apartId),
-                        article.id.eq(articleId)
-                )
-                .fetchOne();
-
-        return Optional.ofNullable(tuple);
     }
 
     @Override
