@@ -28,6 +28,7 @@ public class TogetherDto {
     private String thumbnail;
     private LocalDateTime createdAt;
     private String createdBy;
+    private boolean onlyApartUser;
 
     @Builder
     private TogetherDto(Category category,
@@ -43,7 +44,8 @@ public class TogetherDto {
                        boolean contributeStatus,
                        String thumbnail,
                        String createdBy,
-                       LocalDateTime createdAt) {
+                       LocalDateTime createdAt,
+                       boolean onlyApartUser) {
         this.category = category;
         this.title = title;
         this.description = description;
@@ -58,6 +60,7 @@ public class TogetherDto {
         this.thumbnail = thumbnail;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.onlyApartUser = onlyApartUser;
     }
 
     public Together toEntity(Category category, Member member) {
@@ -75,6 +78,7 @@ public class TogetherDto {
                 .location(location)
                 .contributeStatus(contributeStatus)
                 .thumbnail(thumbnail)
+                .onlyApartUser(onlyApartUser)
                 .build();
     }
 }

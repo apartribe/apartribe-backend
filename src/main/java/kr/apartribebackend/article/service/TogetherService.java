@@ -71,7 +71,7 @@ public class TogetherService {
     }
 
     /**
-     * 함께해요 단일 게시물 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * 함께해요 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행 + apartCode 정보
      * @param memberDto
      * @param apartId
      * @param togetherId
@@ -81,8 +81,7 @@ public class TogetherService {
     public SingleTogetherResponseProjection findSingleTogetherById2(final MemberDto memberDto,
                                                                     final String apartId,
                                                                     final Long togetherId) {
-        return togetherRepository.findTogetherForApartId(memberDto.getId(), apartId, togetherId)
-                .orElseThrow(ArticleNotFoundException::new);
+        return togetherRepository.findTogetherWithApartCodeForApartId(memberDto, apartId, togetherId);
     }
 
     /**
