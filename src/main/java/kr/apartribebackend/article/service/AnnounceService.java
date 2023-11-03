@@ -7,6 +7,7 @@ import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
+import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
@@ -134,16 +135,23 @@ public class AnnounceService {
                                                  final MemberDto memberDto) {
         final Announce announceEntity = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        if (!announceEntity.getMember().getId().equals(memberDto.getId())) {
+            throw new CantUpdateBoardCauseInvalidMemberException();
+        }
+        if (announceDto.getThumbnail() == null) {
+            final Announce updatedAnnounce = announceEntity.updateAnnounce(
+                    announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent(),
+                    announceDto.getFloatFrom(), announceDto.getFloatTo(), announceDto.isOnlyApartUser()
+            );
+            return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
+        }
         final Announce updatedAnnounce = announceEntity.updateAnnounce(
-                announceDto.getLevel(),
-                announceDto.getTitle(),
-                announceDto.getContent(),
-                announceDto.getFloatFrom(),
-                announceDto.getFloatTo(),
-                announceDto.getThumbnail()
+                announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent(),
+                announceDto.getFloatFrom(), announceDto.getFloatTo(), announceDto.getThumbnail(),
+                announceDto.isOnlyApartUser()
         );
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
+
     }
 
     /**
