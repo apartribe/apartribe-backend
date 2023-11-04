@@ -13,4 +13,7 @@ public interface BoardLikedRepository
     @Query(value = "select bl from BoardLiked as bl where bl.board.id = :boardId")
     List<BoardLiked> findBoardLikedsByBoardId(@Param("boardId") Long boardId);
 
+    @Query(value = "select bl from BoardLiked bl where bl.member.id = :memberId")
+    List<BoardLiked> findBoardLikedsByMemberId(@Param("memberId") Long memberId);
+
 }

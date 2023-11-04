@@ -51,7 +51,7 @@ public abstract class Board extends BaseEntity {
     @OrderBy("createdAt desc")
     private final List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "board")
     private final List<Attachment> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "board")
