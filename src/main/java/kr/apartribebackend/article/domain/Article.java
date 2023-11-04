@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import static kr.apartribebackend.article.domain.BoardType.ARTICLE;
 
 
+//@OnDelete(action = OnDeleteAction.CASCADE)
 @Getter @SuperBuilder
 @Entity @Table(name = "ARTICLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
