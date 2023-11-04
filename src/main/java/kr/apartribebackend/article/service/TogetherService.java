@@ -19,6 +19,7 @@ import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
@@ -150,9 +151,13 @@ public class TogetherService {
      */
     @Transactional
     public BoardLikedRes updateLikeByTogetherId(final MemberDto memberDto, final String apartId, final Long togetherId) {
-        final Board together = boardRepository.findBoardForApartId(apartId, togetherId)
+        final Board together = boardRepository.findBoardWithMemberAndApartmentForApartId(apartId, togetherId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
-
+        if (together.isOnlyApartUser()) {
+            if (!together.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), together.getId())
                 .orElse(null);
         if (boardLiked != null) {
