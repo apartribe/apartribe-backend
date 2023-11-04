@@ -55,12 +55,17 @@ public class CommentService {
                                                 final Long parentId,
                                                 final CommentDto commentDto) {
         final Comment boardComment = commentRepository
-                .findCommentWithBoardByBoardIdAndCommentId(boardId, parentId)
+                .findCommentWithBoardAndMemberAndApartmentByBoardIdAndCommentId(boardId, parentId)
                 .orElseThrow(CannotApplyReplyCommentException::new);
         if (boardComment.getParent() != null) {
             throw new CommentDepthException();
         }
         final Board board = boardComment.getBoard();
+        if (board.isOnlyApartUser()) {
+            if (!board.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantApplyCommentReplyToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registParent(boardComment);
         comment.registBoard(board);
