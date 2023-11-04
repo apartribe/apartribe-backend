@@ -8,6 +8,8 @@ import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
+import kr.apartribebackend.likes.exception.CantLikeToCommentCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
@@ -94,9 +96,14 @@ public class CommentService {
                                                  final String apartId,
                                                  final Long boardId,
                                                  final Long commentId) {
-        final Comment comment = commentRepository.findCommentForApartId(apartId, boardId, commentId)
+        final Comment comment = commentRepository.findCommentWithMemberAndApartmentForApartId(apartId, boardId, commentId)
                 .orElseThrow(CannotReflectLikeToCommentException::new);
-
+        final Board commentForBoard = comment.getBoard();
+        if (commentForBoard.isOnlyApartUser()) {
+            if (!commentForBoard.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToCommentCauseBoardIsApartUserOnlyException();
+            }
+        }
         final CommentLiked commentLiked = likeService.findCommentLikedByMember(memberDto.getId(), comment.getId())
                 .orElse(null);
         if (commentLiked != null) {
