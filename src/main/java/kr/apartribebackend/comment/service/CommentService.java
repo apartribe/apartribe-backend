@@ -36,8 +36,13 @@ public class CommentService {
                                            final MemberDto memberDto,
                                            final Long boardId,
                                            final CommentDto commentDto) {
-        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+        final Board board = boardRepository.findBoardWithMemberAndApartmentForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
+        if (board.isOnlyApartUser()) {
+            if (!board.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantApplyCommentToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
