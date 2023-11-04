@@ -50,7 +50,7 @@ public class Member extends TimeBaseEntity {
     @Column(name = "APART_NAME")
     private String apartName;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "REFRESH_TOKEN_ID")
     private RefreshToken refreshToken;
 

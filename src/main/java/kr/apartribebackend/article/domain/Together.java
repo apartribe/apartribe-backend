@@ -12,6 +12,7 @@ import java.time.LocalDate;
 
 import static kr.apartribebackend.article.domain.BoardType.TOGETHER;
 
+//@OnDelete(action = OnDeleteAction.CASCADE)
 @Getter @SuperBuilder
 @Entity @Table(name = "TOGETHER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
