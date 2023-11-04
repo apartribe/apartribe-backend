@@ -30,6 +30,7 @@ public class MemberCommentRes {
     private String category;
     private String level;
     private Long boardId;
+    private String apartCode;
 
     public static MemberCommentRes from(Comment comment) {
         final Board board = comment.getBoard();
@@ -41,7 +42,8 @@ public class MemberCommentRes {
                 .createdAt(comment.getCreatedAt())
                 .boardTitle(board.getTitle())
                 .boardType(board.getBoardType())
-                .boardId(board.getId());
+                .boardId(board.getId())
+                .apartCode(comment.getMember().getApartment().getCode());
 
         if (board instanceof Article article) {
             return memberCommentResBuilder.category(article.getCategory().getName()).build();
