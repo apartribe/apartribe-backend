@@ -35,13 +35,30 @@ public class Announce extends Board {
                                    String content,
                                    LocalDate floatFrom,
                                    LocalDate floatTo,
-                                   String thumbnail) {
+                                   String thumbnail,
+                                   boolean onlyApartUser) {
         this.level = level;
         setTitle(title);
         setContent(content);
         setThumbnail(thumbnail);
         this.floatFrom = floatFrom;
         this.floatTo = floatTo;
+        setOnlyApartUser(onlyApartUser);
+        return this;
+    }
+
+    public Announce updateAnnounce(Level level,
+                                   String title,
+                                   String content,
+                                   LocalDate floatFrom,
+                                   LocalDate floatTo,
+                                   boolean onlyApartUser) {
+        this.level = level;
+        setTitle(title);
+        setContent(content);
+        this.floatFrom = floatFrom;
+        this.floatTo = floatTo;
+        setOnlyApartUser(onlyApartUser);
         return this;
     }
 

@@ -17,13 +17,13 @@ public class CustomBoardRepositoryImpl implements CustomBoardRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     @Override
-    public Optional<Board> findBoardForApartId(final String apartId, Long boardId) {
+    public Optional<Board> findBoardWithMemberAndApartmentForApartId(final String apartId, final Long boardId) {
         final Board result = jpaQueryFactory
                 .selectFrom(board)
-//                .innerJoin(board.member, member).fetchJoin()
-                .innerJoin(board.member, member)
-                .innerJoin(member.apartment, apartment)
+                .innerJoin(board.member, member).fetchJoin()
+                .innerJoin(member.apartment, apartment).fetchJoin()
                 .where(
                         apartmentCondition(apartId),
                         board.id.eq(boardId)

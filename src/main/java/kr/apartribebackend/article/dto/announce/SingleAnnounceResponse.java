@@ -18,7 +18,8 @@ public record SingleAnnounceResponse(
         LocalDate floatFrom,
         LocalDate floatTo,
         int liked,
-        int saw
+        int saw,
+        boolean onlyApartUser
 ) {
     public static SingleAnnounceResponse from(Announce announce, Member member) {
         announce.reflectArticleSaw();
@@ -34,49 +35,8 @@ public record SingleAnnounceResponse(
                 announce.getFloatFrom(),
                 announce.getFloatTo(),
                 announce.getLiked(),
-                announce.getSaw()
+                announce.getSaw(),
+                announce.isOnlyApartUser()
         );
     }
 }
-
-
-//
-//
-//package kr.apartribebackend.article.dto.announce;
-//
-//import kr.apartribebackend.article.domain.Announce;
-//
-//import java.time.LocalDateTime;
-//
-//public record SingleAnnounceResponse(
-//        Long id,
-//        String createdBy,
-//        LocalDateTime createdAt,
-//        String level,
-//        String title,
-//        String content,
-//        int liked,
-//        int saw
-////        long commentCounts
-////        List<SingleCommentResponse> comments
-//) {
-//    public static SingleAnnounceResponse from(Announce announce) {
-//        announce.reflectArticleSaw();
-////        List<SingleCommentResponse> commentResponses = announce.getComments()
-////                .stream()
-////                .map(SingleCommentResponse::from)
-////                .toList();
-//        return new SingleAnnounceResponse(
-//                announce.getId(),
-//                announce.getCreatedBy(),
-//                announce.getCreatedAt(),
-//                announce.getLevel().getName(),
-//                announce.getTitle(),
-//                announce.getContent(),
-//                announce.getLiked(),
-//                announce.getSaw()
-////                commentResponses.size()
-////                commentResponses
-//        );
-//    }
-//}

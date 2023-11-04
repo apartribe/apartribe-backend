@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.dto.together;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import kr.apartribebackend.article.domain.RecruitStatus;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class SingleTogetherResponseProjection {
     private String createdBy;
     private boolean memberLiked;
     private boolean memberCreated;
+    private boolean onlyApartUser;
     private String profileImage;
     private LocalDateTime createdAt;
     private LocalDate recruitFrom;
@@ -31,6 +33,7 @@ public class SingleTogetherResponseProjection {
     private boolean contributeStatus;
     private String recruitStatus;
     private String content;
+    @JsonIgnore private String apartCode;
 
     @QueryProjection
     public SingleTogetherResponseProjection(Long id,
@@ -43,6 +46,7 @@ public class SingleTogetherResponseProjection {
                                             String createdBy,
                                             boolean memberLiked,
                                             boolean memberCreated,
+                                            boolean onlyApartUser,
                                             String profileImage,
                                             LocalDateTime createdAt,
                                             LocalDate recruitFrom,
@@ -52,7 +56,8 @@ public class SingleTogetherResponseProjection {
                                             String target,
                                             boolean contributeStatus,
                                             RecruitStatus recruitStatus,
-                                            String content) {
+                                            String content,
+                                            String apartCode) {
         this.id = id;
         this.category = category;
         this.title = title;
@@ -63,6 +68,7 @@ public class SingleTogetherResponseProjection {
         this.createdBy = createdBy;
         this.memberLiked = memberLiked;
         this.memberCreated = memberCreated;
+        this.onlyApartUser = onlyApartUser;
         this.profileImage = profileImage;
         this.createdAt = createdAt;
         this.recruitFrom = recruitFrom;
@@ -73,5 +79,6 @@ public class SingleTogetherResponseProjection {
         this.contributeStatus = contributeStatus;
         this.recruitStatus = recruitStatus.getName();
         this.content = content;
+        this.apartCode = apartCode;
     }
 }

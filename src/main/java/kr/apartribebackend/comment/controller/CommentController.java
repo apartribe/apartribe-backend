@@ -23,7 +23,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @ApartUser
+    @ApartUser(checkApartment = false)
     @PostMapping("/api/{apartId}/{boardId}/comment")
     public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -40,7 +40,7 @@ public class CommentController {
         return ResponseEntity.status(CREATED).body(apiResponse);
     }
 
-    @ApartUser
+    @ApartUser(checkApartment = false)
     @PostMapping("/api/{apartId}/{boardId}/comment/reply")
     public ResponseEntity<APIResponse<SingleCommentResponse>> appendCommentReplyToBoard(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,

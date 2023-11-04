@@ -17,7 +17,8 @@ public record SingleArticleResponse(
         String title,
         String content,
         int liked,
-        int saw
+        int saw,
+        boolean onlyApartUser
 ) {
     public static SingleArticleResponse from(Article article, Member member) {
         article.reflectArticleSaw();
@@ -31,7 +32,8 @@ public record SingleArticleResponse(
                 article.getTitle(),
                 article.getContent(),
                 article.getLiked(),
-                article.getSaw()
+                article.getSaw(),
+                article.isOnlyApartUser()
         );
     }
 }

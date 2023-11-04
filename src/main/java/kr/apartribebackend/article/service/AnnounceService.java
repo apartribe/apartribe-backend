@@ -7,6 +7,7 @@ import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
+import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
@@ -16,6 +17,7 @@ import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
@@ -63,7 +65,7 @@ public class AnnounceService {
     }
 
     /**
-     * 공지사항 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행
+     * 공지사항 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행 + apartCode 정보
      * @param memberDto
      * @param apartId
      * @param announceId
@@ -72,8 +74,7 @@ public class AnnounceService {
     public SingleAnnounceResponseProjection findSingleAnnounceById2(final MemberDto memberDto,
                                                                     final String apartId,
                                                                     final Long announceId) {
-        return announceRepository.findAnnounceForApartId(memberDto.getId(), apartId, announceId)
-                .orElseThrow(ArticleNotFoundException::new);
+        return announceRepository.findAnnounceWithApartCodeForApartId(memberDto, apartId, announceId);
     }
 
     /**
@@ -135,16 +136,23 @@ public class AnnounceService {
                                                  final MemberDto memberDto) {
         final Announce announceEntity = announceRepository.findAnnounceForApartId(apartId, announceId)
                 .orElseThrow(ArticleNotFoundException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        if (!announceEntity.getMember().getId().equals(memberDto.getId())) {
+            throw new CantUpdateBoardCauseInvalidMemberException();
+        }
+        if (announceDto.getThumbnail() == null) {
+            final Announce updatedAnnounce = announceEntity.updateAnnounce(
+                    announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent(),
+                    announceDto.getFloatFrom(), announceDto.getFloatTo(), announceDto.isOnlyApartUser()
+            );
+            return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
+        }
         final Announce updatedAnnounce = announceEntity.updateAnnounce(
-                announceDto.getLevel(),
-                announceDto.getTitle(),
-                announceDto.getContent(),
-                announceDto.getFloatFrom(),
-                announceDto.getFloatTo(),
-                announceDto.getThumbnail()
+                announceDto.getLevel(), announceDto.getTitle(), announceDto.getContent(),
+                announceDto.getFloatFrom(), announceDto.getFloatTo(), announceDto.getThumbnail(),
+                announceDto.isOnlyApartUser()
         );
         return SingleAnnounceResponse.from(updatedAnnounce, updatedAnnounce.getMember());
+
     }
 
     /**
@@ -181,9 +189,13 @@ public class AnnounceService {
      * @return
      */
     public BoardLikedRes updateLikeByAnnounceId(final MemberDto memberDto, final String apartId, final Long announceId) {
-        final Board announce = boardRepository.findBoardForApartId(apartId, announceId)
+        final Board announce = boardRepository.findBoardWithMemberAndApartmentForApartId(apartId, announceId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
-
+        if (announce.isOnlyApartUser()) {
+            if (!announce.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), announce.getId())
                 .orElse(null);
         if (boardLiked != null) {

@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,8 @@ public class SingleArticleResponseProjection {
     private Long id;
     private String createdBy;
     private boolean memberCreated;
-    boolean memberLiked;
+    private boolean memberLiked;
+    private boolean onlyApartUser;
     private String profileImage;
     private String thumbnail;
     private LocalDateTime createdAt;
@@ -20,4 +22,5 @@ public class SingleArticleResponseProjection {
     private String content;
     private int liked;
     private int saw;
+    @JsonIgnore private String apartCode;
 }

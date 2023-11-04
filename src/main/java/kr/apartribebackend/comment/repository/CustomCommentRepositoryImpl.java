@@ -132,6 +132,25 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
         return Optional.ofNullable(result);
     }
 
+    @Override
+    public Optional<Comment> findCommentWithMemberAndApartmentForApartId(final String apartId,
+                                                                         final Long boardId,
+                                                                         final Long commentId) {
+        final Comment result = jpaQueryFactory
+                .selectFrom(comment)
+                .innerJoin(comment.member, member).fetchJoin()
+                .innerJoin(comment.board, board).fetchJoin()
+                .innerJoin(member.apartment, apartment).fetchJoin()
+                .where(
+                        apartmentCondition(apartId),
+                        board.id.eq(boardId),
+                        comment.id.eq(commentId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
     private BooleanExpression apartmentCondition(final String apartId) {
         return StringUtils.hasText(apartId) ? apartment.code.eq(apartId) : null;
     }

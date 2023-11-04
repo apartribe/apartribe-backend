@@ -44,6 +44,9 @@ public abstract class Board extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
+    @Column(name = "ONLY_APART_USER")
+    private boolean onlyApartUser;
+
     @OneToMany(mappedBy = "board")
     @OrderBy("createdAt desc")
     private final List<Comment> comments = new ArrayList<>();

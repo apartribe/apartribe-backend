@@ -4,6 +4,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.domain.Together;
 import kr.apartribebackend.article.dto.together.*;
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
+import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
@@ -18,6 +19,7 @@ import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
@@ -71,7 +73,7 @@ public class TogetherService {
     }
 
     /**
-     * 함께해요 단일 게시물 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * 함께해요 게시글 단일 조회 (2) - SubQuery 를 포함한 한방쿼리 실행 + apartCode 정보
      * @param memberDto
      * @param apartId
      * @param togetherId
@@ -81,8 +83,7 @@ public class TogetherService {
     public SingleTogetherResponseProjection findSingleTogetherById2(final MemberDto memberDto,
                                                                     final String apartId,
                                                                     final Long togetherId) {
-        return togetherRepository.findTogetherForApartId(memberDto.getId(), apartId, togetherId)
-                .orElseThrow(ArticleNotFoundException::new);
+        return togetherRepository.findTogetherWithApartCodeForApartId(memberDto, apartId, togetherId);
     }
 
     /**
@@ -150,9 +151,13 @@ public class TogetherService {
      */
     @Transactional
     public BoardLikedRes updateLikeByTogetherId(final MemberDto memberDto, final String apartId, final Long togetherId) {
-        final Board together = boardRepository.findBoardForApartId(apartId, togetherId)
+        final Board together = boardRepository.findBoardWithMemberAndApartmentForApartId(apartId, togetherId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
-
+        if (together.isOnlyApartUser()) {
+            if (!together.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), together.getId())
                 .orElse(null);
         if (boardLiked != null) {
@@ -180,12 +185,15 @@ public class TogetherService {
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, TOGETHER, category)
                 .orElseThrow(CategoryNonExistsException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
+        if (!togetherEntity.getMember().getId().equals(memberDto.getId())) {
+            throw new CantUpdateBoardCauseInvalidMemberException();
+        }
         final Together updatedTogether = togetherEntity.updateTogether(
                 categoryEntity, togetherDto.getTitle(), togetherDto.getDescription(),
                 togetherDto.getContent(), togetherDto.getRecruitFrom(), togetherDto.getRecruitTo(),
                 togetherDto.getMeetTime(), togetherDto.getTarget(), togetherDto.getLocation(),
-                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail()
+                togetherDto.isContributeStatus(), togetherDto.getRecruitStatus(), togetherDto.getThumbnail(),
+                togetherDto.isOnlyApartUser()
         );
         return SingleTogetherResponse.from(updatedTogether, togetherEntity.getMember());
     }

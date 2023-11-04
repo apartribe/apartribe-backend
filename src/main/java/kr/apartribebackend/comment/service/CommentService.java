@@ -8,6 +8,8 @@ import kr.apartribebackend.comment.eception.*;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.CommentLikedRes;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
+import kr.apartribebackend.likes.exception.CantLikeToCommentCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
 import kr.apartribebackend.member.domain.Member;
@@ -34,8 +36,13 @@ public class CommentService {
                                            final MemberDto memberDto,
                                            final Long boardId,
                                            final CommentDto commentDto) {
-        final Board board = boardRepository.findBoardForApartId(apartCode, boardId)
+        final Board board = boardRepository.findBoardWithMemberAndApartmentForApartId(apartCode, boardId)
                 .orElseThrow(CannotApplyCommentException::new);
+        if (board.isOnlyApartUser()) {
+            if (!board.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantApplyCommentToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registBoard(board);
         final Comment savedComment = commentRepository.save(comment);
@@ -48,12 +55,17 @@ public class CommentService {
                                                 final Long parentId,
                                                 final CommentDto commentDto) {
         final Comment boardComment = commentRepository
-                .findCommentWithBoardByBoardIdAndCommentId(boardId, parentId)
+                .findCommentWithBoardAndMemberAndApartmentByBoardIdAndCommentId(boardId, parentId)
                 .orElseThrow(CannotApplyReplyCommentException::new);
         if (boardComment.getParent() != null) {
             throw new CommentDepthException();
         }
         final Board board = boardComment.getBoard();
+        if (board.isOnlyApartUser()) {
+            if (!board.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantApplyCommentReplyToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final Comment comment = commentDto.toEntity(memberDto.toEntity(), board);
         comment.registParent(boardComment);
         comment.registBoard(board);
@@ -94,9 +106,14 @@ public class CommentService {
                                                  final String apartId,
                                                  final Long boardId,
                                                  final Long commentId) {
-        final Comment comment = commentRepository.findCommentForApartId(apartId, boardId, commentId)
+        final Comment comment = commentRepository.findCommentWithMemberAndApartmentForApartId(apartId, boardId, commentId)
                 .orElseThrow(CannotReflectLikeToCommentException::new);
-
+        final Board commentForBoard = comment.getBoard();
+        if (commentForBoard.isOnlyApartUser()) {
+            if (!commentForBoard.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToCommentCauseBoardIsApartUserOnlyException();
+            }
+        }
         final CommentLiked commentLiked = likeService.findCommentLikedByMember(memberDto.getId(), comment.getId())
                 .orElse(null);
         if (commentLiked != null) {

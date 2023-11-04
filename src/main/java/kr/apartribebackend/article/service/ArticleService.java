@@ -5,6 +5,7 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;
+import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException;
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.ArticleRepository;
@@ -19,6 +20,7 @@ import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
@@ -53,6 +55,9 @@ public class ArticleService {
 
     /**
      * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
+     * 1. 게시글의 조회수 를 1 증가시키는 쿼리
+     * 2. SingleArticleResponse 가 조회되는 쿼리
+     * 3. 게시글에 좋아요가 달려있는지 확인하는 쿼리
      * @param memberDto
      * @param apartId
      * @param articleId
@@ -71,7 +76,7 @@ public class ArticleService {
     }
 
     /**
-     * 커뮤니티 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery(좋아요 여부, 게시글 작성자 일치여부) + BulkQuery(조회수 증가) 를 이용한 한방쿼리 + apartCode 정보
      * @param memberDto
      * @param apartId
      * @param articleId
@@ -81,8 +86,7 @@ public class ArticleService {
     public SingleArticleResponseProjection findSingleArticleById2(final MemberDto memberDto,
                                                                   final String apartId,
                                                                   final Long articleId) {
-        return articleRepository.findArticleForApartId(memberDto.getId(), apartId, articleId)
-                .orElseThrow(ArticleNotFoundException::new);
+        return articleRepository.findArticleWithApartCodeForApartId(memberDto, apartId, articleId);
     }
 
     /**
@@ -160,9 +164,19 @@ public class ArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
         final Category categoryEntity = categoryRepository.findCategoryByTagAndNameWithApart(apartId, ARTICLE, category)
                 .orElseThrow(CategoryNonExistsException::new);
-        // TODO 토큰에서 뽑아온 사용자 정보와 작성된 게시물의 createdBy 를 검증해야하지만, 지금은 Dummy 라 검증할 수가 없다. 알아두자.
-        final Article updatedArticle = articleEntity
-                .updateArticle(categoryEntity, articleDto.getTitle(), articleDto.getContent(), articleDto.getThumbnail());
+        if (!articleEntity.getMember().getId().equals(memberDto.getId())) {
+            throw new CantUpdateBoardCauseInvalidMemberException();
+        }
+        if (articleDto.getThumbnail() == null) {
+            final Article updatedArticle = articleEntity.updateArticle(
+                    categoryEntity, articleDto.getTitle(), articleDto.getContent(), articleDto.isOnlyApartUser()
+            );
+            return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
+        }
+        final Article updatedArticle = articleEntity.updateArticle(
+                categoryEntity, articleDto.getTitle(), articleDto.getContent(),
+                articleDto.getThumbnail(), articleDto.isOnlyApartUser()
+        );
         return SingleArticleResponse.from(updatedArticle, updatedArticle.getMember());
     }
 
@@ -202,9 +216,13 @@ public class ArticleService {
      */
     @Transactional
     public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
-        final Board article = boardRepository.findBoardForApartId(apartId, articleId)
+        final Board article = boardRepository.findBoardWithMemberAndApartmentForApartId(apartId, articleId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
-
+        if (article.isOnlyApartUser()) {
+            if (!article.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), article.getId())
                 .orElse(null);
         if (boardLiked != null) {
