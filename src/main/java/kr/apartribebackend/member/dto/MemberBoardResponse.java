@@ -1,6 +1,7 @@
 package kr.apartribebackend.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;
@@ -31,6 +32,8 @@ public class MemberBoardResponse {
     private long commentCounts;
     private LocalDateTime createdAt;
     private String createdBy;
+    private boolean onlyApartUser;
+    private String apartCode;
 
     public static MemberBoardResponse from(Board board) {
         List<SingleCommentResponse> commentResponses = board.getComments()
@@ -48,7 +51,9 @@ public class MemberBoardResponse {
                 .commentCounts(commentResponses.size())
                 .createdAt(board.getCreatedAt())
                 .createdBy(board.getCreatedBy())
-                .boardType(board.getBoardType());
+                .boardType(board.getBoardType())
+                .onlyApartUser(board.isOnlyApartUser())
+                .apartCode(board.getMember().getApartment().getCode());
 
         MemberBoardResponse memberBoardResponse = null;
         if (board instanceof Article article) {

@@ -38,6 +38,7 @@ public class MemberConfigRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     // 내가 쓴 댓글 --> 사실 email 이 uniq 해서 아파트 정보와 join 할 필요는 없지만, 연습삼아 해본것이다.
     public Page<MemberCommentRes> findCommentsForMember(final Member member,
                                                         final Apartment apartment,
@@ -47,9 +48,9 @@ public class MemberConfigRepository {
         List<Comment> memberCommentRes = jpaQueryFactory
                 .select(comment)
                 .from(comment)
-                .innerJoin(comment.member, QMember.member)
+                .innerJoin(comment.member, QMember.member).fetchJoin()
                 .innerJoin(comment.board, board).fetchJoin()
-                .innerJoin(QMember.member.apartment, QApartment.apartment)
+                .innerJoin(QMember.member.apartment, QApartment.apartment).fetchJoin()
                 .where(
                         QApartment.apartment.code.eq(apartment.getCode()),
                         QApartment.apartment.name.eq(apartment.getName()),
@@ -79,6 +80,7 @@ public class MemberConfigRepository {
          return PageableExecutionUtils.getPage(memberCommentResList, pageable, countQuery::fetchOne);
     }
 
+    // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     public Page<MemberBoardResponse> findArticlesForMember(final Member member,
                                                            final Apartment apartment,
                                                            final Pageable pageable) {

@@ -25,6 +25,7 @@ public record SingleTogetherResponse(
         String location,
         String target,
         boolean contributeStatus,
+        boolean onlyApartUser,
         String recruitStatus,
         String content
 ) {
@@ -47,6 +48,7 @@ public record SingleTogetherResponse(
                 together.getLocation(),
                 together.getTarget(),
                 together.isContributeStatus(),
+                together.isOnlyApartUser(),
                 together.getRecruitStatus().getName(),
                 together.getContent()
         );
@@ -71,6 +73,7 @@ public record SingleTogetherResponse(
                 together.getLocation(),
                 together.getTarget(),
                 together.isContributeStatus(),
+                together.isOnlyApartUser(),
                 together.getRecruitStatus().getName(),
                 together.getContent()
         );

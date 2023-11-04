@@ -11,15 +11,27 @@ import java.util.Optional;
 public interface CommentRepository extends
         JpaRepository<Comment, Long>, CustomCommentRepository {
 
-//    @Query(value = "select c from Comment as c inner join c.board as b where b.id = :boardId and c.id = :commentId")
-//    Optional<Comment> findCommentByBoardIdAndCommentId(
-//            @Param(value = "boardId") final Long boardId,
-//            @Param(value = "commentId") final Long commentId);
-
     @Query(value = "select c from Comment as c" +
             " inner join fetch c.board as b" +
             " where b.id = :boardId and c.id = :commentId")
     Optional<Comment> findCommentWithBoardByBoardIdAndCommentId(
+            @Param("boardId") final Long boardId,
+            @Param("commentId") final Long commentId);
+
+    @Query(value = "select c from Comment as c" +
+            " inner join fetch c.board as b" +
+            " inner join fetch c.member as m" +
+            " where b.id = :boardId and c.id = :commentId")
+    Optional<Comment> findCommentWithBoardAndMemberByBoardIdAndCommentId(
+            @Param("boardId") final Long boardId,
+            @Param("commentId") final Long commentId);
+
+    @Query(value = "select c from Comment as c" +
+            " inner join fetch c.board as b" +
+            " inner join fetch c.member as m" +
+            " inner join fetch m.apartment as a" +
+            " where b.id = :boardId and c.id = :commentId")
+    Optional<Comment> findCommentWithBoardAndMemberAndApartmentByBoardIdAndCommentId(
             @Param("boardId") final Long boardId,
             @Param("commentId") final Long commentId);
 

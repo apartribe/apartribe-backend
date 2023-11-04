@@ -23,11 +23,24 @@ public class Article extends Board {
     public Article updateArticle(Category category,
                                  String title,
                                  String content,
-                                 String thumbnail) {
+                                 String thumbnail,
+                                 boolean onlyApartUser) {
         this.category = category;
         setTitle(title);
         setContent(content);
         setThumbnail(thumbnail);
+        setOnlyApartUser(onlyApartUser);
+        return this;
+    }
+
+    public Article updateArticle(Category category,
+                                 String title,
+                                 String content,
+                                 boolean onlyApartUser) {
+        this.category = category;
+        setTitle(title);
+        setContent(content);
+        setOnlyApartUser(onlyApartUser);
         return this;
     }
 

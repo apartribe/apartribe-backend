@@ -17,5 +17,7 @@ public interface CustomCommentRepository {
 
     Optional<Comment> findCommentForApartId(final String apartId, final Long boardId, final Long commentId);
 
+    Optional<Comment> findCommentWithMemberAndApartmentForApartId(final String apartId, final Long boardId, final Long commentId);
+
     CommentCountRes totalCountsForBoardComments(final Long id, final Long boardId);
 }

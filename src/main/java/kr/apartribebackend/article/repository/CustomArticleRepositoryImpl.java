@@ -1,5 +1,6 @@
 package kr.apartribebackend.article.repository;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -80,7 +81,10 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     /**
-     * 커뮤니티 게시글 단일 조회. (1) - 쿼리를 나눠서 실행
+     * 커뮤니티 게시글 단일 조회 (1) - 쿼리를 나눠서 세번 실행
+     * 1. 게시글의 조회수 를 1 증가시키는 쿼리
+     * 2. SingleArticleResponse 가 조회되는 쿼리
+     * 3. 게시글에 좋아요가 달려있는지 확인하는 쿼리
      * @param apartId
      * @param articleId
      * @return
@@ -101,16 +105,16 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     /**
-     * 커뮤니티 게시글 단일 조회. (2) - SubQuery 를 포함한 한방 쿼리
+     * 커뮤니티 게시글 단일 조회 (2) - SubQuery(좋아요 여부, 게시글 작성자 일치여부) + BulkQuery(조회수 증가) 를 이용한 한방쿼리 + apartCode 정보
      * @param memberId
      * @param apartId
      * @param articleId
      * @return
      */
     @Override
-    public Optional<SingleArticleResponseProjection> findArticleForApartId(final Long memberId,
-                                                                           final String apartId,
-                                                                           final Long articleId) {
+    public Optional<SingleArticleResponseProjection> findAnnounceForApartId(final Long memberId,
+                                                                            final String apartId,
+                                                                            final Long articleId) {
         jpaQueryFactory.update(article)
                 .set(article.saw, article.saw.add(1))
                 .where(article.id.eq(articleId))
@@ -142,6 +146,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                         .exists(),
                                 "memberLiked"
                         ),
+                        article.onlyApartUser.as("onlyApartUser"),
                         member.profileImageUrl.as("profileImage"),
                         article.thumbnail.as("thumbnail"),
                         article.createdAt.as("createdAt"),
@@ -149,7 +154,8 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                         article.title.as("title"),
                         article.content.as("content"),
                         article.liked.as("liked"),
-                        article.saw.as("saw")))
+                        article.saw.as("saw"),
+                        apartment.code.as("apartCode")))
                 .from(article)
                 .innerJoin(article.member, member)
                 .innerJoin(article.category, category)
