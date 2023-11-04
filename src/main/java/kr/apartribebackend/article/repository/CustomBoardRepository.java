@@ -8,4 +8,6 @@ public interface CustomBoardRepository {
 
     Optional<Board> findBoardForApartId(String apartId, Long boardId);
 
+    Optional<Board> findBoardWithMemberAndApartmentForApartId(String apartId, Long boardId);
+
 }

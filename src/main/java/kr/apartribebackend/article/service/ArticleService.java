@@ -20,6 +20,7 @@ import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.likes.exception.CantLikeToBoardCauseBoardIsApartUserOnlyException;
 import kr.apartribebackend.likes.repository.BoardLikedRepository;
 import kr.apartribebackend.likes.repository.CommentLikedRepository;
 import kr.apartribebackend.likes.service.LikeService;
@@ -215,9 +216,13 @@ public class ArticleService {
      */
     @Transactional
     public BoardLikedRes updateLikeByArticleId(final MemberDto memberDto, final String apartId, final Long articleId) {
-        final Board article = boardRepository.findBoardForApartId(apartId, articleId)
+        final Board article = boardRepository.findBoardWithMemberAndApartmentForApartId(apartId, articleId)
                 .orElseThrow(CannotReflectLikeToArticleException::new);
-
+        if (article.isOnlyApartUser()) {
+            if (!article.getMember().getApartment().getCode().equals(memberDto.getApartmentDto().getCode())) {
+                throw new CantLikeToBoardCauseBoardIsApartUserOnlyException();
+            }
+        }
         final BoardLiked boardLiked = likeService.findBoardLikedByMember(memberDto.getId(), article.getId())
                 .orElse(null);
         if (boardLiked != null) {
