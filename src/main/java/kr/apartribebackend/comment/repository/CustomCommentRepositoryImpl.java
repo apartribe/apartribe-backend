@@ -142,7 +142,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                 .innerJoin(comment.board, board).fetchJoin()
                 .innerJoin(member.apartment, apartment).fetchJoin()
                 .where(
-                        apartmentCondition(apartId),
+//                        apartmentCondition(apartId),
                         board.id.eq(boardId),
                         comment.id.eq(commentId)
                 )
