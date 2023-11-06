@@ -4,13 +4,17 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.agreements.Agreements;
+import kr.apartribebackend.member.domain.forgot.Forgot;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.dto.MemberJoinReq;
 import kr.apartribebackend.member.dto.NicknameIsValidResponse;
 import kr.apartribebackend.member.dto.agreements.AgreementsDto;
+import kr.apartribebackend.member.dto.forgot.ForgotReq;
+import kr.apartribebackend.member.dto.forgot.ResetPasswordReq;
 import kr.apartribebackend.member.exception.*;
 import kr.apartribebackend.member.repository.MemberRepository;
 import kr.apartribebackend.member.repository.agreements.AgreementsRepository;
+import kr.apartribebackend.member.repository.forgot.ForgotRepository;
 import kr.apartribebackend.token.email.config.EmailTokenContextHolder;
 import kr.apartribebackend.token.email.domain.EmailToken;
 import kr.apartribebackend.token.email.dto.EmailTokenIsValidResponse;
@@ -22,12 +26,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+// TODO 생각보다 코드의 양이 많음. 따라서 Service 계층으로 분리시킬 필요가 있음.
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -40,6 +46,7 @@ public class MemberJoinController {
     private final PasswordEncoder passwordEncoder;
     private final EmailTokenContextHolder emailTokenContextHolder;
     private final EmailSenderService emailSenderService;
+    private final ForgotRepository forgotRepository;
 
     @PostMapping("/join")
     public ResponseEntity<Void> memberJoin(@Valid @RequestBody final MemberJoinReq memberJoinReq) {
@@ -118,6 +125,60 @@ public class MemberJoinController {
         emailTokenRepository.save(emailToken);
         emailTokenContextHolder.removeEmailTokenByEmail(email);
         return new EmailTokenIsValidResponse(true);
+    }
+
+    @PostMapping("/forgot/password")
+    public void forgotPassword(@Valid @RequestBody final ForgotReq forgotReq) {
+        final Member findedMember = memberRepository.findByEmailAndName(forgotReq.email(), forgotReq.name())
+                .orElseThrow(UserInfoNotFoundException::new);
+        final String identifier = UUID.randomUUID().toString();
+        forgotRepository.findForgotByMemberId(findedMember.getId())
+                .ifPresentOrElse(
+                        forgot -> forgotRepository.updateForgotLinkByMemberId(
+                                LocalDateTime.now().plusMinutes(3), identifier, forgot.getId()
+                        ),
+                        () -> forgotRepository.save(
+                                Forgot.builder().member(findedMember)
+                                        .identifier(identifier)
+                                        .email(findedMember.getEmail())
+                                        .name(findedMember.getName())
+                                        .build()
+                        )
+                );
+        final String uriString = UriComponentsBuilder
+                .fromUriString("http://apartribe-frontend.s3-website.ap-northeast-2.amazonaws.com")
+                .path("find/pw/reset")
+                .queryParam("identifier", identifier)
+                .toUriString();
+
+        emailSenderService.send(findedMember.getEmail(), uriString, "비밀번호 재설정 링크 안내");
+    }
+
+    @PostMapping("/forgot/password/confirm")
+    public void forgotPasswordConfirm(
+            @RequestParam final String identifier,
+            @Valid @RequestBody final ResetPasswordReq resetPasswordReq
+    ) {
+        if (!resetPasswordReq.password().equals(resetPasswordReq.passwordConfirm())) {
+            throw new PasswordNotEqualException();
+        }
+        final Forgot findedForgot = forgotRepository.findForgotWithMemberByIdentifier(identifier).orElse(null);
+        if (findedForgot == null) {
+            throw new InvalidMemberInfoResetPasswordException();
+        }
+        if (findedForgot.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new ExpiredResetPasswordLinkException();
+        }
+        final Member forgotMember = findedForgot.getMember();
+        if (
+                !findedForgot.getName().equals(forgotMember.getName()) ||
+                !findedForgot.getEmail().equals(forgotMember.getEmail())
+        ) {
+            throw new InvalidPasswordResetIdentifierException();
+        }
+        memberRepository.changePasswordByMemberId(
+                findedForgot.getMember().getId(), passwordEncoder.encode(resetPasswordReq.password())
+        );
     }
 
     private void validateMemberRequest(final MemberJoinReq memberJoinReq) {
