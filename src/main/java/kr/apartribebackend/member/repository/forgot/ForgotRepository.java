@@ -25,4 +25,8 @@ public interface ForgotRepository extends JpaRepository<Forgot, Long> {
                                    @Param("identifier") String identifier,
                                    @Param("forgotId") Long forgotId);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete from Forgot as f where f.member.id = :memberId")
+    int deleteEmailTokenByMemberId(@Param("memberId") Long memberId);
+
 }
