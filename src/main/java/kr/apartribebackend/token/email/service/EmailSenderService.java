@@ -25,8 +25,12 @@ public class EmailSenderService {
     @Value("${application.mail.subject}")
     private String subject;
 
-    @Async
     public void send(String to, String body) {
+        send(to, body, null);
+    }
+
+    @Async
+    public void send(String to, String body, String subject) {
         try {
             final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
@@ -34,7 +38,7 @@ public class EmailSenderService {
             );
             mimeMessageHelper.setText(buildEmail(body), true);
             mimeMessageHelper.setTo(to);
-            mimeMessageHelper.setSubject(subject);
+            mimeMessageHelper.setSubject(subject != null ? subject : this.subject);
             mimeMessageHelper.setFrom(email);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {

@@ -16,6 +16,7 @@ import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberConfigRepository;
 import kr.apartribebackend.member.repository.MemberRepository;
 import kr.apartribebackend.member.repository.agreements.AgreementsRepository;
+import kr.apartribebackend.member.repository.forgot.ForgotRepository;
 import kr.apartribebackend.token.email.repository.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,6 +41,7 @@ public class MemberConfigService {
     private final LikedRepository likedRepository;
     private final AgreementsRepository agreementsRepository;
     private final EmailTokenRepository emailTokenRepository;
+    private final ForgotRepository forgotRepository;
 
     public void updateSingleMemberNickname(final AuthenticatedMember authenticatedMember, final String nickname) {
         if (memberRepository.existsByNickname(nickname))
@@ -91,6 +93,7 @@ public class MemberConfigService {
 
         agreementsRepository.deleteAgreementsByMemberId(memberDto.getId());
         emailTokenRepository.deleteEmailTokenByMemberId(memberDto.getId());
+        forgotRepository.deleteEmailTokenByMemberId(memberDto.getId());
 
         memberRepository.delete(memberDto.toEntity());
     }
