@@ -3,11 +3,14 @@ package kr.apartribebackend.comment.domain;
 import jakarta.persistence.*;
 import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.global.domain.BaseEntity;
+import kr.apartribebackend.likes.domain.CommentLiked;
 import kr.apartribebackend.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.*;
 
@@ -33,13 +36,17 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
     @OrderBy("createdAt desc")
     private final Set<Comment> children = new HashSet<>();
+
+    @OneToMany(mappedBy = "comment")
+    private final Set<CommentLiked> commentLikedList = new HashSet<>();
 
     @Builder
     private Comment(Long id,
@@ -84,5 +91,11 @@ public class Comment extends BaseEntity {
         return this;
     }
 
+    public void reflectCommentLike() {
+        this.liked += 1;
+    }
 
+    public void decreaseCommentLike() {
+        this.liked -= 1;
+    }
 }

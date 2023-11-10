@@ -10,10 +10,13 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
+import static kr.apartribebackend.article.domain.BoardType.TOGETHER;
+
+//@OnDelete(action = OnDeleteAction.CASCADE)
 @Getter @SuperBuilder
 @Entity @Table(name = "TOGETHER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "TOGETHER")
+@DiscriminatorValue(value = TOGETHER)
 public class Together extends Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,7 +61,8 @@ public class Together extends Board {
                                    String location,
                                    Boolean contributeStatus,
                                    RecruitStatus recruitStatus,
-                                   String thumbnail) {
+                                   String thumbnail,
+                                   boolean onlyApartUser) {
         this.category = category;
         setTitle(title);
         this.description = description;
@@ -71,6 +75,7 @@ public class Together extends Board {
         this.contributeStatus = contributeStatus;
         this.recruitStatus = recruitStatus;
         setThumbnail(thumbnail);
+        setOnlyApartUser(onlyApartUser);
         return this;
     }
 }

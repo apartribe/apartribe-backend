@@ -2,14 +2,16 @@ package kr.apartribebackend.article.repository.together;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.RecruitStatus;
 import kr.apartribebackend.article.domain.Together;
+import kr.apartribebackend.article.dto.together.QSingleTogetherResponseProjection;
+import kr.apartribebackend.article.dto.together.SingleTogetherResponseProjection;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.Optional;
 import static kr.apartribebackend.apart.domain.QApartment.apartment;
 import static kr.apartribebackend.article.domain.QTogether.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
+import static kr.apartribebackend.likes.domain.QBoardLiked.boardLiked;
 import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -33,6 +36,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    @PersistenceContext EntityManager entityManager;
 
     @Override
     public Page<TogetherResponse> findMultipleTogethersByCategory(final String apartId,
@@ -70,6 +75,12 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
         return PageableExecutionUtils.getPage(togetherResponses, pageable, countQuery::fetchOne);
     }
 
+    /**
+     * 함께해요 게시글 단일 조회 (1) - 쿼리를 나눠서 실행
+     * @param apartId
+     * @param togetherId
+     * @return
+     */
     @Override
     public Optional<Together> findTogetherForApartId(final String apartId, final Long togetherId) {
         final Together result = jpaQueryFactory
@@ -82,6 +93,73 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    /**
+     * 함께해요 게시글 단일 조회 (2) - SubQuery 를 포함한 한방 쿼리
+     * @param memberId
+     * @param apartId
+     * @param togetherId
+     * @return
+     */
+    @Override
+    public Optional<SingleTogetherResponseProjection> findTogetherForApartId(final Long memberId,
+                                                                             final String apartId,
+                                                                             final Long togetherId) {
+        jpaQueryFactory.update(together)
+                .set(together.saw, together.saw.add(1))
+                .where(together.id.eq(togetherId))
+                .execute();
+
+        entityManager.clear();
+
+        final SingleTogetherResponseProjection singleTogetherResponseProjection = jpaQueryFactory
+                .select(new QSingleTogetherResponseProjection(
+                        together.id,
+                        category.name,
+                        together.title,
+                        together.description,
+                        together.thumbnail,
+                        together.saw,
+                        together.liked,
+                        together.createdBy,
+                        JPAExpressions.select(boardLiked)
+                                .from(boardLiked)
+                                .where(
+                                        boardLiked.member.id.eq(memberId),
+                                        boardLiked.board.id.eq(togetherId)
+                                )
+                                .exists(),
+                        JPAExpressions.select(together)
+                                .from(together)
+                                .where(
+                                        together.id.eq(togetherId),
+                                        together.member.id.eq(memberId)
+                                )
+                                .exists(),
+                        together.onlyApartUser,
+                        member.profileImageUrl,
+                        together.createdAt,
+                        together.recruitFrom,
+                        together.recruitTo,
+                        together.meetTime,
+                        together.location,
+                        together.target,
+                        together.contributeStatus,
+                        together.recruitStatus,
+                        together.content,
+                        apartment.code
+                ))
+                .from(together)
+                .innerJoin(together.member, member)
+                .innerJoin(together.category, category)
+                .innerJoin(member.apartment, apartment)
+                .where(
+                        apartmentCondition(apartId),
+                        together.id.eq(togetherId))
+                .fetchOne();
+
+        return Optional.ofNullable(singleTogetherResponseProjection);
     }
 
     private BooleanExpression categoryNameEq(final String categoryName) {

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import kr.apartribebackend.article.annotation.IsRecruitStatusValid;
 import kr.apartribebackend.article.annotation.LocalDateIsValid;
 import kr.apartribebackend.article.domain.RecruitStatus;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 public record UpdateTogetherReq(
         @NotEmpty(message = "카테고리는 공백일 수 없습니다.") String category,
         @NotEmpty(message = "제목은 공백일 수 없습니다.") String title,
-        @NotEmpty(message = "설명은 공백일 수 없습니다.") @Size(min = 1, max = 20, message = "설명은 20 자 이하여야 합니다.") String description,
+        @NotEmpty(message = "설명은 공백일 수 없습니다.") @Size(min = 1, max = 60, message = "설명은 20 자 이하여야 합니다.") String description,
         @NotEmpty(message = "내용은 공백일 수 없습니다.") String content,
         @NotEmpty(message = "모집 시작일은 공백일 수 없습니다.") @LocalDateIsValid String recruitFrom,
         @NotEmpty(message = "모집 종료일은 공백일 수 없습니다.") @LocalDateIsValid String recruitTo,
@@ -23,7 +24,8 @@ public record UpdateTogetherReq(
         @NotEmpty(message = "활동 장소는 공백일 수 없습니다.") String location,
         @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus,
         @NotEmpty(message = "모집 상태는 공백일 수 없습니다.") @IsRecruitStatusValid String recruitStatus,
-        @NotEmpty(message = "모집 상태는 공백일 수 없습니다.") String thumbnail
+        @NotNull(message = "아파트 주민에게만 공개 여부는 둘 중 하나 선택하셔야합니다.") Boolean onlyApartUser,
+        @NotEmpty(message = "썸네일은 공백일 수 없습니다.") String thumbnail
 ) {
     public TogetherDto toDto() {
         return TogetherDto.builder()
@@ -42,7 +44,8 @@ public record UpdateTogetherReq(
                 .target(target)
                 .location(location)
                 .contributeStatus(contributeStatus)
-                .thumbnail(thumbnail == null ? "" : thumbnail)
+                .onlyApartUser(onlyApartUser)
+                .thumbnail(StringUtils.cleanPath(thumbnail))
                 .build();
     }
 }

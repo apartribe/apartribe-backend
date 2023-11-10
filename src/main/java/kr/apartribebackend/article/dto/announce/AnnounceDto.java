@@ -24,6 +24,7 @@ public class AnnounceDto {
     private String thumbnail;
     private LocalDate floatFrom;
     private LocalDate floatTo;
+    private boolean onlyApartUser;
 
     @Builder
     private AnnounceDto(Long id,
@@ -37,7 +38,8 @@ public class AnnounceDto {
                         String createdBy,
                         String thumbnail,
                         LocalDate floatFrom,
-                        LocalDate floatTo) {
+                        LocalDate floatTo,
+                        boolean onlyApartUser) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -50,6 +52,7 @@ public class AnnounceDto {
         this.thumbnail = thumbnail;
         this.floatFrom = floatFrom;
         this.floatTo = floatTo;
+        this.onlyApartUser = onlyApartUser;
     }
 
     public static AnnounceDto from(Announce announce) {
@@ -66,6 +69,7 @@ public class AnnounceDto {
                 .thumbnail(announce.getThumbnail())
                 .floatFrom(announce.getFloatFrom())
                 .floatTo(announce.getFloatFrom())
+                .onlyApartUser(announce.isOnlyApartUser())
                 .build();
     }
 
@@ -83,6 +87,7 @@ public class AnnounceDto {
                 .thumbnail(thumbnail)
                 .floatFrom(floatFrom)
                 .floatTo(floatTo)
+                .onlyApartUser(onlyApartUser)
                 .build();
     }
 }

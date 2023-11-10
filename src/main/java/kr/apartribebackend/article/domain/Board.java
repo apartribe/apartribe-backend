@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.global.domain.BaseEntity;
+import kr.apartribebackend.likes.domain.BoardLiked;
 import kr.apartribebackend.member.domain.Member;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter @SuperBuilder
 @Setter(AccessLevel.PROTECTED)
@@ -45,12 +44,18 @@ public abstract class Board extends BaseEntity {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
+    @Column(name = "ONLY_APART_USER")
+    private boolean onlyApartUser;
+
     @OneToMany(mappedBy = "board")
     @OrderBy("createdAt desc")
     private final List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)                                            // TODO 여기가 추가됨.
+    @OneToMany(mappedBy = "board")
     private final List<Attachment> attachments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board")
+    private final Set<BoardLiked> boardLikedList = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

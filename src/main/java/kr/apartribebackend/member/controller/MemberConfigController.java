@@ -89,10 +89,9 @@ public class MemberConfigController {
 
     @DeleteMapping("/delete")
     public void deleteSingleUser(
-            @RequestHeader(value = "EMAIL", required = false) final String email,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        memberConfigService.deleteSingleUser(email);
+        memberConfigService.deleteSingleUser(authenticatedMember.toDto());
     }
 
 }

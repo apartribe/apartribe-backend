@@ -3,21 +3,17 @@ package kr.apartribebackend.member.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.domain.QApartment;
 import kr.apartribebackend.article.domain.Board;
-import kr.apartribebackend.article.domain.QBoard;
 import kr.apartribebackend.category.domain.Category;
-import kr.apartribebackend.category.domain.QCategory;
-import kr.apartribebackend.category.dto.CategoryListRes;
+import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.QMember;
-import kr.apartribebackend.member.dto.MemberArticleRes;
 import kr.apartribebackend.member.dto.MemberBoardResponse;
 import kr.apartribebackend.member.dto.MemberCommentRes;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static kr.apartribebackend.apart.domain.QApartment.apartment;
 import static kr.apartribebackend.article.domain.QBoard.board;
 import static kr.apartribebackend.category.domain.QCategory.*;
 import static kr.apartribebackend.comment.domain.QComment.comment;
@@ -43,34 +38,37 @@ public class MemberConfigRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
+    // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     // 내가 쓴 댓글 --> 사실 email 이 uniq 해서 아파트 정보와 join 할 필요는 없지만, 연습삼아 해본것이다.
     public Page<MemberCommentRes> findCommentsForMember(final Member member,
                                                         final Apartment apartment,
                                                         final Pageable pageable) {
         final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
-        List<MemberCommentRes> memberCommentRes = jpaQueryFactory
-                .select(Projections.fields(
-                        MemberCommentRes.class,
-                        comment.id,
-                        comment.content,
-                        comment.createdBy,
-                        comment.createdAt,
-                        board.boardType,
-                        board.id.as("boardId")))
+        List<Comment> memberCommentRes = jpaQueryFactory
+                .select(comment)
                 .from(comment)
-                .innerJoin(comment.member, QMember.member)
-                .innerJoin(comment.board, board)
-                .innerJoin(QMember.member.apartment, QApartment.apartment)
+                .innerJoin(comment.member, QMember.member).fetchJoin()
+                .innerJoin(comment.board, board).fetchJoin()
+                .innerJoin(QMember.member.apartment, QApartment.apartment).fetchJoin()
                 .where(
                         QApartment.apartment.code.eq(apartment.getCode()),
                         QApartment.apartment.name.eq(apartment.getName()),
                         QMember.member.email.eq(member.getEmail())
                 )
-                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        // Board 에는 Category 연관이 없기때문에, together 로 형변환 후, getCaetgory.name() 을 하면 n + 1 이 터진다. 따라서 N + 1 이 터지기전에 미리 아파트에 맞는 카테고리를 fetchJoin 해놓는 것이 효율적이다.
+        jpaQueryFactory
+                .selectFrom(category)
+                .innerJoin(category.apartment, QApartment.apartment).fetchJoin()
+                .where(QApartment.apartment.code.eq(apartment.getCode()))
+                .fetch();
+
+        List<MemberCommentRes> memberCommentResList = memberCommentRes.stream().map(MemberCommentRes::from).toList();
 
         JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(Wildcard.count)
@@ -79,9 +77,10 @@ public class MemberConfigRepository {
                 .innerJoin(QMember.member.apartment, QApartment.apartment)
                 .where(comment.member.id.eq(member.getId()));
 
-        return PageableExecutionUtils.getPage(memberCommentRes, pageable, countQuery::fetchOne);
+         return PageableExecutionUtils.getPage(memberCommentResList, pageable, countQuery::fetchOne);
     }
 
+    // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     public Page<MemberBoardResponse> findArticlesForMember(final Member member,
                                                            final Apartment apartment,
                                                            final Pageable pageable) {
@@ -145,6 +144,45 @@ public class MemberConfigRepository {
     }
 
 }
+
+// 내가 쓴 댓글 --> 사실 email 이 uniq 해서 아파트 정보와 join 할 필요는 없지만, 연습삼아 해본것이다.
+//    public Page<MemberCommentRes> findCommentsForMember(final Member member,
+//                                                        final Apartment apartment,
+//                                                        final Pageable pageable) {
+//        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+//
+//        List<MemberCommentRes> memberCommentRes = jpaQueryFactory
+//                .select(Projections.fields(
+//                        MemberCommentRes.class,
+//                        comment.id,
+//                        comment.content,
+//                        comment.createdBy,
+//                        comment.createdAt,
+//                        board.boardType,
+//                        board.id.as("boardId")))
+//                .from(comment)
+//                .innerJoin(comment.member, QMember.member)
+//                .innerJoin(comment.board, board)
+//                .innerJoin(QMember.member.apartment, QApartment.apartment)
+//                .where(
+//                        QApartment.apartment.code.eq(apartment.getCode()),
+//                        QApartment.apartment.name.eq(apartment.getName()),
+//                        QMember.member.email.eq(member.getEmail())
+//                )
+//                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        JPAQuery<Long> countQuery = jpaQueryFactory
+//                .select(Wildcard.count)
+//                .from(comment)
+//                .innerJoin(comment.member, QMember.member)
+//                .innerJoin(QMember.member.apartment, QApartment.apartment)
+//                .where(comment.member.id.eq(member.getId()));
+//
+//        return PageableExecutionUtils.getPage(memberCommentRes, pageable, countQuery::fetchOne);
+//    }
 
 //    public Page<MemberArticleRes> findArticlesForMember(final Member member,
 //                                                        final Apartment apartment,

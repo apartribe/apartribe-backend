@@ -29,6 +29,9 @@ public class EmailToken {
     @Column(name = "CONFIRMED_AT")
     private LocalDateTime confirmedAt;
 
+    @Column(name = "EMAIL")
+    private String email;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
@@ -36,10 +39,12 @@ public class EmailToken {
     @Builder
     private EmailToken(Long id,
                        String value,
+                       String email,
                        Member member) {
         this.id = id;
         this.value = value;
         this.expiredAt = LocalDateTime.now().plusMinutes(3L);
+        this.email = email;
         this.member = member;
     }
 
@@ -57,11 +62,17 @@ public class EmailToken {
 
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
 
-    public void confirmEmailToken() {
+    public void confirmEmailToken(String email) {
+        this.email = email;
         this.confirmedAt = LocalDateTime.now();
     }
 
     public void changeMember(Member member) {
         this.member = member;
+    }
+
+    public void updateTokenValue(String tokenValue) {
+        this.value = tokenValue;
+        this.confirmedAt = LocalDateTime.now();
     }
 }

@@ -7,11 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import static kr.apartribebackend.article.domain.BoardType.ARTICLE;
 
+
+//@OnDelete(action = OnDeleteAction.CASCADE)
 @Getter @SuperBuilder
 @Entity @Table(name = "ARTICLE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "ARTICLE")
+@DiscriminatorValue(value = ARTICLE)
 public class Article extends Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,11 +24,24 @@ public class Article extends Board {
     public Article updateArticle(Category category,
                                  String title,
                                  String content,
-                                 String thumbnail) {
+                                 String thumbnail,
+                                 boolean onlyApartUser) {
         this.category = category;
         setTitle(title);
         setContent(content);
         setThumbnail(thumbnail);
+        setOnlyApartUser(onlyApartUser);
+        return this;
+    }
+
+    public Article updateArticle(Category category,
+                                 String title,
+                                 String content,
+                                 boolean onlyApartUser) {
+        this.category = category;
+        setTitle(title);
+        setContent(content);
+        setOnlyApartUser(onlyApartUser);
         return this;
     }
 

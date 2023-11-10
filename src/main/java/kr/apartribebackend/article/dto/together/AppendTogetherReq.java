@@ -20,6 +20,7 @@ public record AppendTogetherReq(
         @NotEmpty(message = "모집 대상은 공백일 수 없습니다.") String target,
         @NotEmpty(message = "활동 장소는 공백일 수 없습니다.") String location,
         @NotNull(message = "회비여부는 true 혹은 false 여야 합니다.") Boolean contributeStatus,
+        @NotNull(message = "아파트 주민에게만 공개 여부는 둘 중 하나 선택하셔야합니다.") Boolean onlyApartUser,
         String thumbnail
 ) {
     public TogetherDto toDto() {
@@ -48,6 +49,7 @@ public record AppendTogetherReq(
                 .location(location)
                 .contributeStatus(contributeStatus)
                 .thumbnail(thumbnail == null ? "" : thumbnail)
+                .onlyApartUser(onlyApartUser)
                 .build();
     }
 }

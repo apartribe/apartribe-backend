@@ -4,7 +4,7 @@ package kr.apartribebackend.comment.dto;
 import java.time.LocalDateTime;
 
 public record SingleCommentResponse(
-        Long id,
+        Long commentId,
         String content,
         String createdBy,
         String profileImage,

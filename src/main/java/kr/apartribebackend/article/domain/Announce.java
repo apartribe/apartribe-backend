@@ -9,10 +9,13 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
+import static kr.apartribebackend.article.domain.BoardType.ANNOUNCE;
+
+//@OnDelete(action = OnDeleteAction.CASCADE)
 @Getter @SuperBuilder
 @Entity @Table(name = "ANNOUNCE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = "ANNOUNCE")
+@DiscriminatorValue(value = ANNOUNCE)
 public class Announce extends Board {
 
     @Column(name = "LEVEL")
@@ -30,13 +33,30 @@ public class Announce extends Board {
                                    String content,
                                    LocalDate floatFrom,
                                    LocalDate floatTo,
-                                   String thumbnail) {
+                                   String thumbnail,
+                                   boolean onlyApartUser) {
         this.level = level;
         setTitle(title);
         setContent(content);
         setThumbnail(thumbnail);
         this.floatFrom = floatFrom;
         this.floatTo = floatTo;
+        setOnlyApartUser(onlyApartUser);
+        return this;
+    }
+
+    public Announce updateAnnounce(Level level,
+                                   String title,
+                                   String content,
+                                   LocalDate floatFrom,
+                                   LocalDate floatTo,
+                                   boolean onlyApartUser) {
+        this.level = level;
+        setTitle(title);
+        setContent(content);
+        this.floatFrom = floatFrom;
+        this.floatTo = floatTo;
+        setOnlyApartUser(onlyApartUser);
         return this;
     }
 
