@@ -15,8 +15,7 @@ import java.util.Objects;
 @Table(
         name = "MEMBER",
         uniqueConstraints = {
-                @UniqueConstraint(name = "nickname", columnNames = "NICKNAME"),
-                @UniqueConstraint(name = "email", columnNames = "EMAIL")
+                @UniqueConstraint(name = "nickname", columnNames = "NICKNAME")
         }
 )
 public class Member extends TimeBaseEntity {
