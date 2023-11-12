@@ -8,9 +8,11 @@ import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.Liked;
 import kr.apartribebackend.likes.repository.LikedRepository;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.*;
 import kr.apartribebackend.member.exception.MalformedProfileImageLinkException;
 import kr.apartribebackend.member.exception.UserCantUpdateNicknameException;
+import kr.apartribebackend.member.exception.UserCantUpdatePasswordCaseMemberIsSocialMember;
 import kr.apartribebackend.member.exception.UserCantUpdatePasswordException;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberConfigRepository;
@@ -52,8 +54,12 @@ public class MemberConfigService {
 
     public void updateSingleMemberPassword(final AuthenticatedMember authenticatedMember,
                                            final MemberChangePasswordReq memberChangePasswordReq) {
-        if (!passwordEncoder.matches(memberChangePasswordReq.currentPassword(), authenticatedMember.getPassword()))
+        if (!passwordEncoder.matches(memberChangePasswordReq.currentPassword(), authenticatedMember.getPassword())) {
             throw new UserCantUpdatePasswordException();
+        }
+        if (authenticatedMember.getMemberType() == MemberType.SOCIAL) {
+            throw new UserCantUpdatePasswordCaseMemberIsSocialMember();
+        }
         final Member member = authenticatedMember.getOriginalEntity();
         member.changePassword(passwordEncoder.encode(memberChangePasswordReq.newPassword()));
     }
