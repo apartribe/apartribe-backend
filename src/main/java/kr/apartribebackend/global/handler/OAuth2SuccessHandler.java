@@ -37,10 +37,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private void generateTokenEntriesAndRedirectToUrl(OAuth2UserInfo oAuth2UserInfo,
                                                       HttpServletResponse response) throws IOException {
         final String accessToken = jwtService.generateAccessToken(
-                oAuth2UserInfo.getName(),
+                oAuth2UserInfo.getNickname(),
                 Map.of(
                         "email", oAuth2UserInfo.getEmail(),
-                        "role", "추가해야함"
+                        "role", "추가해야함",
+                        "memberType", oAuth2UserInfo.getDetails().getMemberType()
                 )
         );
         final String refreshToken = jwtService.generateRefreshToken(oAuth2UserInfo.getNickname());

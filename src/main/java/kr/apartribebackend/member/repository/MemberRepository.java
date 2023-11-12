@@ -40,6 +40,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             @Param("token") String token
     );
 
+    @Query(value = "select m from Member as m" +
+            " inner join fetch m.refreshToken as r" +
+            " where m.nickname = :nickname and r.token = :token")
+    Member findMemberWithRefreshTokenByNicknameAndRefreshTokenValue(
+            @Param("nickname") String nickname,
+            @Param("token") String token
+    );
+
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value = "update Member as m set m.password = :password where m.id = :memberId")

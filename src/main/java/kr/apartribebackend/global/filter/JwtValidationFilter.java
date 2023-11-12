@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.apartribebackend.apart.dto.ApartmentDto;
@@ -22,7 +21,6 @@ import kr.apartribebackend.token.refresh.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StreamUtils;
@@ -30,14 +28,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -79,8 +72,9 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             final String subjectNickname = extractedAllClaims.getSubject();
             final String tokenType = (String) extractedAllClaims.get("type");
 
-            final Member member = memberRepository
-                    .findMemberWithRefreshTokenAndApartInfoByNickname(subjectNickname, reIssueTokenReq.refreshToken());
+            final Member member = memberRepository.findMemberWithRefreshTokenByNicknameAndRefreshTokenValue(
+                    subjectNickname, reIssueTokenReq.refreshToken()
+            );
             if (member == null || tokenType == null || !tokenType.equals("refresh")) {
                 throw new NotExistsRefreshTokenException();
             }
@@ -88,7 +82,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             if (!dbRefreshToken.equals(reIssueTokenReq.refreshToken())) {
                 throw new NotExistsRefreshTokenException();
             }
-            final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname, member.getCreatedAt().toString());
+            final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname);
             final RefreshToken newRefreshToken = RefreshToken.builder().token(reIssuedRefreshToken).build();
             final Long refreshTokenId = member.getRefreshToken().getId();
             refreshTokenRepository.updateToken(newRefreshToken.getToken(), refreshTokenId);
@@ -96,7 +90,8 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     member.getNickname(),
                     Map.of(
                             "email", member.getEmail(),
-                            "role", "추가해야함"
+                            "role", "추가해야함",
+                            "memberType", member.getMemberType()
                     )
             );
             final String reIssuedTokenResponse =
