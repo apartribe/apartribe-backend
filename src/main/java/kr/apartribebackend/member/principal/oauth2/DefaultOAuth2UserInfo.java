@@ -2,6 +2,7 @@ package kr.apartribebackend.member.principal.oauth2;
 
 
 import kr.apartribebackend.member.domain.AuthStatus;
+import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.MemberDto;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,8 +15,20 @@ public abstract class DefaultOAuth2UserInfo implements OAuth2UserInfo {
 
     private OAuth2User oAuth2User;
 
+    private Member member;
+
     public DefaultOAuth2UserInfo(OAuth2User oAuth2User) {
         this.oAuth2User = oAuth2User;
+    }
+
+    @Override
+    public void setDetails(Member member) {
+        this.member = member;
+    }
+
+    @Override
+    public Member getDetails() {
+        return this.member;
     }
 
     @Override

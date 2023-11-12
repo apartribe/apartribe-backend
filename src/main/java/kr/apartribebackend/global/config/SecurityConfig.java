@@ -163,7 +163,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler OAuth2SuccessHandler() {
-        return new OAuth2SuccessHandler(clientRedirectUrlHolder());
+        return new OAuth2SuccessHandler(clientRedirectUrlHolder(), jwtService);
     }
 
     @Bean
