@@ -13,6 +13,7 @@ import kr.apartribebackend.global.dto.TokenResponse;
 import kr.apartribebackend.global.exception.NotExistsRefreshTokenException;
 import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberRepository;
@@ -28,6 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,9 +112,14 @@ public class JwtValidationFilter extends OncePerRequestFilter {
 
         final String accessToken = authHeader.substring(7);
         if (jwtService.isAccessTokenValid(accessToken)) {
-            final String userEmail = jwtService.extractAllClaims(
-                    accessToken, JwtService.TokenType.ACCESS).get("email", String.class);
-            final Member member = memberRepository.findMemberWithApartInfoByEmail(userEmail).orElse(null);
+            final Claims claims = jwtService.extractAllClaims(accessToken, JwtService.TokenType.ACCESS);
+            final String userEmail = claims.get("email", String.class);
+            final String memberTypeString = (String) claims.get("memberType");
+            final MemberType memberType = Arrays.stream(MemberType.values()).filter(m -> m.name().equals(memberTypeString))
+                    .findFirst()
+                    .orElse(MemberType.GENERAL);
+            final Member member = memberRepository.findMemberWithApartInfoByEmailAndMemberType(userEmail, memberType)
+                    .orElse(null);
             if (member != null) {
                 final AuthenticatedMember authenticatedMember = AuthenticatedMember.from(
                         MemberDto.from(member), ApartmentDto.from(member.getApartment())
