@@ -48,7 +48,7 @@ public class CustomCommandLineRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("ApplicationInit Called() -2-");
 
-        if (memberRepository.existsByEmail("bcl0206@naver.com"))
+        if (memberRepository.existsByEmailAndMemberType("bcl0206@naver.com", MemberType.GENERAL))
             return;
 
         Apartment apart1 = createApart("dyWaf", "루원시티1차SK리더스뷰");
