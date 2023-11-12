@@ -26,6 +26,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "select m from Member as m left join fetch m.apartment as a where m.email = :email")
     Optional<Member> findMemberWithApartInfoByEmail(@Param("email") String email);
 
+    @Query(value = "select m from Member as m left join fetch m.apartment as a where m.email = :email and m.memberType = :memberType")
+    Optional<Member> findMemberWithApartInfoByEmailAndMemberType(
+            @Param("email") String email,
+            @Param("memberType") MemberType memberType
+    );
+
     @Query(value = "select m from Member as m" +
             " inner join fetch m.refreshToken as r" +
             " where m.nickname = :nickname and r.token = :token")
