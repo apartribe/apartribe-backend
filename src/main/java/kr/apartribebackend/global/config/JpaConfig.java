@@ -1,13 +1,12 @@
 package kr.apartribebackend.global.config;
 
 import kr.apartribebackend.member.principal.AuthenticatedMember;
+import kr.apartribebackend.member.principal.oauth2.OAuth2UserInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
@@ -18,16 +17,17 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> SecurityContextHolder.getContext().getAuthentication() == null || SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getClass()
-                .equals(AnonymousAuthenticationToken.class) ? Optional.ofNullable("AnonymousUser") :
-                Optional.ofNullable(SecurityContextHolder.getContext())
-                .map(SecurityContext::getAuthentication)
-                .filter(Authentication::isAuthenticated)
-                .map(Authentication::getPrincipal)
-                .map(AuthenticatedMember.class::cast)
-                .map(AuthenticatedMember::getUsername);
+        return () -> {
+            final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return Optional.of("AnonymousUser");
+            }
+            if (authentication.getPrincipal() instanceof AuthenticatedMember authenticatedMember) {
+                return Optional.of(authenticatedMember.getUsername());
+            } else if (authentication.getPrincipal() instanceof OAuth2UserInfo oAuth2UserInfo) {
+                return Optional.of(oAuth2UserInfo.getNickname());
+            }
+            throw new IllegalStateException("옳지 않은 인증객체");
+        };
     }
 }
