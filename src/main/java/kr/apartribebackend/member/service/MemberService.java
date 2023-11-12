@@ -21,7 +21,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public SingleMemberResponse findMemberWithApartInfoByEmailAndMemberType(final MemberDto memberDto) {
         return memberRepository
-                .findMemberWithApartInfoByEmailAndMemberType(memberDto.getEmail(), memberDto.getMemberType())
+                .findMemberWithApartInfoByMemberIdAndMemberType(memberDto.getId(), memberDto.getMemberType())
                 .map(SingleMemberResponse::from)
                 .orElseThrow(UserNotFoundException::new);
     }
