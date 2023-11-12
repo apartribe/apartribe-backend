@@ -131,7 +131,7 @@ public class MemberJoinController {
 
     @PostMapping("/forgot/password")
     public void forgotPassword(@Valid @RequestBody final ForgotReq forgotReq) {
-        final Member findedMember = memberRepository.findByEmailAndName(forgotReq.email(), forgotReq.name())
+        final Member findedMember = memberRepository.findByEmailAndNameAndMemberType(forgotReq.email(), forgotReq.name(), GENERAL)
                 .orElseThrow(UserInfoNotFoundException::new);
         final String identifier = UUID.randomUUID().toString();
         forgotRepository.findForgotByMemberId(findedMember.getId())
