@@ -1,6 +1,5 @@
 package kr.apartribebackend.member.service;
 
-import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.dto.SingleMemberResponse;
@@ -20,8 +19,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public SingleMemberResponse findMemberWithApartInfoByEmail(final String email) {
-        return memberRepository.findMemberWithApartInfoByEmail(email)
+    public SingleMemberResponse findMemberWithApartInfoByEmailAndMemberType(final MemberDto memberDto) {
+        return memberRepository
+                .findMemberWithApartInfoByEmailAndMemberType(memberDto.getEmail(), memberDto.getMemberType())
                 .map(SingleMemberResponse::from)
                 .orElseThrow(UserNotFoundException::new);
     }
