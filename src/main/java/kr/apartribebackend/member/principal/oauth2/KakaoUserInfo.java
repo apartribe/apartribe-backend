@@ -1,43 +1,44 @@
 package kr.apartribebackend.member.principal.oauth2;
 
-public class KakaoUserInfo implements OAuth2UserInfo {
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-    private String id;
-    private String name;
-    private String nickname;
-    private String email;
-    private String password;
+import java.util.Map;
 
-    public KakaoUserInfo(String id, String name, String nickname, String email, String password) {
-        this.id = id;
-        this.nickname = nickname;
-        this.name = name;
-        this.email = email;
-        this.password = password;
+public class KakaoUserInfo extends DefaultOAuth2UserInfo {
+
+    private Map<String, Object> attributes = getAttributes();
+
+    public KakaoUserInfo(OAuth2User oAuth2User) {
+        super(oAuth2User);
     }
 
     @Override
     public String getId() {
-        return id;
+        return String.valueOf(attributes.get("sub"));
     }
 
     @Override
     public String getName() {
-        return name;
+        return String.valueOf(attributes.get("name"));
     }
 
     @Override
     public String getNickname() {
-        return nickname;
+        return this.getId() + "_" + attributes.get("nickname");
     }
 
     @Override
     public String getEmail() {
-        return email;
+        return String.valueOf(attributes.get("email"));
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return String.valueOf(attributes.get("sub"));
+    }
+
+    @Override
+    public String getProfileImage() {
+        return String.valueOf(attributes.get("picture"));
     }
 }

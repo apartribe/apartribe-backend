@@ -1,43 +1,45 @@
 package kr.apartribebackend.member.principal.oauth2;
 
-public class NaverUserInfo implements OAuth2UserInfo {
 
-    private String id;
-    private String name;
-    private String nickname;
-    private String email;
-    private String password;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-    public NaverUserInfo(String id, String name, String nickname, String email, String password) {
-        this.id = id;
-        this.name = name;
-        this.nickname = nickname;
-        this.email = email;
-        this.password = password;
+import java.util.Map;
+
+public class NaverUserInfo extends DefaultOAuth2UserInfo {
+
+    private Map<String, Object> attributes = getAttributes();
+
+    public NaverUserInfo(OAuth2User oAuth2User) {
+        super(oAuth2User);
     }
 
     @Override
     public String getId() {
-        return id;
+        return String.valueOf(attributes.get("id"));
     }
 
     @Override
     public String getName() {
-        return name;
+        return null;
     }
 
     @Override
     public String getNickname() {
-        return nickname;
+        return null;
     }
 
     @Override
     public String getEmail() {
-        return email;
+        return null;
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
+    }
+
+    @Override
+    public String getProfileImage() {
+        return null;
     }
 }

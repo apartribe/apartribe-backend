@@ -1,6 +1,9 @@
 package kr.apartribebackend.member.principal.oauth2;
 
-public interface OAuth2UserInfo {
+import kr.apartribebackend.member.dto.MemberDto;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+public interface OAuth2UserInfo extends OAuth2User {
 
     String getId();
 
@@ -11,5 +14,9 @@ public interface OAuth2UserInfo {
     String getEmail();
 
     String getPassword();
+
+    String getProfileImage();
+
+    MemberDto toDto(String password);
 
 }
