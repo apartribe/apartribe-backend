@@ -78,14 +78,9 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     reIssueTokenReq.refreshToken(), JwtService.TokenType.REFRESH);
             final String subjectNickname = extractedAllClaims.getSubject();
             final String tokenType = (String) extractedAllClaims.get("type");
-            final String createdAtString = (String) extractedAllClaims.get("createdAt");
-
-            final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            final LocalDateTime createdAt = LocalDateTime.parse(createdAtString, formatter);
 
             final Member member = memberRepository
-                    .findMemberWithRefreshTokenAndApartInfoByNicknameAndCreatedAt(subjectNickname, createdAt, reIssueTokenReq.refreshToken())
-                    .orElse(null);
+                    .findMemberWithRefreshTokenAndApartInfoByNickname(subjectNickname, reIssueTokenReq.refreshToken());
             if (member == null || tokenType == null || !tokenType.equals("refresh")) {
                 throw new NotExistsRefreshTokenException();
             }
@@ -93,7 +88,6 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             if (!dbRefreshToken.equals(reIssueTokenReq.refreshToken())) {
                 throw new NotExistsRefreshTokenException();
             }
-            final ApartmentDto apartmentDto = ApartmentDto.from(member.getApartment());
             final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname, member.getCreatedAt().toString());
             final RefreshToken newRefreshToken = RefreshToken.builder().token(reIssuedRefreshToken).build();
             final Long refreshTokenId = member.getRefreshToken().getId();
@@ -102,9 +96,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     member.getNickname(),
                     Map.of(
                             "email", member.getEmail(),
-                            "role", "추가해야함",
-                            "apartCode", apartmentDto.getCode(),
-                            "apartName", apartmentDto.getName()
+                            "role", "추가해야함"
                     )
             );
             final String reIssuedTokenResponse =
