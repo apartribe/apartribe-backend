@@ -77,6 +77,8 @@ application:
         expiration: REFRESH_TOKEN_EXPIRATION
   mail:
     subject: MAIL_SUBJECT
+  frontend:
+    redirect-uri: http://localhost:9008
 
 logging:
   level:

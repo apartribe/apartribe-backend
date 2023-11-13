@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.apartribebackend.global.utils.ClientRedirectUrlHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -15,8 +16,8 @@ import java.util.Set;
 public class DelegatingRedirectUrlFilter extends OncePerRequestFilter {
 
     private final ClientRedirectUrlHolder clientRedirectUrlHolder;
-
     private Set<String> oauth2RedirectPaths = Set.of("/oauth2/authorization/kakao");
+    @Value("${application.frontend.redirect-uri}") private String frontendUri;
 
     public DelegatingRedirectUrlFilter(ClientRedirectUrlHolder clientRedirectUrlHolder) {
         this.clientRedirectUrlHolder = clientRedirectUrlHolder;
@@ -47,7 +48,7 @@ public class DelegatingRedirectUrlFilter extends OncePerRequestFilter {
         if (isRequestFromOAuth2(request)) {
             return request.getParameter("redirect_url");
         }
-        return null;
+        return this.frontendUri;
     }
 
     private boolean isRequestFromOAuth2(HttpServletRequest request){
