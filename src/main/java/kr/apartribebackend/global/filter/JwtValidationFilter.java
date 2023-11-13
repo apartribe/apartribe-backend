@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.apartribebackend.apart.dto.ApartmentDto;
@@ -14,6 +13,7 @@ import kr.apartribebackend.global.dto.TokenResponse;
 import kr.apartribebackend.global.exception.NotExistsRefreshTokenException;
 import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberRepository;
@@ -22,7 +22,6 @@ import kr.apartribebackend.token.refresh.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StreamUtils;
@@ -30,14 +29,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -78,14 +73,10 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     reIssueTokenReq.refreshToken(), JwtService.TokenType.REFRESH);
             final String subjectNickname = extractedAllClaims.getSubject();
             final String tokenType = (String) extractedAllClaims.get("type");
-            final String createdAtString = (String) extractedAllClaims.get("createdAt");
 
-            final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            final LocalDateTime createdAt = LocalDateTime.parse(createdAtString, formatter);
-
-            final Member member = memberRepository
-                    .findMemberWithRefreshTokenAndApartInfoByNicknameAndCreatedAt(subjectNickname, createdAt, reIssueTokenReq.refreshToken())
-                    .orElse(null);
+            final Member member = memberRepository.findMemberWithRefreshTokenByNicknameAndRefreshTokenValue(
+                    subjectNickname, reIssueTokenReq.refreshToken()
+            );
             if (member == null || tokenType == null || !tokenType.equals("refresh")) {
                 throw new NotExistsRefreshTokenException();
             }
@@ -93,8 +84,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             if (!dbRefreshToken.equals(reIssueTokenReq.refreshToken())) {
                 throw new NotExistsRefreshTokenException();
             }
-            final ApartmentDto apartmentDto = ApartmentDto.from(member.getApartment());
-            final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname, member.getCreatedAt().toString());
+            final String reIssuedRefreshToken = jwtService.generateRefreshToken(subjectNickname);
             final RefreshToken newRefreshToken = RefreshToken.builder().token(reIssuedRefreshToken).build();
             final Long refreshTokenId = member.getRefreshToken().getId();
             refreshTokenRepository.updateToken(newRefreshToken.getToken(), refreshTokenId);
@@ -103,8 +93,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                     Map.of(
                             "email", member.getEmail(),
                             "role", "추가해야함",
-                            "apartCode", apartmentDto.getCode(),
-                            "apartName", apartmentDto.getName()
+                            "memberType", member.getMemberType()
                     )
             );
             final String reIssuedTokenResponse =
@@ -123,9 +112,14 @@ public class JwtValidationFilter extends OncePerRequestFilter {
 
         final String accessToken = authHeader.substring(7);
         if (jwtService.isAccessTokenValid(accessToken)) {
-            final String userEmail = jwtService.extractAllClaims(
-                    accessToken, JwtService.TokenType.ACCESS).get("email", String.class);
-            final Member member = memberRepository.findMemberWithApartInfoByEmail(userEmail).orElse(null);
+            final Claims claims = jwtService.extractAllClaims(accessToken, JwtService.TokenType.ACCESS);
+            final String userEmail = claims.get("email", String.class);
+            final String memberTypeString = (String) claims.get("memberType");
+            final MemberType memberType = Arrays.stream(MemberType.values()).filter(m -> m.name().equals(memberTypeString))
+                    .findFirst()
+                    .orElse(MemberType.GENERAL);
+            final Member member = memberRepository.findMemberWithApartInfoByEmailAndMemberType(userEmail, memberType)
+                    .orElse(null);
             if (member != null) {
                 final AuthenticatedMember authenticatedMember = AuthenticatedMember.from(
                         MemberDto.from(member), ApartmentDto.from(member.getApartment())

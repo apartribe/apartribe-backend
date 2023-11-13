@@ -3,6 +3,7 @@ package kr.apartribebackend.member.principal;
 import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.member.domain.AuthStatus;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.token.refresh.dto.RefreshTokenDto;
 import lombok.Builder;
@@ -24,6 +25,7 @@ public class AuthenticatedMember implements UserDetails {
     private String nickname;
     private String profileImage;
     private AuthStatus authStatus;
+    private MemberType memberType;
     private String apartCode;
     private String apartName;
     private RefreshTokenDto refreshTokenDto;
@@ -44,6 +46,7 @@ public class AuthenticatedMember implements UserDetails {
                                String nickname,
                                String profileImage,
                                AuthStatus authStatus,
+                               MemberType memberType,
                                String apartCode,
                                String apartName,
                                RefreshTokenDto refreshTokenDto,
@@ -57,6 +60,7 @@ public class AuthenticatedMember implements UserDetails {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.authStatus = authStatus;
+        this.memberType = memberType;
         this.apartCode = apartCode;
         this.apartName = apartName;
         this.authorities = authorities;
@@ -77,6 +81,7 @@ public class AuthenticatedMember implements UserDetails {
                 .createdAt(memberDto.getCreatedAt())
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
                 .authStatus(memberDto.getAuthStatus())
+                .memberType(memberDto.getMemberType())
                 .apartCode(memberDto.getApartCode())
                 .apartName(memberDto.getApartName())
                 .build();
@@ -106,6 +111,7 @@ public class AuthenticatedMember implements UserDetails {
                 .password(password)
                 .refreshTokenDto(refreshTokenDto)
                 .authStatus(authStatus)
+                .memberType(memberType)
                 .apartCode(apartCode)
                 .apartName(apartName)
                 .apartmentDto(apartmentDto)
@@ -115,122 +121,3 @@ public class AuthenticatedMember implements UserDetails {
     }
 
 }
-
-//    public static AuthenticatedMember from(MemberDto memberDto, RefreshTokenDto refreshTokenDto, ApartmentDto apartmentDto) {
-//        return AuthenticatedMember.builder()
-//                .id(memberDto.getId())
-//                .email(memberDto.getEmail())
-//                .password(memberDto.getPassword())
-//                .name(memberDto.getName())
-//                .nickname(memberDto.getNickname())
-//                .refreshTokenDto(refreshTokenDto)
-//                .apartmentDto(apartmentDto)
-//                .createdAt(memberDto.getCreatedAt())
-//                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
-//                .build();
-//    }
-
-//    public static AuthenticatedMember from(MemberDto memberDto) {
-//        return AuthenticatedMember.builder()
-//                .id(memberDto.getId())
-//                .email(memberDto.getEmail())
-//                .password(memberDto.getPassword())
-//                .name(memberDto.getName())
-//                .nickname(memberDto.getNickname())
-//                .createdAt(memberDto.getCreatedAt())
-//                .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
-//                .build();
-//    }
-
-
-//package kr.apartribebackend.member.principal;
-//
-//import kr.apartribebackend.apart.dto.ApartmentDto;
-//import kr.apartribebackend.member.domain.Member;
-//import kr.apartribebackend.member.dto.MemberDto;
-//import lombok.Getter;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
-//
-//import java.time.LocalDateTime;
-//import java.util.Set;
-//
-//@Getter
-//public class AuthenticatedMember implements UserDetails {
-//
-//    private Long id;
-//    private String email;
-//    private String password;
-//    private String name;
-//    private String nickname;
-//    private String apartCode;
-//    private String apartName;
-//    private LocalDateTime createdAt;
-//    private Set<? extends GrantedAuthority> authorities;
-//    private Member originalEntity;
-//
-//    public void setOriginalEntity(Member originalEntity) {
-//        this.originalEntity = originalEntity;
-//    }
-//
-//    public AuthenticatedMember(Long id,
-//                               String email,
-//                               String password,
-//                               String name,
-//                               String nickname,
-//                               String apartCode,
-//                               String apartName,
-//                               LocalDateTime createdAt,
-//                               Set<? extends GrantedAuthority> authorities) {
-//        this.id = id;
-//        this.email = email;
-//        this.password = password;
-//        this.name = name;
-//        this.nickname = nickname;
-//        this.authorities = authorities;
-//        this.apartCode = apartCode;
-//        this.createdAt = createdAt;
-//        this.apartName = apartName;
-//    }
-//
-//    public static AuthenticatedMember from(MemberDto memberDto, ApartmentDto apartmentDto) {
-//        return new AuthenticatedMember(
-//                memberDto.getId(),
-//                memberDto.getEmail(),
-//                memberDto.getPassword(),
-//                memberDto.getName(),
-//                memberDto.getNickname(),
-//                apartmentDto.getCode(),
-//                apartmentDto.getName(),
-//                memberDto.getCreatedAt(),
-//                Set.of(new SimpleGrantedAuthority("ROLE_USER"))
-//        );
-//    }
-//
-//    @Override
-//    public String getUsername() { return nickname; }
-//
-//    @Override
-//    public boolean isAccountNonExpired() { return true; }
-//
-//    @Override
-//    public boolean isAccountNonLocked() { return true; }
-//
-//    @Override
-//    public boolean isCredentialsNonExpired() { return true; }
-//
-//    @Override
-//    public boolean isEnabled() { return true; }
-//
-//    public MemberDto toDto() {
-//        return MemberDto.builder()
-//                .id(id)
-//                .email(email)
-//                .name(name)
-//                .nickname(nickname)
-//                .password(password)
-//                .build();
-//    }
-//
-//}
