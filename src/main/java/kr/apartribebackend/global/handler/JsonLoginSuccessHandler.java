@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.apartribebackend.global.dto.TokenResponse;
 import kr.apartribebackend.global.service.JwtService;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.token.refresh.domain.RefreshToken;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
 
     private final ObjectMapper objectMapper;
 
-    @Override @Transactional
+    @Transactional
+    @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -36,16 +38,14 @@ public class JsonLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
 
         final String accessToken = jwtService.generateAccessToken(
                 authenticatedMember.getUsername(),
-                Map.of("email", authenticatedMember.getEmail(),
+                Map.of(
+                        "email", authenticatedMember.getEmail(),
                         "role", "추가해야함",
-                        "apartCode", authenticatedMember.getApartmentDto().getCode(),
-                        "apartName", authenticatedMember.getApartmentDto().getName()
+                        "memberType", authenticatedMember.getMemberType()
                 )
         );
 
-        final String refToken = jwtService.generateRefreshToken(
-                authenticatedMember.getUsername(), authenticatedMember.getCreatedAt().toString()
-        );
+        final String refToken = jwtService.generateRefreshToken(authenticatedMember.getUsername());
         final Member member = ((AuthenticatedMember) authentication.getPrincipal()).getOriginalEntity();
         final RefreshToken refreshToken = RefreshToken.builder()
                 .token(refToken)
