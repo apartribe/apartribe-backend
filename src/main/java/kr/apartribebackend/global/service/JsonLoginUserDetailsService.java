@@ -3,6 +3,7 @@ package kr.apartribebackend.global.service;
 import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.dto.ApartmentDto;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberRepository;
@@ -13,15 +14,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import static kr.apartribebackend.member.domain.MemberType.*;
+
 
 @Slf4j @RequiredArgsConstructor
 public class JsonLoginUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
-    @Override @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
+    @Override
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
-        final Member member = memberRepository.findMemberWithApartInfoByEmail(email)
+        final Member member = memberRepository.findMemberWithApartInfoByEmailAndMemberType(email, GENERAL)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         final Apartment apartment = member.getApartment();
 

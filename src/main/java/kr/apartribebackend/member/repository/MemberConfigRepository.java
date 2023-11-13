@@ -54,7 +54,7 @@ public class MemberConfigRepository {
                 .where(
                         QApartment.apartment.code.eq(apartment.getCode()),
                         QApartment.apartment.name.eq(apartment.getName()),
-                        QMember.member.email.eq(member.getEmail())
+                        QMember.member.id.eq(member.getId())
                 )
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
@@ -101,7 +101,7 @@ public class MemberConfigRepository {
                 .where(
                         QApartment.apartment.code.eq(apartment.getCode()),
                         QApartment.apartment.name.eq(apartment.getName()),
-                        QMember.member.email.eq(member.getEmail())
+                        QMember.member.id.eq(member.getId())
                 )
                 .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())

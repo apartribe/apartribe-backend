@@ -3,6 +3,7 @@ package kr.apartribebackend.member.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.domain.agreements.Agreements;
 import kr.apartribebackend.member.domain.forgot.Forgot;
 import kr.apartribebackend.member.dto.MemberDto;
@@ -31,6 +32,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static kr.apartribebackend.member.domain.MemberType.*;
 import static org.springframework.http.HttpStatus.CREATED;
 
 // TODO 생각보다 코드의 양이 많음. 따라서 Service 계층으로 분리시킬 필요가 있음.
@@ -129,7 +131,7 @@ public class MemberJoinController {
 
     @PostMapping("/forgot/password")
     public void forgotPassword(@Valid @RequestBody final ForgotReq forgotReq) {
-        final Member findedMember = memberRepository.findByEmailAndName(forgotReq.email(), forgotReq.name())
+        final Member findedMember = memberRepository.findByEmailAndNameAndMemberType(forgotReq.email(), forgotReq.name(), GENERAL)
                 .orElseThrow(UserInfoNotFoundException::new);
         final String identifier = UUID.randomUUID().toString();
         forgotRepository.findForgotByMemberId(findedMember.getId())
@@ -194,7 +196,7 @@ public class MemberJoinController {
                 throw new MalformedProfileImageLinkException();
             }
         }
-        if (memberRepository.existsByEmail(memberJoinReq.email())) {
+        if (memberRepository.existsByEmailAndMemberType(memberJoinReq.email(), GENERAL)) {
             throw new EmailDuplicateException();
         }
         if (memberRepository.existsByNickname(memberJoinReq.nickname())) {

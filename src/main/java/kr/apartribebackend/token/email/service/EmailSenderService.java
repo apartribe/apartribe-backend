@@ -25,6 +25,7 @@ public class EmailSenderService {
     @Value("${application.mail.subject}")
     private String subject;
 
+    @Async
     public void send(String to, String body) {
         send(to, body, null);
     }

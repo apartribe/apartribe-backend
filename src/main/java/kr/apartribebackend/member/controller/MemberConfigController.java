@@ -25,9 +25,12 @@ public class MemberConfigController {
     private final MemberService memberService;
     private final MemberConfigService memberConfigService;
 
-    @GetMapping("/{email}")
-    public APIResponse<SingleMemberResponse> findSingleMember(@PathVariable final String email) {
-        final SingleMemberResponse singleMemberResponse = memberService.findMemberWithApartInfoByEmail(email);
+    @GetMapping("/single")
+    public APIResponse<SingleMemberResponse> findSingleMember(
+            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
+    ) {
+        final SingleMemberResponse singleMemberResponse = memberService
+                .findMemberWithApartInfoByEmailAndMemberType(authenticatedMember.toDto());
         final APIResponse<SingleMemberResponse> apiResponse = APIResponse.SUCCESS(singleMemberResponse);
         return apiResponse;
     }
