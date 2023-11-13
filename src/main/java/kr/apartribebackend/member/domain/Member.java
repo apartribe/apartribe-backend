@@ -15,8 +15,7 @@ import java.util.Objects;
 @Table(
         name = "MEMBER",
         uniqueConstraints = {
-                @UniqueConstraint(name = "nickname", columnNames = "NICKNAME"),
-                @UniqueConstraint(name = "email", columnNames = "EMAIL")
+                @UniqueConstraint(name = "nickname", columnNames = "NICKNAME")
         }
 )
 public class Member extends TimeBaseEntity {
@@ -43,6 +42,10 @@ public class Member extends TimeBaseEntity {
     @Column(name = "AUTH_STATUS")
     @Enumerated(EnumType.STRING)
     private AuthStatus authStatus;
+
+    @Column(name = "MEMBER_TYPE")
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
 
     @Column(name = "APART_CODE")
     private String apartCode;
