@@ -40,7 +40,6 @@ public class AnnounceService {
 
     private final BoardRepository boardRepository;
     private final AnnounceRepository announceRepository;
-    private final AttachmentService attachmentService;
     private final LikeService likeService;
     private final CommentRepository commentRepository;
     private final BoardLikedRepository boardLikedRepository;
@@ -102,24 +101,6 @@ public class AnnounceService {
         final Member member = memberDto.toEntity();
         final Announce article = announceDto.toEntity(member);
         return announceRepository.save(article);
-    }
-
-    /**
-     * 공지사항 게시글 등록 + AWS 업로드
-     * @param announceDto
-     * @param memberDto
-     * @param file
-     * @throws IOException
-     */
-    public void appendArticle(final AnnounceDto announceDto,
-                              final MemberDto memberDto,
-                              final List<MultipartFile> file) throws IOException {
-        final Announce announce = appendArticle(announceDto, memberDto);
-        final List<Attachment> attachments = attachmentService.saveFiles(file);
-        for (Attachment attachment : attachments) {
-            attachment.registBoard(announce);
-        }
-        attachmentService.saveAttachments(attachments);
     }
 
     /**
@@ -215,3 +196,14 @@ public class AnnounceService {
     }
 
 }
+
+//    public void appendArticle(final AnnounceDto announceDto,
+//                              final MemberDto memberDto,
+//                              final List<MultipartFile> file) throws IOException {
+//        final Announce announce = appendArticle(announceDto, memberDto);
+//        final List<Attachment> attachments = attachmentService.saveFiles(file);
+//        for (Attachment attachment : attachments) {
+//            attachment.registBoard(announce);
+//        }
+//        attachmentService.saveAttachments(attachments);
+//    }
