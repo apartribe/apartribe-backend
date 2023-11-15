@@ -10,8 +10,6 @@ import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException
 import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.ArticleRepository;
 import kr.apartribebackend.article.repository.BoardRepository;
-import kr.apartribebackend.attachment.domain.Attachment;
-import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
@@ -31,9 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static kr.apartribebackend.category.domain.CategoryTag.*;
@@ -45,7 +41,6 @@ import static kr.apartribebackend.category.domain.CategoryTag.*;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final AttachmentService attachmentService;
     private final CategoryRepository categoryRepository;
     private final BoardRepository boardRepository;
     private final LikeService likeService;
@@ -120,29 +115,6 @@ public class ArticleService {
         final Member memberEntity = memberDto.toEntity();
         final Article articleEntity = articleDto.toEntity(categoryEntity, memberEntity);
         return articleRepository.save(articleEntity);
-    }
-
-    /**
-     * 커뮤니티 게시글 생성 + AWS 업로드
-     * @param apartId
-     * @param category
-     * @param articleDto
-     * @param memberDto
-     * @param file
-     * @throws IOException
-     */
-    @Transactional
-    public void appendArticle(final String apartId,
-                              final String category,
-                              final ArticleDto articleDto,
-                              final MemberDto memberDto,
-                              final List<MultipartFile> file) throws IOException {
-        final Article article = appendArticle(apartId, category, articleDto, memberDto);
-        final List<Attachment> attachments = attachmentService.saveFiles(file);
-        for (Attachment attachment : attachments) {
-            attachment.registBoard(article);
-        }
-        attachmentService.saveAttachments(attachments);
     }
 
     /**

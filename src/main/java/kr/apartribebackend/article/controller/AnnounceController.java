@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.article.service.AnnounceService;
+import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
@@ -25,8 +26,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 
 @RequiredArgsConstructor
@@ -76,23 +75,6 @@ public class AnnounceController {
     }
 
     @ApartUser
-    @PostMapping(value = "/api/{apartId}/announce/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> attachmentToAWS(
-            @PathVariable final String apartId,
-            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @Valid @RequestPart final AppendAnnounceReq announceInfo,
-            @RequestPart(required = false) final List<MultipartFile> file) throws IOException
-    {
-        final MemberDto memberDto = authenticatedMember.toDto();
-        final AnnounceDto announceDto = announceInfo.toDto();
-        if (file != null)
-            announceService.appendArticle(announceDto, memberDto, file);
-        else
-            announceService.appendArticle(announceDto, memberDto);
-        return ResponseEntity.status(CREATED).build();
-    }
-
-    @ApartUser
     @PutMapping("/api/{apartId}/announce/{announceId}")
     public APIResponse<SingleAnnounceResponse> updateAnnounce(
             @PathVariable final String apartId,
@@ -137,4 +119,3 @@ public class AnnounceController {
     }
 
 }
-
