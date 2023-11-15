@@ -18,14 +18,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 
 @RequiredArgsConstructor
@@ -70,24 +66,6 @@ public class ArticleController {
         final MemberDto memberDto = authenticatedMember.toDto();
         final ArticleDto articleDto = articleInfo.toDto();
         articleService.appendArticle(apartId, category, articleDto, memberDto);
-        return ResponseEntity.status(CREATED).build();
-    }
-
-    @ApartUser
-    @PostMapping(value = "/api/{apartId}/article/attach", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> attachmentToAWS(
-            @PathVariable final String apartId,
-            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
-            @Valid @RequestPart final AppendArticleReq articleInfo,
-            @RequestPart(required = false) final List<MultipartFile> file) throws IOException
-    {
-        final String category = articleInfo.category();
-        final MemberDto memberDto = authenticatedMember.toDto();
-        final ArticleDto articleDto = articleInfo.toDto();
-        if (file != null)
-            articleService.appendArticle(apartId, category, articleDto, memberDto, file);
-        else
-            articleService.appendArticle(apartId, category, articleDto, memberDto);
         return ResponseEntity.status(CREATED).build();
     }
 

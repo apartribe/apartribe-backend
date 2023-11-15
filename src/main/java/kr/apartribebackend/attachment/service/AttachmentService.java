@@ -70,8 +70,8 @@ public class AttachmentService {
     }
 
     @Transactional
-    public void saveAttachments(List<Attachment> attachments) {
-        attachmentRepository.saveAll(attachments);
+    public List<Attachment> saveAttachments(List<Attachment> attachments) {
+        return attachmentRepository.saveAll(attachments);
     }
 
 

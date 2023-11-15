@@ -14,7 +14,6 @@ import kr.apartribebackend.article.exception.CannotReflectLikeToArticleException
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.together.TogetherRepository;
 import kr.apartribebackend.attachment.domain.Attachment;
-import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.exception.CategoryNonExistsException;
 import kr.apartribebackend.category.repository.CategoryRepository;
@@ -46,7 +45,6 @@ public class TogetherService {
     private final BoardRepository boardRepository;
     private final TogetherRepository togetherRepository;
     private final CategoryRepository categoryRepository;
-    private final AttachmentService attachmentService;
     private final LikeService likeService;
     private final CommentLikedRepository commentLikedRepository;
     private final BoardLikedRepository boardLikedRepository;
@@ -117,29 +115,6 @@ public class TogetherService {
         final Member member = memberDto.toEntity();
         final Together together = togetherDto.toEntity(categoryEntity, member);
         return togetherRepository.save(together);
-    }
-
-    /**
-     * 함께해요 게시글 작성 + AWS 업로드
-     * @param apartId
-     * @param category
-     * @param memberDto
-     * @param togetherDto
-     * @param file
-     * @throws IOException
-     */
-    @Transactional
-    public void appendTogether(final String apartId,
-                               final String category,
-                               final MemberDto memberDto,
-                               final TogetherDto togetherDto,
-                               final List<MultipartFile> file) throws IOException {
-        final Together together = appendTogether(apartId, category, memberDto, togetherDto);
-        final List<Attachment> attachments = attachmentService.saveFiles(file);
-        for (Attachment attachment : attachments) {
-            attachment.registBoard(together);
-        }
-        attachmentService.saveAttachments(attachments);
     }
 
     /**
