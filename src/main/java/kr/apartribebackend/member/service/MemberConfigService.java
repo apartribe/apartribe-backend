@@ -10,10 +10,7 @@ import kr.apartribebackend.likes.repository.LikedRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.dto.*;
-import kr.apartribebackend.member.exception.MalformedProfileImageLinkException;
-import kr.apartribebackend.member.exception.UserCantUpdateNicknameException;
-import kr.apartribebackend.member.exception.UserCantUpdatePasswordCaseMemberIsSocialMember;
-import kr.apartribebackend.member.exception.UserCantUpdatePasswordException;
+import kr.apartribebackend.member.exception.*;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.repository.MemberConfigRepository;
 import kr.apartribebackend.member.repository.MemberRepository;
@@ -44,6 +41,12 @@ public class MemberConfigService {
     private final AgreementsRepository agreementsRepository;
     private final EmailTokenRepository emailTokenRepository;
     private final ForgotRepository forgotRepository;
+
+    public SingleMemberResponse findMemberWithApartInfoByEmailAndMemberType(final MemberDto memberDto) {
+        return memberConfigRepository
+                .findMemberWithApartInfoByMemberIdAndMemberType(memberDto.getId(), memberDto.getMemberType())
+                .orElseThrow(UserNotFoundException::new);
+    }
 
     public void updateSingleMemberNickname(final AuthenticatedMember authenticatedMember, final String nickname) {
         if (memberRepository.existsByNickname(nickname))

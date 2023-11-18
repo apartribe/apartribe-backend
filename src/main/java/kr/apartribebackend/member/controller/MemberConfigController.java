@@ -8,7 +8,6 @@ import kr.apartribebackend.global.exception.PasswordNotEqualException;
 import kr.apartribebackend.member.dto.*;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import kr.apartribebackend.member.service.MemberConfigService;
-import kr.apartribebackend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,14 +21,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/member")
 public class MemberConfigController {
 
-    private final MemberService memberService;
     private final MemberConfigService memberConfigService;
 
     @GetMapping("/single")
     public APIResponse<SingleMemberResponse> findSingleMember(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
-        final SingleMemberResponse singleMemberResponse = memberService
+        final SingleMemberResponse singleMemberResponse = memberConfigService
                 .findMemberWithApartInfoByEmailAndMemberType(authenticatedMember.toDto());
         final APIResponse<SingleMemberResponse> apiResponse = APIResponse.SUCCESS(singleMemberResponse);
         return apiResponse;
