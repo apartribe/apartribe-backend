@@ -39,6 +39,14 @@ public class Member extends TimeBaseEntity {
     @Column(name = "PROFILE_IMAGE")
     private String profileImageUrl;
 
+    @Column(name = "USER_TYPE")
+    @Enumerated(EnumType.STRING)
+    private UserType userType = UserType.RESIDENT;
+
+    @Column(name = "POSITION")
+    @Enumerated(EnumType.STRING)
+    private Position position = Position.LESSEE;
+
     @Column(name = "AUTH_STATUS")
     @Enumerated(EnumType.STRING)
     private AuthStatus authStatus;
@@ -130,6 +138,11 @@ public class Member extends TimeBaseEntity {
         this.apartCode = apartCode;
         this.apartName = apartName;
         this.authStatus = AuthStatus.PENDING;
+    }
+
+    public void updateUserTypeAndPosition(UserType userType, Position position) {
+        this.userType = userType;
+        this.position = position;
     }
 
 }
