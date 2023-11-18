@@ -3,6 +3,7 @@ package kr.apartribebackend.member.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.ArrayPath;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,10 +13,14 @@ import kr.apartribebackend.article.domain.Board;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.global.utils.QueryDslUtil;
+import kr.apartribebackend.member.domain.Badge;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.domain.QMember;
 import kr.apartribebackend.member.dto.MemberBoardResponse;
 import kr.apartribebackend.member.dto.MemberCommentRes;
+import kr.apartribebackend.member.dto.QSingleMemberResponse;
+import kr.apartribebackend.member.dto.SingleMemberResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +30,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QBoard.board;
 import static kr.apartribebackend.category.domain.QCategory.*;
 import static kr.apartribebackend.comment.domain.QComment.comment;
+import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RequiredArgsConstructor
@@ -37,6 +45,28 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class MemberConfigRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    public Optional<SingleMemberResponse> findMemberWithApartInfoByMemberIdAndMemberType(final Long memberId,
+                                                                                         final MemberType memberType) {
+        final SingleMemberResponse singleMemberResponse = jpaQueryFactory
+                .select(
+                        new QSingleMemberResponse(
+                                member.email,
+                                member.name,
+                                member.nickname,
+                                member.profileImageUrl,
+                                member.apartCode,
+                                member.apartName,
+                                member.authStatus,
+                                member.position
+                        )
+                )
+                .from(member)
+                .leftJoin(member.apartment, apartment)
+                .where(member.id.eq(memberId), member.memberType.eq(memberType))
+                .fetchOne();
+        return Optional.ofNullable(singleMemberResponse);
+    }
 
     // TODO 리팩토링을 해야한다. (select 절이 너무나도 많다.)
     // 내가 쓴 댓글 --> 사실 email 이 uniq 해서 아파트 정보와 join 할 필요는 없지만, 연습삼아 해본것이다.

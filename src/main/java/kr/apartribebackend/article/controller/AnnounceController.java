@@ -4,12 +4,14 @@ package kr.apartribebackend.article.controller;
 import jakarta.validation.Valid;
 import kr.apartribebackend.article.domain.Level;
 import kr.apartribebackend.article.dto.announce.*;
+import kr.apartribebackend.article.exception.CantCreateAnnounceCauseInvalidUserType;
 import kr.apartribebackend.article.service.AnnounceService;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.global.dto.PageResponse;
 import kr.apartribebackend.likes.dto.BoardLikedRes;
+import kr.apartribebackend.member.domain.UserType;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,9 @@ public class AnnounceController {
             @Valid @RequestBody final AppendAnnounceReq announceInfo
     ) {
         final MemberDto memberDto = authenticatedMember.toDto();
+        if (memberDto.getUserType() == null || memberDto.getUserType() != UserType.MANAGER) {
+            throw new CantCreateAnnounceCauseInvalidUserType();
+        }
         final AnnounceDto announceDto = announceInfo.toDto();
         announceService.appendArticle(announceDto, memberDto);
         return ResponseEntity.status(CREATED).build();

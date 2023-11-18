@@ -2,7 +2,6 @@ package kr.apartribebackend.member.service;
 
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.dto.MemberDto;
-import kr.apartribebackend.member.dto.SingleMemberResponse;
 import kr.apartribebackend.member.exception.*;
 import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-
-    @Transactional(readOnly = true)
-    public SingleMemberResponse findMemberWithApartInfoByEmailAndMemberType(final MemberDto memberDto) {
-        return memberRepository
-                .findMemberWithApartInfoByMemberIdAndMemberType(memberDto.getId(), memberDto.getMemberType())
-                .map(SingleMemberResponse::from)
-                .orElseThrow(UserNotFoundException::new);
-    }
 
     public void updateSingleMember(final MemberDto memberDto, final String email) {
 
