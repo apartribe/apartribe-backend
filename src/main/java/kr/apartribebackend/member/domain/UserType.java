@@ -3,7 +3,7 @@ package kr.apartribebackend.member.domain;
 import lombok.Getter;
 
 @Getter
-public enum UserType {
+public enum UserType implements Badge {
 
     RESIDENT("resident"),
     MANAGER("manager");

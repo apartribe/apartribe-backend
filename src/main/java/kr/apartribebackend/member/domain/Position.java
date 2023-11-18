@@ -2,7 +2,7 @@ package kr.apartribebackend.member.domain;
 
 import lombok.Getter;
 
-public enum Position {
+public enum Position implements Badge {
 
     OWNER("자가"),
     LESSOR("임대인"),
