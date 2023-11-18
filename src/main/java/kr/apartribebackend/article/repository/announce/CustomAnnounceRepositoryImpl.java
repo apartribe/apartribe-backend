@@ -3,7 +3,6 @@ package kr.apartribebackend.article.repository.announce;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -12,10 +11,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Level;
-import kr.apartribebackend.article.dto.announce.AnnounceResponse;
-import kr.apartribebackend.article.dto.announce.AnnounceWidgetRes;
-import kr.apartribebackend.article.dto.announce.QSingleAnnounceResponseProjection;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponseProjection;
+import kr.apartribebackend.article.dto.announce.*;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QAnnounce.*;
+import static kr.apartribebackend.comment.domain.QComment.comment;
 import static kr.apartribebackend.likes.domain.QBoardLiked.boardLiked;
 import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -49,21 +46,37 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                                                        final Pageable pageable) {
         final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
-        final List<Announce> announces = jpaQueryFactory
-                .selectFrom(announce)
-                .innerJoin(announce.member, member).fetchJoin()
-                .innerJoin(member.apartment, apartment).fetchJoin()
+        final List<AnnounceResponse> contents = jpaQueryFactory
+                .select(
+                        new QAnnounceResponse(
+                                announce.id,
+                                announce.level,
+                                announce.liked,
+                                announce.saw,
+                                announce.title,
+                                announce.content,
+                                announce.thumbnail,
+                                JPAExpressions
+                                        .select(Wildcard.count)
+                                        .from(comment)
+                                        .where(comment.board.id.eq(announce.id)),
+                                announce.createdAt,
+                                announce.createdBy,
+                                member.profileImageUrl,
+                                announce.onlyApartUser
+                        )
+                )
+                .from(announce)
+                .innerJoin(announce.member, member)
+                .innerJoin(member.apartment, apartment)
                 .where(
                         apartmentCondition(apartId),
                         levelCondition(level)
                 )
-                .orderBy(ORDERS.stream().toArray(OrderSpecifier[]::new))
+                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        final List<AnnounceResponse> contents = announces.stream()
-                .map(announce -> AnnounceResponse.from(announce, announce.getMember())).toList();
 
         final JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(Wildcard.count)
@@ -133,6 +146,7 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                                 .exists(),
                         announce.onlyApartUser,
                         announce.saw,
+                        member.position,
                         apartment.code))
                 .from(announce)
                 .innerJoin(announce.member, member)
@@ -209,6 +223,42 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
 //        orderSpecifiers.add(new OrderSpecifier(Order.DESC, person.region));
 //
 //        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
+//    }
+
+
+//    @Override
+//    public Page<AnnounceResponse> findAnnouncesByLevel(final String apartId,
+//                                                       final Level level,
+//                                                       final Pageable pageable) {
+//        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+//
+//        final List<Announce> announces = jpaQueryFactory
+//                .selectFrom(announce)
+//                .innerJoin(announce.member, member).fetchJoin()
+//                .innerJoin(member.apartment, apartment).fetchJoin()
+//                .where(
+//                        apartmentCondition(apartId),
+//                        levelCondition(level)
+//                )
+//                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        final List<AnnounceResponse> contents = announces.stream()
+//                .map(announce -> AnnounceResponse.from(announce, announce.getMember())).toList();
+//
+//        final JPAQuery<Long> countQuery = jpaQueryFactory
+//                .select(Wildcard.count)
+//                .from(announce)
+//                .innerJoin(announce.member, member)
+//                .innerJoin(member.apartment, apartment)
+//                .where(
+//                        apartmentCondition(apartId),
+//                        levelCondition(level)
+//                );
+//
+//        return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
 //    }
 
 }

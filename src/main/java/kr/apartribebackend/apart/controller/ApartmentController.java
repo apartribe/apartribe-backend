@@ -4,12 +4,16 @@ import jakarta.validation.Valid;
 import kr.apartribebackend.apart.dto.*;
 import kr.apartribebackend.apart.service.ApartmentService;
 import kr.apartribebackend.global.dto.APIResponse;
+import kr.apartribebackend.member.domain.Position;
+import kr.apartribebackend.member.domain.UserType;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.Arrays;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -24,8 +28,13 @@ public class ApartmentController {
             @Valid @RequestBody final AuthenticateApartmentReq authenticateApartmentReq,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember
     ) {
+        final Position requestPosition = Arrays.stream(Position.values())
+                .filter(position -> position.getName().equals(authenticateApartmentReq.position())).findFirst().get();
+        final UserType requestUserType = Arrays.stream(UserType.values())
+                .filter(userType -> userType.getName().equals(authenticateApartmentReq.userType())).findFirst().get();
         apartmentService.authenticateApartment(
-                authenticatedMember.toDto(),
+                requestPosition,
+                requestUserType,
                 authenticateApartmentReq.toDto(),
                 authenticatedMember.getOriginalEntity()
         );

@@ -10,6 +10,8 @@ import kr.apartribebackend.category.domain.TogetherCategory;
 import kr.apartribebackend.category.repository.CategoryRepository;
 import kr.apartribebackend.global.utils.EntityFactory;
 import kr.apartribebackend.member.domain.Member;
+import kr.apartribebackend.member.domain.Position;
+import kr.apartribebackend.member.domain.UserType;
 import kr.apartribebackend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,8 @@ public class ApartmentService {
      * @param apartmentDto
      * @param member
      */
-    public void authenticateApartment(final MemberDto memberDto,
+    public void authenticateApartment(final Position position,
+                                      final UserType userType,
                                       final ApartmentDto apartmentDto,
                                       final Member member) {
         checkMemberHaveApartments(member);
@@ -53,6 +56,7 @@ public class ApartmentService {
             log.info("인증하신 아파트는 사이트에 존재하지 않으니, PENDING 으로 처리합니다.");
             member.pendingApartInfo(apartmentDto.getCode(), apartmentDto.getName());
         }
+        member.updateUserTypeAndPosition(userType, position);
     }
 
     /**

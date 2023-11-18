@@ -1,9 +1,7 @@
 package kr.apartribebackend.member.dto;
 
 import kr.apartribebackend.apart.dto.ApartmentDto;
-import kr.apartribebackend.member.domain.AuthStatus;
-import kr.apartribebackend.member.domain.Member;
-import kr.apartribebackend.member.domain.MemberType;
+import kr.apartribebackend.member.domain.*;
 import kr.apartribebackend.token.refresh.dto.RefreshTokenDto;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,6 +24,8 @@ public class MemberDto {
     private ApartmentDto apartmentDto;
     private AuthStatus authStatus;
     private MemberType memberType;
+    private UserType userType;
+    private Position position;
     private String apartCode;
     private String apartName;
 
@@ -41,6 +41,8 @@ public class MemberDto {
                       ApartmentDto apartmentDto,
                       AuthStatus authStatus,
                       MemberType memberType,
+                      UserType userType,
+                      Position position,
                       String apartCode,
                       String apartName) {
         this.id = id;
@@ -54,6 +56,8 @@ public class MemberDto {
         this.apartmentDto = apartmentDto;
         this.authStatus = authStatus;
         this.memberType = memberType;
+        this.userType = userType;
+        this.position = position;
         this.apartCode = apartCode;
         this.apartName = apartName;
     }
@@ -69,6 +73,8 @@ public class MemberDto {
                 .createdAt(member.getCreatedAt())
                 .authStatus(member.getAuthStatus())
                 .memberType(member.getMemberType())
+                .userType(member.getAuthStatus() == AuthStatus.COMPLETED ? member.getUserType() : null)
+                .position(member.getAuthStatus() == AuthStatus.COMPLETED ? member.getPosition() : null)
                 .apartCode(member.getApartCode())
                 .apartName(member.getApartName())
                 .build();
@@ -84,6 +90,8 @@ public class MemberDto {
                 .profileImageUrl(profileImageUrl)
                 .authStatus(authStatus != null ? authStatus : AuthStatus.INCOMPLETE)
                 .memberType(memberType != null ? memberType : MemberType.GENERAL)
+                .userType(userType)
+                .position(position)
                 .build();
     }
 

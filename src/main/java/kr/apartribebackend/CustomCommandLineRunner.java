@@ -13,6 +13,8 @@ import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.MemberType;
+import kr.apartribebackend.member.domain.Position;
+import kr.apartribebackend.member.domain.UserType;
 import kr.apartribebackend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,9 +58,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
         apartmentRepository.save(apart1);
         apartmentRepository.save(apart2);
 
-        Member bcl = createUser("방충림", "white_h4ck3r_bcl", "bcl0206@naver.com", passwordEncoder.encode("방충림1!"), "", MemberType.GENERAL);
-        Member jieun2 = createUser("이지은", "scary_girl", "jieun2@apartlive.com", passwordEncoder.encode("qwer1234!"), "", MemberType.GENERAL);
-        Member revi1337 = createUser("이경학", "?_?_*_<", "david122123@gmail.com", passwordEncoder.encode("asdf"), "", MemberType.GENERAL);
+        Member bcl = createUser("방충림", "white_h4ck3r_bcl", "bcl0206@naver.com", passwordEncoder.encode("방충림1!"), "", MemberType.GENERAL, UserType.RESIDENT, Position.BUILDING_REPRESENTATIVE);
+        Member jieun2 = createUser("이지은", "scary_girl", "jieun2@apartlive.com", passwordEncoder.encode("qwer1234!"), "", MemberType.GENERAL, UserType.MANAGER, Position.OWNER);
+        Member revi1337 = createUser("이경학", "?_?_*_<", "david122123@gmail.com", passwordEncoder.encode("asdf"), "", MemberType.GENERAL, UserType.RESIDENT, Position.ADMINISTRATOR);
         memberRepository.saveAll(List.of(bcl, jieun2, revi1337));
         bcl.rememberApartInfo(apart1.getCode(), apart1.getName());
         jieun2.rememberApartInfo(apart1.getCode(), apart1.getName());
@@ -157,7 +159,9 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                                      String email,
                                      String password,
                                      String profileImage,
-                                     MemberType memberType) {
+                                     MemberType memberType,
+                                     UserType userType,
+                                     Position position) {
         return Member.builder()
                 .name(name)
                 .nickname(nickname)
@@ -165,6 +169,8 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .password(password)
                 .profileImageUrl(profileImage)
                 .memberType(memberType)
+                .userType(userType)
+                .position(position)
                 .build();
     }
 

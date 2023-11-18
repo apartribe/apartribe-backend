@@ -1,6 +1,5 @@
 package kr.apartribebackend.article.repository;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -11,10 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.apartribebackend.article.domain.Article;
-import kr.apartribebackend.article.dto.ArticleInCommunityRes;
-import kr.apartribebackend.article.dto.ArticleResponse;
-import kr.apartribebackend.article.dto.Top5ArticleResponse;
-import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
+import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.global.utils.QueryDslUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +27,7 @@ import static kr.apartribebackend.apart.domain.QApartment.*;
 import static kr.apartribebackend.article.domain.QArticle.*;
 import static kr.apartribebackend.article.domain.QBoard.*;
 import static kr.apartribebackend.category.domain.QCategory.category;
+import static kr.apartribebackend.comment.domain.QComment.*;
 import static kr.apartribebackend.likes.domain.QBoardLiked.*;
 import static kr.apartribebackend.member.domain.QMember.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -49,8 +46,26 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                                         final Pageable pageable) {
         final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
 
-        final List<Article> content = jpaQueryFactory
-                .selectFrom(article)
+        List<ArticleResponse> articleResponses = jpaQueryFactory
+                .select(
+                        new QArticleResponse(
+                                article.id,
+                                article.liked,
+                                article.saw,
+                                article.title,
+                                article.content,
+                                article.thumbnail,
+                                JPAExpressions
+                                        .select(Wildcard.count)
+                                        .from(comment)
+                                        .where(comment.board.id.eq(article.id)),
+                                article.createdAt,
+                                article.createdBy,
+                                member.profileImageUrl,
+                                article.onlyApartUser
+                        )
+                )
+                .from(article)
                 .innerJoin(article.member, member)
                 .innerJoin(article.category, category)
                 .innerJoin(member.apartment, apartment)
@@ -62,9 +77,6 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        final List<ArticleResponse> articleResponses = content.stream()
-                .map(article -> ArticleResponse.from(article, article.getMember())).toList();
 
         final JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(Wildcard.count)
@@ -507,3 +519,41 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 ////                                                comment.liked.as("likes"))))));
 ////    }
 //
+
+
+//    @Override
+//    public Page<ArticleResponse> findArticlesByCategory(final String apartId,
+//                                                        final String categoryName,
+//                                                        final Pageable pageable) {
+//        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
+//
+//        final List<Article> content = jpaQueryFactory
+//                .selectFrom(article)
+//                .innerJoin(article.member, member)
+//                .innerJoin(article.category, category)
+//                .innerJoin(member.apartment, apartment)
+//                .where(
+//                        apartmentCondition(apartId),
+//                        categoryNameEq(categoryName)
+//                )
+//                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        final List<ArticleResponse> articleResponses = content.stream()
+//                .map(article -> ArticleResponse.from(article, article.getMember())).toList();
+//
+//        final JPAQuery<Long> countQuery = jpaQueryFactory
+//                .select(Wildcard.count)
+//                .from(article)
+//                .innerJoin(article.member, member)
+//                .innerJoin(article.category, category)
+//                .innerJoin(member.apartment, apartment)
+//                .where(
+//                        apartmentCondition(apartId),
+//                        categoryNameEq(categoryName)
+//                );
+//
+//        return PageableExecutionUtils.getPage(articleResponses, pageable, countQuery::fetchOne);
+//    }
