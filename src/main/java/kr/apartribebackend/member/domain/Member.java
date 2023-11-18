@@ -41,11 +41,11 @@ public class Member extends TimeBaseEntity {
 
     @Column(name = "USER_TYPE")
     @Enumerated(EnumType.STRING)
-    private UserType userType = UserType.RESIDENT;
+    private UserType userType;
 
     @Column(name = "POSITION")
     @Enumerated(EnumType.STRING)
-    private Position position = Position.LESSEE;
+    private Position position;
 
     @Column(name = "AUTH_STATUS")
     @Enumerated(EnumType.STRING)

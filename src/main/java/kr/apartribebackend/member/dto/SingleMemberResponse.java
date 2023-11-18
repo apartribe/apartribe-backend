@@ -5,6 +5,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import kr.apartribebackend.member.domain.AuthStatus;
 import kr.apartribebackend.member.domain.Badge;
 import kr.apartribebackend.member.domain.Position;
+import kr.apartribebackend.member.domain.UserType;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ public class SingleMemberResponse {
         this.apartCode = apartCode != null ? apartCode : "EMPTY";
         this.apartName = apartName != null ? apartName : "EMPTY";
         this.badges.add(authStatus.getStatus());
-        this.badges.add(position.getName());
+        if (position != null && authStatus == AuthStatus.COMPLETED) {
+            this.badges.add(position.getName());
+        }
     }
 
 //    public static SingleMemberResponse from(Member member) {
