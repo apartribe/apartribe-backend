@@ -3,14 +3,12 @@ package kr.apartribebackend.member.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import kr.apartribebackend.member.domain.AuthStatus;
-import kr.apartribebackend.member.domain.Badge;
 import kr.apartribebackend.member.domain.Position;
 import kr.apartribebackend.member.domain.UserType;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class SingleMemberResponse {
@@ -31,7 +29,8 @@ public class SingleMemberResponse {
                                 String apartCode,
                                 String apartName,
                                 AuthStatus authStatus,
-                                Position position) {
+                                Position position,
+                                UserType userType) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;
@@ -39,8 +38,9 @@ public class SingleMemberResponse {
         this.apartCode = apartCode != null ? apartCode : "EMPTY";
         this.apartName = apartName != null ? apartName : "EMPTY";
         this.badges.add(authStatus.getStatus());
-        if (position != null && authStatus == AuthStatus.COMPLETED) {
+        if (position != null && userType != null && authStatus == AuthStatus.COMPLETED) {
             this.badges.add(position.getName());
+            this.badges.add(userType.getName());
         }
     }
 

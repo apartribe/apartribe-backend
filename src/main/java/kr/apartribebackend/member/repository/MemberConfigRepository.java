@@ -58,7 +58,8 @@ public class MemberConfigRepository {
                                 member.apartCode,
                                 member.apartName,
                                 member.authStatus,
-                                member.position
+                                member.position,
+                                member.userType
                         )
                 )
                 .from(member)
