@@ -1,9 +1,7 @@
 package kr.apartribebackend.member.principal;
 
 import kr.apartribebackend.apart.dto.ApartmentDto;
-import kr.apartribebackend.member.domain.AuthStatus;
-import kr.apartribebackend.member.domain.Member;
-import kr.apartribebackend.member.domain.MemberType;
+import kr.apartribebackend.member.domain.*;
 import kr.apartribebackend.member.dto.MemberDto;
 import kr.apartribebackend.token.refresh.dto.RefreshTokenDto;
 import lombok.Builder;
@@ -26,6 +24,8 @@ public class AuthenticatedMember implements UserDetails {
     private String profileImage;
     private AuthStatus authStatus;
     private MemberType memberType;
+    private UserType userType;
+    private Position position;
     private String apartCode;
     private String apartName;
     private RefreshTokenDto refreshTokenDto;
@@ -47,6 +47,8 @@ public class AuthenticatedMember implements UserDetails {
                                String profileImage,
                                AuthStatus authStatus,
                                MemberType memberType,
+                               UserType userType,
+                               Position position,
                                String apartCode,
                                String apartName,
                                RefreshTokenDto refreshTokenDto,
@@ -61,6 +63,8 @@ public class AuthenticatedMember implements UserDetails {
         this.profileImage = profileImage;
         this.authStatus = authStatus;
         this.memberType = memberType;
+        this.userType = userType;
+        this.position = position;
         this.apartCode = apartCode;
         this.apartName = apartName;
         this.authorities = authorities;
@@ -82,6 +86,8 @@ public class AuthenticatedMember implements UserDetails {
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
                 .authStatus(memberDto.getAuthStatus())
                 .memberType(memberDto.getMemberType())
+                .userType(memberDto.getUserType())
+                .position(memberDto.getPosition())
                 .apartCode(memberDto.getApartCode())
                 .apartName(memberDto.getApartName())
                 .build();
@@ -112,6 +118,8 @@ public class AuthenticatedMember implements UserDetails {
                 .refreshTokenDto(refreshTokenDto)
                 .authStatus(authStatus)
                 .memberType(memberType)
+                .userType(userType)
+                .position(position)
                 .apartCode(apartCode)
                 .apartName(apartName)
                 .apartmentDto(apartmentDto)
