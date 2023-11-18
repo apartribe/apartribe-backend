@@ -146,6 +146,7 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                                 .exists(),
                         announce.onlyApartUser,
                         announce.saw,
+                        member.position,
                         apartment.code))
                 .from(announce)
                 .innerJoin(announce.member, member)

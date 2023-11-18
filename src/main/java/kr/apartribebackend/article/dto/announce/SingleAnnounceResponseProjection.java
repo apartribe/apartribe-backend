@@ -3,6 +3,7 @@ package kr.apartribebackend.article.dto.announce;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import kr.apartribebackend.article.domain.Level;
+import kr.apartribebackend.member.domain.Position;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +28,7 @@ public class SingleAnnounceResponseProjection {
     private boolean memberCreated;
     private boolean onlyApartUser;
     private int saw;
+    private String position;
     @JsonIgnore private String apartCode;
 
     @QueryProjection
@@ -45,6 +47,7 @@ public class SingleAnnounceResponseProjection {
                                             boolean memberCreated,
                                             boolean onlyApartUser,
                                             int saw,
+                                            Position position,
                                             String apartCode) {
         this.id = id;
         this.createdBy = createdBy;
@@ -61,6 +64,7 @@ public class SingleAnnounceResponseProjection {
         this.memberCreated = memberCreated;
         this.onlyApartUser = onlyApartUser;
         this.saw = saw;
+        this.position = position.getName();
         this.apartCode = apartCode;
     }
 }
