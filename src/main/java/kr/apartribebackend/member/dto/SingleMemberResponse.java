@@ -19,6 +19,7 @@ public class SingleMemberResponse {
     private String profileImageUrl;
     private String apartCode;
     private String apartName;
+    private String userType;
     private List<String> badges = new ArrayList<>();
 
     @QueryProjection
@@ -40,7 +41,7 @@ public class SingleMemberResponse {
         this.badges.add(authStatus.getStatus());
         if (position != null && userType != null && authStatus == AuthStatus.COMPLETED) {
             this.badges.add(position.getName());
-            this.badges.add(userType.getName());
+            this.userType = userType.getName();
         }
     }
 
