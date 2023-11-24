@@ -7,8 +7,6 @@ import kr.apartribebackend.member.domain.Position;
 import kr.apartribebackend.member.domain.UserType;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class SingleMemberResponse {
@@ -20,7 +18,8 @@ public class SingleMemberResponse {
     private String apartCode;
     private String apartName;
     private String userType;
-    private List<String> badges = new ArrayList<>();
+    private String position;
+    private String authStatus;
 
     @QueryProjection
     public SingleMemberResponse(String email,
@@ -38,10 +37,10 @@ public class SingleMemberResponse {
         this.profileImageUrl = profileImageUrl;
         this.apartCode = apartCode != null ? apartCode : "EMPTY";
         this.apartName = apartName != null ? apartName : "EMPTY";
-        this.badges.add(authStatus.getStatus());
+        this.authStatus = authStatus.getStatus();
         if (position != null && userType != null && authStatus == AuthStatus.COMPLETED) {
-            this.badges.add(position.getName());
             this.userType = userType.getName();
+            this.position = position.getName();
         }
     }
 
