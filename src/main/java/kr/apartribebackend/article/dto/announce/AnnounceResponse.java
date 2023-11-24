@@ -2,6 +2,7 @@ package kr.apartribebackend.article.dto.announce;
 
 import com.querydsl.core.annotations.QueryProjection;
 import kr.apartribebackend.article.domain.Level;
+import kr.apartribebackend.member.domain.Position;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class AnnounceResponse {
     private String createdBy;
     private String profileImage;
     private boolean onlyApartUser;
+    private String position;
 
     @QueryProjection
     public AnnounceResponse(Long id,
@@ -34,7 +36,8 @@ public class AnnounceResponse {
                             LocalDateTime createdAt,
                             String createdBy,
                             String profileImage,
-                            boolean onlyApartUser) {
+                            boolean onlyApartUser,
+                            Position position) {
         this.id = id;
         this.level = level.getName();
         this.liked = liked;
@@ -47,6 +50,7 @@ public class AnnounceResponse {
         this.createdBy = createdBy;
         this.profileImage = profileImage;
         this.onlyApartUser = onlyApartUser;
+        this.position = position.getName();
     }
 }
 

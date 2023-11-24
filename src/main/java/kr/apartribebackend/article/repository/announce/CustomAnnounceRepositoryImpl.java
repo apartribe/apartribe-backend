@@ -63,7 +63,8 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                                 announce.createdAt,
                                 announce.createdBy,
                                 member.profileImageUrl,
-                                announce.onlyApartUser
+                                announce.onlyApartUser,
+                                member.position
                         )
                 )
                 .from(announce)
