@@ -41,7 +41,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "PARENT_ID")
     private Comment parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parent")
     @OrderBy("createdAt desc")
     private final Set<Comment> children = new HashSet<>();
 
