@@ -1,7 +1,9 @@
 package kr.apartribebackend.attachment.service;
 
-import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.repository.AttachmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +17,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service @RequiredArgsConstructor @Slf4j
+@Slf4j
+@RequiredArgsConstructor
+@Service
 public class AttachmentService {
 
-    private final AmazonS3 amazonS3Bucket;
-
+//    private final AmazonS3 amazonS3Bucket;
+    private final AmazonS3Client amazonS3Client;
     private final AttachmentRepository attachmentRepository;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -36,8 +40,11 @@ public class AttachmentService {
         metadata.setContentLength(size);
         metadata.setContentType(contentType);
 
-        amazonS3Bucket.putObject(bucketName, originalFilename, multipartFile.getInputStream(), metadata);
-        final String uploadedUrl = amazonS3Bucket.getUrl(bucketName, originalFilename).toString();
+        amazonS3Client.putObject(
+                new PutObjectRequest(bucketName, originalFilename, multipartFile.getInputStream(), metadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+        final String uploadedUrl = amazonS3Client.getUrl(bucketName, originalFilename).toString();
 
         return createAttachment(originalFilename, extractedExt, contentType, uploadedUrl);
     }
@@ -73,6 +80,5 @@ public class AttachmentService {
     public List<Attachment> saveAttachments(List<Attachment> attachments) {
         return attachmentRepository.saveAll(attachments);
     }
-
 
 }
