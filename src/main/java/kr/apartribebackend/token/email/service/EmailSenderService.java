@@ -51,11 +51,11 @@ public class EmailSenderService {
     private String buildEmail(String code) {
         return "<table style=\"width: 100%; max-width: 600px; margin: 0 auto;\">\n" +
                 "    <tr>\n" +
-                "        <td style=\"text-align: center; background-color: #f5f5f5; padding-bottom: 50px; border-radius: 10px;\">\n" +
-                "            <img src=\"https://res.cloudinary.com/dh6tdcdyj/image/upload/v1685938086/logoBg_lmdhiz.png\" alt=\"로고 이미지\" style=\" border-radius: 10px; margin-bottom:30px\">\n" +
-                "            <p style=\"font-size:20px; line-height:50px; color: #148888; font-weight:900;\">다음 인증코드를 사이트의 입력란에 입력해주세요.</p>\n" +
-                "            <p>인증코드 : <span style=\"font-size:20px; line-height:50px; color: #148888; font-weight:900;\">" + code + "</span></p>\n" +
-                "            <p style=\"font-size:20px; line-height:50px; color: #148888; font-weight:900;\">본 인증 코드는 발급 기준 3분뒤 만기됩니다.</p>\n" +
+                "        <td style=\"text-align: center; background-color: #ffffff; padding-bottom: 50px; border-radius: 10px;\">\n" +
+                "            <img src=\"https://res.cloudinary.com/dh6tdcdyj/image/upload/v1700832480/logo_header_gradation_djjluz.png\" alt=\"로고 이미지\" style=\" border-radius: 25px; margin-bottom:30px\">\n" +
+                "            <p style=\"font-size:20px; line-height:50px; color: #1A2A3A; font-weight:900;\">다음 인증코드를 사이트의 입력란에 입력해주세요.</p>\n" +
+                "            <p>인증코드 : <span style=\"font-size:20px; line-height:50px; color: #1A2A3A; font-weight:900;\">" + code + "</span></p>\n" +
+                "            <p style=\"font-size:20px; line-height:50px; color: #1A2A3A; font-weight:900;\">본 인증 코드는 발급 기준 3분뒤 만기됩니다.</p>\n" +
                 "            <br/>\n" +
                 "        </td>\n" +
                 "    </tr>\n" +
