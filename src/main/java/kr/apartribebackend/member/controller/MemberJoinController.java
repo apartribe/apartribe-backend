@@ -23,6 +23,7 @@ import kr.apartribebackend.token.email.repository.EmailTokenRepository;
 import kr.apartribebackend.token.email.service.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/auth")
 public class MemberJoinController {
 
+    @Value("${application.frontend.redirect-uri}") private String frontendUri;
     private final EmailTokenRepository emailTokenRepository;
     private final MemberRepository memberRepository;
     private final AgreementsRepository agreementsRepository;
@@ -148,7 +150,7 @@ public class MemberJoinController {
                         )
                 );
         final String uriString = UriComponentsBuilder
-                .fromUriString("http://apartribe-frontend.s3-website.ap-northeast-2.amazonaws.com")
+                .fromUriString(frontendUri)
                 .path("find/pw/reset")
                 .queryParam("identifier", identifier)
                 .toUriString();
