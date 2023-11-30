@@ -7,10 +7,14 @@ import java.util.Map;
 
 public class NaverUserInfo extends DefaultOAuth2UserInfo {
 
-    private Map<String, Object> attributes = getAttributes();
+    private Map<String, Object> attributes;
 
     public NaverUserInfo(OAuth2User oAuth2User) {
         super(oAuth2User);
+        Object naverAttributes = oAuth2User.getAttributes().get("response");
+        if (naverAttributes instanceof Map) {
+            this.attributes = (Map<String, Object>) naverAttributes;
+        }
     }
 
     @Override
@@ -20,26 +24,26 @@ public class NaverUserInfo extends DefaultOAuth2UserInfo {
 
     @Override
     public String getName() {
-        return null;
+        return String.valueOf(attributes.get("name"));
     }
 
     @Override
     public String getNickname() {
-        return null;
+        return String.valueOf(attributes.get("nickname"));
     }
 
     @Override
     public String getEmail() {
-        return null;
+        return String.valueOf(attributes.get("email"));
     }
 
     @Override
     public String getPassword() {
-        return null;
+        return String.valueOf(attributes.get("id"));
     }
 
     @Override
     public String getProfileImage() {
-        return null;
+        return String.valueOf(attributes.get("profile_image"));
     }
 }
