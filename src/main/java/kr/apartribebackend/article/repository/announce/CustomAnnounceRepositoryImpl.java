@@ -217,49 +217,4 @@ public class CustomAnnounceRepositoryImpl implements CustomAnnounceRepository {
                 .or(announce.floatFrom.before(floatFrom).and(announce.floatTo.after(floatTo)));
     }
 
-//    private OrderSpecifier[] createOrderSpecifier(Pageable pageable) {
-//        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-//
-//        orderSpecifiers.add(new OrderSpecifier(Order.DESC, person.name));
-//        orderSpecifiers.add(new OrderSpecifier(Order.DESC, person.region));
-//
-//        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
-//    }
-
-
-//    @Override
-//    public Page<AnnounceResponse> findAnnouncesByLevel(final String apartId,
-//                                                       final Level level,
-//                                                       final Pageable pageable) {
-//        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
-//
-//        final List<Announce> announces = jpaQueryFactory
-//                .selectFrom(announce)
-//                .innerJoin(announce.member, member).fetchJoin()
-//                .innerJoin(member.apartment, apartment).fetchJoin()
-//                .where(
-//                        apartmentCondition(apartId),
-//                        levelCondition(level)
-//                )
-//                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        final List<AnnounceResponse> contents = announces.stream()
-//                .map(announce -> AnnounceResponse.from(announce, announce.getMember())).toList();
-//
-//        final JPAQuery<Long> countQuery = jpaQueryFactory
-//                .select(Wildcard.count)
-//                .from(announce)
-//                .innerJoin(announce.member, member)
-//                .innerJoin(member.apartment, apartment)
-//                .where(
-//                        apartmentCondition(apartId),
-//                        levelCondition(level)
-//                );
-//
-//        return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
-//    }
-
 }

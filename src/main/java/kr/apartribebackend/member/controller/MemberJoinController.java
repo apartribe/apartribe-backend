@@ -36,7 +36,6 @@ import java.util.UUID;
 import static kr.apartribebackend.member.domain.MemberType.*;
 import static org.springframework.http.HttpStatus.CREATED;
 
-// TODO 생각보다 코드의 양이 많음. 따라서 Service 계층으로 분리시킬 필요가 있음.
 @Slf4j
 @RequiredArgsConstructor
 @RestController
