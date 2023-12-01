@@ -81,20 +81,3 @@ public class ArticleDto {
     }
 
 }
-
-//    public Article toEntity(Member member) {
-//        return Article.builder()
-//                .id(id)
-//                .title(title)
-//                .content(content)
-//                .liked(liked)
-//                .saw(saw)
-//                .category(category)
-//                .member(member)
-//                .createdAt(createdAt)
-//                .createdBy(createdBy)
-//                .thumbnail(thumbnail)
-//                .build();
-//    }
-
-

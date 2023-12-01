@@ -4,7 +4,6 @@ import jakarta.validation.constraints.*;
 import kr.apartribebackend.member.dto.agreements.AgreementsDto;
 import org.springframework.util.StringUtils;
 
-// TODO profileImageUrl 악의적인 문자를 필터링해야 한다.
 public record MemberJoinReq(
         @NotEmpty(message = "이메일은 공백일 수 없습니다") @Email(message = "이메일 형식이 맞지 않습니다") String email,
         @NotEmpty(message = "인증코드는 공백일 수 없습니다") String code,

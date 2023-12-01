@@ -202,11 +202,6 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
                         OrderSpecifier<?> liked = QueryDslUtil.getSortedColumn(direction, together, "liked");
                         ORDERS.add(liked);
                         break;
-//                    case "recruitStatus":
-//                        OrderSpecifier<?> recruitStatus = QueryDslUtil.getSortedColumn(direction, together, "recruitStatus");
-//                        OrderSpecifier<?> recruitStatus = QueryDslUtil.getSortedColumn(direction, together, "recruitStatus");
-//                        ORDERS.add(recruitStatus);
-//                        break;
                     default:
                         OrderSpecifier<?> createdAt = QueryDslUtil.getSortedColumn(direction, together, "createdAt");
                         ORDERS.add(createdAt);
@@ -218,39 +213,3 @@ public class CustomTogetherRepositoryImpl implements CustomTogetherRepository{
     }
 
 }
-
-//    @Override
-//    public Page<TogetherResponse> findMultipleTogethersByCategory(final String apartId,
-//                                                                  final String categoryName,
-//                                                                  final Pageable pageable) {
-//        final List<OrderSpecifier> ORDERS = getAllOrderSpecifiers(pageable);
-//
-//        final List<Together> content = jpaQueryFactory
-//                .selectFrom(together)
-//                .innerJoin(together.member, member)
-//                .innerJoin(together.category, category)
-//                .innerJoin(member.apartment, apartment)
-//                .where(
-//                        apartmentCondition(apartId),
-//                        categoryNameEq(categoryName)
-//                )
-//                .orderBy(ORDERS.toArray(OrderSpecifier[]::new))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        final List<TogetherResponse> togetherResponses = content.stream().map(TogetherResponse::from).toList();
-//
-//        final JPAQuery<Long> countQuery = jpaQueryFactory
-//                .select(Wildcard.count)
-//                .from(together)
-//                .innerJoin(together.member, member)
-//                .innerJoin(member.apartment, apartment)
-//                .innerJoin(together.category, category)
-//                .where(
-//                        apartmentCondition(apartId),
-//                        categoryNameEq(categoryName)
-//                );
-//
-//        return PageableExecutionUtils.getPage(togetherResponses, pageable, countQuery::fetchOne);
-//    }

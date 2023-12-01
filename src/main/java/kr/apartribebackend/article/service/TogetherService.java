@@ -200,12 +200,3 @@ public class TogetherService {
         boardRepository.delete(findedTogether);
     }
 }
-
-
-//    @Transactional
-//    public SingleTogetherResponse findSingleTogetherById(final String apartId,
-//                                                         final Long togetherId) {
-//        return togetherRepository.findTogetherForApartId(apartId, togetherId)
-//                .map(together -> SingleTogetherResponse.from(together, together.getMember()))
-//                .orElseThrow(ArticleNotFoundException::new);
-//    }

@@ -129,17 +129,3 @@ public class CommentController {
     }
 
 }
-
-//    @ApartUser(checkApartment = false)
-//    @GetMapping("/api/{apartId}/{boardId}/comment")
-//    public APIResponse<PageResponse<CommentRes>> findCommentsByBoardId(
-//            @PathVariable final String apartId,
-//            @PathVariable final Long boardId,
-//            @PageableDefault final Pageable pageable,
-//            @AuthenticationPrincipal final AuthenticatedMember authenticatedMember) {
-//        final Page<CommentRes> commentsByBoardId = commentService
-//                .findCommentsByBoardId(authenticatedMember.toDto(), boardId, pageable);
-//        final PageResponse<CommentRes> pageResponse = PageResponse.from(commentsByBoardId);
-//        final APIResponse<PageResponse<CommentRes>> apiResponse = APIResponse.SUCCESS(pageResponse);
-//        return apiResponse;
-//    }

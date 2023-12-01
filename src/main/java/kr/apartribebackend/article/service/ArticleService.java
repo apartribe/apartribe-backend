@@ -232,15 +232,3 @@ public class ArticleService {
     }
 
 }
-
-//    public void removeArticle(final Board board) {
-//        final List<Comment> comments = commentRepository.findCommentsForBoard(board);
-//        final List<Comment> children = comments.stream()
-//                .filter(comment -> !comment.getChildren().isEmpty())
-//                .flatMap(comment -> comment.getChildren().stream())
-//                .toList();
-//
-//        commentRepository.deleteAllInBatch(children);
-//        commentRepository.deleteAllInBatch(comments);
-//        boardRepository.delete(board);
-//    }

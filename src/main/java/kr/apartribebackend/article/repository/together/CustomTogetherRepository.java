@@ -1,7 +1,6 @@
 package kr.apartribebackend.article.repository.together;
 
 import kr.apartribebackend.article.domain.Together;
-import kr.apartribebackend.article.dto.announce.SingleAnnounceResponseProjection;
 import kr.apartribebackend.article.dto.together.SingleTogetherResponseProjection;
 import kr.apartribebackend.article.dto.together.TogetherResponse;
 import kr.apartribebackend.article.exception.ArticleNotFoundException;

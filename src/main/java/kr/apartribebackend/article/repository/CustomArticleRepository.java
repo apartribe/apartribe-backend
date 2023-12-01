@@ -1,6 +1,5 @@
 package kr.apartribebackend.article.repository;
 
-import com.querydsl.core.Tuple;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.dto.*;
 import kr.apartribebackend.article.dto.SingleArticleResponseProjection;
@@ -12,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
-
-import static kr.apartribebackend.apart.domain.QApartment.*;
 
 
 public interface CustomArticleRepository {

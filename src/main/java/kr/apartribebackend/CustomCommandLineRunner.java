@@ -2,12 +2,10 @@ package kr.apartribebackend;
 
 import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.apart.repository.ApartmentRepository;
-import kr.apartribebackend.article.domain.*;
 import kr.apartribebackend.category.domain.ArticleCategory;
 import kr.apartribebackend.category.domain.Category;
 import kr.apartribebackend.category.domain.TogetherCategory;
 import kr.apartribebackend.category.repository.CategoryRepository;
-import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.member.domain.Member;
 import kr.apartribebackend.member.domain.MemberType;
 import kr.apartribebackend.member.domain.Position;
@@ -20,12 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -116,144 +110,6 @@ public class CustomCommandLineRunner implements CommandLineRunner {
                 .apartment(apartment)
                 .name(name)
                 .build();
-    }
-
-    private static Announce createAnnounce(Member member,
-                                           Level level,
-                                           String title,
-                                           String content,
-                                           String thumbnail,
-                                           LocalDate floatFrom,
-                                           LocalDate floatTo) {
-        return Announce.builder()
-                .member(member)
-                .level(level)
-                .title(title)
-                .content(content)
-                .thumbnail(thumbnail)
-                .floatFrom(floatFrom)
-                .floatTo(floatTo)
-                .build();
-    }
-
-    private static List<Announce> createAnnounces(Integer count,
-                                                  Member member,
-                                                  Level level,
-                                                  String title,
-                                                  String content,
-                                                  String thumbnail) {
-        LocalDate now = LocalDate.now();
-        LocalDate to = LocalDate.parse(String.format("%s-%s-%s", now.getYear(), now.getMonthValue(), 30));
-        DecimalFormat decimalFormat = new DecimalFormat("00");
-        return IntStream.rangeClosed(1, count)
-                .mapToObj(integer ->
-                        createAnnounce(member,
-                                level,
-                                title + " " + integer,
-                                content + integer + " " + integer,
-                                thumbnail,
-                                LocalDate.parse(String.format("%s-%s-%s", now.getYear(), now.getMonthValue(), decimalFormat.format(integer))),
-                                to
-                        )
-                )
-                .collect(Collectors.toList());
-    }
-
-    private static Article createArticle(Member member, ArticleCategory category, String title, String content, String thumbnail) {
-        return Article.builder()
-                .member(member)
-                .category(category)
-                .title(title)
-                .content(content)
-                .thumbnail(thumbnail)
-                .build();
-    }
-
-    private static List<Article> createArticles(Integer count, Member member, ArticleCategory category, String title, String content, String thumbnail) {
-        return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createArticle(member, category, title + " " + integer, content + integer + " " + integer, thumbnail))
-                .collect(Collectors.toList());
-    }
-
-    private static Comment createComment(Member member, Board board, String content, Comment parent) {
-        Comment comment = Comment.builder()
-                .member(member)
-                .board(board)
-                .content(content)
-                .build();
-        if (parent != null)
-            comment.registParent(parent);
-        return comment;
-    }
-
-    private static List<Comment> createComments(Integer count, Member member, Board board, String content, Comment parent) {
-        return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createComment(member, board, content + " " + integer, null))
-                .collect(Collectors.toList());
-    }
-
-    private static Together createTogether(Member member,
-                                           String title,
-                                           String content,
-                                           TogetherCategory category,
-                                           String description,
-                                           LocalDate recruitFrom,
-                                           LocalDate recruitTo,
-                                           RecruitStatus recruitStatus,
-                                           String meetTime,
-                                           String location,
-                                           boolean contributeStatus,
-                                           String target,
-                                           String thumbnail) {
-        return Together.builder()
-                .member(member)
-                .title(title)
-                .content(content)
-                .category(category)
-                .description(description)
-                .recruitFrom(recruitFrom)
-                .recruitTo(recruitTo)
-                .recruitStatus(recruitStatus)
-                .meetTime(meetTime)
-                .location(location)
-                .contributeStatus(contributeStatus)
-                .target(target)
-                .thumbnail(thumbnail)
-                .build();
-    }
-
-    private static List<Together> createTogethers(Integer count,
-                                                  Member member,
-                                                  String title,
-                                                  String content,
-                                                  TogetherCategory category,
-                                                  String description,
-                                                  LocalDate recruitFrom,
-                                                  LocalDate recruitTo,
-                                                  RecruitStatus recruitStatus,
-                                                  String meetTime,
-                                                  String location,
-                                                  boolean contributeStatus,
-                                                  String target,
-                                                  String thumbnail) {
-        return IntStream.rangeClosed(0, count)
-                .mapToObj(integer -> createTogether(
-                        member,
-                        title + " " + integer,
-                        content + integer + " " + integer,
-                        category,
-                        description,
-                        recruitFrom,
-                        recruitTo,
-                        recruitStatus,
-                        meetTime,
-                        location,
-                        contributeStatus,
-                        target,
-                        thumbnail
-                        )
-                )
-                .collect(Collectors.toList());
     }
 
 }

@@ -61,25 +61,6 @@ public class Attachment {
         return Objects.hash(id);
     }
 
-    //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "ARTICLE_ID")
-//    private Article article;
-
-//    @Builder
-//    public Attachment(Long id,
-//                      String fileName,
-//                      String contentType,
-//                      String uploadPath,
-//                      String extension,
-//                      Article article) {
-//        this.id = id;
-//        this.fileName = fileName;
-//        this.contentType = contentType;
-//        this.uploadPath = uploadPath;
-//        this.extension = extension;
-//        this.article = article;
-//    }
-
     /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
 
     public void registBoard(Board board) {
@@ -88,13 +69,5 @@ public class Attachment {
         this.board = board;
         board.getAttachments().add(this);
     }
-
-//    public void registArticle(Article article) {
-//        this.article = article;
-//    }
-
-//    public void registBoard(Board board) {
-//        this.board = board;
-//    }
 
 }

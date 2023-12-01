@@ -3,7 +3,6 @@ package kr.apartribebackend.article.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
