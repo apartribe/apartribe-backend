@@ -126,10 +126,3 @@ public class MemberConfigService {
     }
 
 }
-
-//        List<Comment> commentsInBoards = commentRepository.findCommentsInBoardIds(boardIdsForMember);
-//        List<Long> parentCommentIdsForBoard = commentsInBoards.stream().filter(comment -> comment.getParent() == null).map(Comment::getId).toList();
-//        List<Long> childCommentIdsForBoard = commentsInBoards.stream().filter(comment -> !parentCommentIdsForBoard.contains(comment)).map(Comment::getId).toList();
-//        commentRepository.deleteCommentsUsingCommentIds(childCommentIdsForBoard);
-//        commentRepository.deleteCommentsUsingCommentIds(parentCommentIdsForBoard);
-//        boardRepository.deleteBoardsUsingBoardIds(boardIdsForMember);

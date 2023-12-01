@@ -1,7 +1,6 @@
 package kr.apartribebackend.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.apartribebackend.apart.domain.Apartment;
 import kr.apartribebackend.article.domain.Announce;
 import kr.apartribebackend.article.domain.Article;
 import kr.apartribebackend.article.domain.Board;

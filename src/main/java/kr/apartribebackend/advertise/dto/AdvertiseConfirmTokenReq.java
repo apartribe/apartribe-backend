@@ -2,9 +2,6 @@ package kr.apartribebackend.advertise.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import kr.apartribebackend.advertise.domain.AdvertiseTokenStatus;
-
-import java.util.UUID;
 
 public record AdvertiseConfirmTokenReq(
         @NotEmpty(message = "이름은 공백일 수 없습니다") String name,

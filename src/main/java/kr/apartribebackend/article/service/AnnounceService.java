@@ -10,8 +10,6 @@ import kr.apartribebackend.article.exception.CantDeleteBoardCauseInvalidMemberEx
 import kr.apartribebackend.article.exception.CantUpdateBoardCauseInvalidMemberException;
 import kr.apartribebackend.article.repository.BoardRepository;
 import kr.apartribebackend.article.repository.announce.AnnounceRepository;
-import kr.apartribebackend.attachment.domain.Attachment;
-import kr.apartribebackend.attachment.service.AttachmentService;
 import kr.apartribebackend.comment.domain.Comment;
 import kr.apartribebackend.comment.repository.CommentRepository;
 import kr.apartribebackend.likes.domain.BoardLiked;
@@ -28,9 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Transactional
@@ -196,14 +192,3 @@ public class AnnounceService {
     }
 
 }
-
-//    public void appendArticle(final AnnounceDto announceDto,
-//                              final MemberDto memberDto,
-//                              final List<MultipartFile> file) throws IOException {
-//        final Announce announce = appendArticle(announceDto, memberDto);
-//        final List<Attachment> attachments = attachmentService.saveFiles(file);
-//        for (Attachment attachment : attachments) {
-//            attachment.registBoard(announce);
-//        }
-//        attachmentService.saveAttachments(attachments);
-//    }

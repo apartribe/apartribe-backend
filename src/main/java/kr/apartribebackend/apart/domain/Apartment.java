@@ -49,13 +49,4 @@ public class Apartment extends BaseEntity {
         return Objects.hash(id);
     }
 
-    /////////////////////////////// BUSINESS LOGIC ///////////////////////////////
-
-//    public void addMember(Member member) {
-//        if (member.getApartment() != this) {
-//            member.changeApartment(this);
-//        }
-//        this.members.add(member);
-//    }
-
 }

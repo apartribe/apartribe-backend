@@ -142,7 +142,6 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                 .innerJoin(comment.board, board).fetchJoin()
                 .innerJoin(member.apartment, apartment).fetchJoin()
                 .where(
-//                        apartmentCondition(apartId),
                         board.id.eq(boardId),
                         comment.id.eq(commentId)
                 )
@@ -156,52 +155,3 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
     }
 
 }
-
-//    @Override
-//    public Page<CommentRes> findCommentsByBoardId(final Long memberId,
-//                                                  final Long boardId,
-//                                                  final Pageable pageable) {
-//        final List<Comment> commentLists = jpaQueryFactory
-//                .selectFrom(comment)
-//                .leftJoin(comment.parent).fetchJoin()
-//                .where(comment.board.id.eq(boardId))
-//                .orderBy(comment.parent.id.asc().nullsFirst(),
-//                        comment.createdAt.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        List<Long> commentIds = commentLists.stream().map(Comment::getId).toList();
-//        List<CommentLikedWithCommentAndMember> commentLikedWithCommentAndMembers = jpaQueryFactory
-//                .select(Projections.fields(CommentLikedWithCommentAndMember.class,
-//                        comment.id.as("commentId"),
-//                        member.id.as("memberId")))
-//                .from(commentLiked)
-//                .innerJoin(commentLiked.comment, comment)
-//                .innerJoin(commentLiked.member, member)
-//                .where(
-//                        comment.id.in(commentIds),
-//                        member.id.eq(memberId)
-//                )
-//                .fetch();
-//
-//        List<CommentRes> commentResList = new ArrayList<>();
-//        Map<Long, CommentRes> map = new HashMap<>();
-//        commentLists.forEach(c -> {
-//            CommentRes commentRes = CommentRes.from(c, commentLikedWithCommentAndMembers);
-//            map.put(commentRes.getId(), commentRes);
-//            if (c.getParent() != null) {
-//                map.get(c.getParent().getId()).getChildren().add(commentRes);
-//            } else {
-//                commentResList.add(commentRes);
-//            }
-//        });
-//
-//        final JPAQuery<Long> countQuery = jpaQueryFactory
-//                .select(Wildcard.count)
-//                .from(comment)
-//                .leftJoin(comment.parent)
-//                .where(comment.board.id.eq(boardId));
-//
-//        return PageableExecutionUtils.getPage(commentResList, pageable, countQuery::fetchOne);
-//    }
