@@ -1,9 +1,7 @@
 package kr.apartribebackend.attachment.controller;
 
-import kr.apartribebackend.article.service.AnnounceService;
 import kr.apartribebackend.attachment.domain.Attachment;
 import kr.apartribebackend.attachment.service.AttachmentService;
-import kr.apartribebackend.global.annotation.ApartUser;
 import kr.apartribebackend.global.dto.APIResponse;
 import kr.apartribebackend.member.principal.AuthenticatedMember;
 import lombok.RequiredArgsConstructor;
@@ -23,15 +21,14 @@ public class AttachmentController {
 
     private final AttachmentService attachmentService;
 
-    @ApartUser
-    @PostMapping(value = "/api/{apartId}/attach")
+    @PostMapping("/api/{apartId}/attach")
     public APIResponse<List<String>> attachmentToAWS(
             @PathVariable final String apartId,
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
             @RequestParam final List<MultipartFile> file) throws IOException
     {
-        List<String> uploadPaths = attachmentService.saveFiles(file).stream().map(Attachment::getUploadPath).toList();
-        APIResponse<List<String>> apiResponse = APIResponse.SUCCESS(uploadPaths);
+        final List<String> uploadPaths = attachmentService.saveFiles(file).stream().map(Attachment::getUploadPath).toList();
+        final APIResponse<List<String>> apiResponse = APIResponse.SUCCESS(uploadPaths);
         return apiResponse;
     }
 }
