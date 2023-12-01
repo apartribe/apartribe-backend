@@ -81,7 +81,7 @@ public class CommentController {
         return apiResponse;
     }
 
-    @ApartUser
+    @ApartUser(checkApartment = false)
     @PutMapping("/api/{apartId}/{boardId}/comment")
     public APIResponse<SingleCommentResponse> updateComment(
             @AuthenticationPrincipal final AuthenticatedMember authenticatedMember,
@@ -97,7 +97,7 @@ public class CommentController {
         return apiResponse;
     }
 
-    @ApartUser
+    @ApartUser(checkApartment = false)
     @DeleteMapping("/api/{apartId}/{boardId}/{commentId}/comment")
     public void deleteComment(
             @PathVariable final String apartId,

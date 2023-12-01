@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class CommentService {
@@ -31,7 +31,6 @@ public class CommentService {
     private final LikeService likeService;
     private final CommentLikedRepository commentLikedRepository;
 
-    @Transactional
     public CommentDto appendCommentToBoard(final String apartCode,
                                            final MemberDto memberDto,
                                            final Long boardId,
@@ -49,7 +48,6 @@ public class CommentService {
         return CommentDto.from(savedComment, memberDto.toEntity());
     }
 
-    @Transactional
     public CommentDto appendCommentReplyToBoard(final MemberDto memberDto,
                                                 final Long boardId,
                                                 final Long parentId,
@@ -85,7 +83,6 @@ public class CommentService {
         return commentRepository.totalCountsForBoardComments(memberDto.getId(), boardId);
     }
 
-    @Transactional
     public CommentDto updateCommentForBoard(final MemberDto memberDto,
                                             final Long boardId,
                                             final CommentDto commentDto) {
@@ -101,7 +98,6 @@ public class CommentService {
         return CommentDto.from(updatedComment, commentMember);
     }
 
-    @Transactional
     public CommentLikedRes updateLikeByCommentId(final MemberDto memberDto,
                                                  final String apartId,
                                                  final Long boardId,
@@ -122,7 +118,6 @@ public class CommentService {
         return likeService.increaseLikesToComment(memberDto.toEntity(), comment);
     }
 
-    @Transactional
     public void deleteCommentForBoard(final MemberDto memberDto, final Long boardId, final Long commentId) {
         final Comment boardComment = commentRepository.findCommentWithBoardByBoardIdAndCommentId(boardId, commentId)
                 .orElseThrow(CannotDeleteCommentException::new);
