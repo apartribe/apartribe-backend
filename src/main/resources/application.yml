@@ -98,6 +98,11 @@ application:
 logging:
   level:
     sql: debug
+    org:
+      apache:
+        coyote:
+          http11:
+            debug
 
 cloud:
   aws:
