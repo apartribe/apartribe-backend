@@ -1,19 +1,15 @@
 package kr.apartribebackend.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.apartribebackend.global.filter.DelegatingRedirectUrlFilter;
 import kr.apartribebackend.global.filter.JsonLoginAuthenticationFilter;
 import kr.apartribebackend.global.filter.JwtExceptionTranslationFilter;
 import kr.apartribebackend.global.filter.JwtValidationFilter;
 import kr.apartribebackend.global.handler.JsonLoginFailureHandler;
 import kr.apartribebackend.global.handler.JsonLoginSuccessHandler;
 import kr.apartribebackend.global.handler.JwtAuthenticationEntryPoint;
-import kr.apartribebackend.global.handler.OAuth2SuccessHandler;
 import kr.apartribebackend.global.provider.JsonLoginAuthenticationProvider;
 import kr.apartribebackend.global.service.JsonLoginUserDetailsService;
 import kr.apartribebackend.global.service.JwtService;
-import kr.apartribebackend.global.service.OAuth2UserService;
-import kr.apartribebackend.global.utils.ClientRedirectUrlHolder;
 import kr.apartribebackend.member.repository.MemberRepository;
 import kr.apartribebackend.token.refresh.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,17 +70,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .anyRequest().permitAll())
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService()))
-                        .successHandler(OAuth2SuccessHandler()))
-                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
-                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
+//                .oauth2Login(oauth2 -> oauth2
+//                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService()))
+//                        .successHandler(OAuth2SuccessHandler()))
+//                .addFilterAfter(delegatingRedirectUrlFilter(), LogoutFilter.class)
+//                .addFilterAfter(jwtExceptionTranslationFilter(), DelegatingRedirectUrlFilter.class)
+//                .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
+//                .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
+//                .build();
+                .oauth2Login(AbstractHttpConfigurer::disable)
+                .addFilterAfter(jwtExceptionTranslationFilter(), LogoutFilter.class)
                 .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
                 .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
                 .build();
-//                .addFilterAfter(jwtExceptionTranslationFilter(), LogoutFilter.class)
-//                .addFilterAfter(jwtValidationFilter(), JwtExceptionTranslationFilter.class)
-//                .addFilterAfter(jsonLoginAuthenticationFilter(), JwtValidationFilter.class)
     }
 
     @Bean
@@ -92,16 +90,16 @@ public class SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
-    public ClientRedirectUrlHolder clientRedirectUrlHolder() { return new ClientRedirectUrlHolder(); }
+//    @Bean
+//    public ClientRedirectUrlHolder clientRedirectUrlHolder() { return new ClientRedirectUrlHolder(); }
 
-    @Bean
-    public DelegatingRedirectUrlFilter delegatingRedirectUrlFilter() {
-        final DelegatingRedirectUrlFilter delegatingRedirectUrlFilter =
-                new DelegatingRedirectUrlFilter(clientRedirectUrlHolder());
-        delegatingRedirectUrlFilter.setOauth2RedirectPaths(Set.of("/oauth2/authorization/kakao"));
-        return delegatingRedirectUrlFilter;
-    }
+//    @Bean
+//    public DelegatingRedirectUrlFilter delegatingRedirectUrlFilter() {
+//        final DelegatingRedirectUrlFilter delegatingRedirectUrlFilter =
+//                new DelegatingRedirectUrlFilter(clientRedirectUrlHolder());
+//        delegatingRedirectUrlFilter.setOauth2RedirectPaths(Set.of("/oauth2/authorization/kakao"));
+//        return delegatingRedirectUrlFilter;
+//    }
 
     @Bean
     public JwtExceptionTranslationFilter jwtExceptionTranslationFilter() {
@@ -161,13 +159,13 @@ public class SecurityConfig {
         return jwtAuthenticationEntryPoint;
     }
 
-    @Bean
-    public AuthenticationSuccessHandler OAuth2SuccessHandler() {
-        return new OAuth2SuccessHandler(clientRedirectUrlHolder(), jwtService);
-    }
+//    @Bean
+//    public AuthenticationSuccessHandler OAuth2SuccessHandler() {
+//        return new OAuth2SuccessHandler(clientRedirectUrlHolder(), jwtService);
+//    }
 
-    @Bean
-    public OAuth2UserService oAuth2UserService() { return new OAuth2UserService(memberRepository, passwordEncoder()); }
+//    @Bean
+//    public OAuth2UserService oAuth2UserService() { return new OAuth2UserService(memberRepository, passwordEncoder()); }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
